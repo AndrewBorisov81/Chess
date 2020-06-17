@@ -26,12 +26,22 @@ enum class ZOrderGame
 
 #include "cocos2d.h"
 
+class Board;
+
 class GameLayer : public cocos2d::Layer
 {
 public:
-
   GameLayer();
   virtual ~GameLayer();
 
   virtual bool init();
+
+private:
+  Board* m_board{ nullptr };
+
+  cocos2d::Size m_screenSize{ 0.0f, 0.0f };
+  cocos2d::Size m_cellSize{ 0.0f, 0.0f };
+  cocos2d::Size m_gridSize{ 0.0f, 0.0f };
+
+  Board* createBoard();
 };
