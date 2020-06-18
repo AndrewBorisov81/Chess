@@ -29,6 +29,7 @@ bool GameLayer::init()
   Board* board = createBoard();
   this->addChild(board, static_cast<int>(ZOrderGame::BOARD));
   m_board = board;
+  board->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
  
   return true;
 }
