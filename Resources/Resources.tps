@@ -194,8 +194,8 @@
         </struct>
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
-            <key type="filename">C:/Users/Andrew/Desktop/Chess/Chess-master/Images/BlackHorse.png</key>
-            <key type="filename">C:/Users/Andrew/Desktop/Chess/Chess-master/Images/ChessBoard.jpg</key>
+            <key type="filename">C:/Users/Andrew/Desktop/CHESS/Images/blackHorse.png</key>
+            <key type="filename">C:/Users/Andrew/Desktop/CHESS/Images/chessBoard.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -203,8 +203,8 @@
         </map>
         <key>fileList</key>
         <array>
-            <filename>C:/Users/Andrew/Desktop/Chess/Chess-master/Images/ChessBoard.jpg</filename>
-            <filename>C:/Users/Andrew/Desktop/Chess/Chess-master/Images/BlackHorse.png</filename>
+            <filename>C:/Users/Andrew/Desktop/CHESS/Images/blackHorse.png</filename>
+            <filename>C:/Users/Andrew/Desktop/CHESS/Images/chessBoard.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

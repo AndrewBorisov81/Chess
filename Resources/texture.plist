@@ -4,7 +4,7 @@
     <dict>
         <key>frames</key>
         <dict>
-            <key>BlackHorse.png</key>
+            <key>blackHorse.png</key>
             <dict>
                 <key>aliases</key>
                 <array/>
@@ -19,7 +19,7 @@
                 <key>textureRotated</key>
                 <false/>
             </dict>
-            <key>ChessBoard.jpg</key>
+            <key>chessBoard.png</key>
             <dict>
                 <key>aliases</key>
                 <array/>
@@ -48,7 +48,7 @@
             <key>size</key>
             <string>{1254,1000}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:75eecc82904c0d162bbd6f169cd66255:7028b85593b8bc4751ace64997223e72:ef86396999e18097aad14daa6638d5f9$</string>
+            <string>$TexturePacker:SmartUpdate:9aeddbcc7cb821a1e83d7ad6fbc6bec3:203fffc078c4779796e8fcb64496d2db:ef86396999e18097aad14daa6638d5f9$</string>
             <key>textureFileName</key>
             <string>texture.png</string>
         </dict>
