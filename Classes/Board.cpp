@@ -27,7 +27,6 @@ bool Board::init()
   auto boardSprite = Sprite::createWithSpriteFrameName(Constants::BOARD_PNG);
   Size boardSize = boardSprite->getContentSize();
   m_boardSize = boardSize;
-  //boardSprite->setPosition(Vec2(boardSize.width, boardSize.height - 200));
   this->addChild(boardSprite, 1);
 
   DrawNode *drawnode = DrawNode::create();
