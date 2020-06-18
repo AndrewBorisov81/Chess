@@ -9,4 +9,6 @@ public:
   virtual ~Board();
 
   virtual bool init();
+
+  cocos2d::Size m_boardSize;
 };
