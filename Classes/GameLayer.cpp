@@ -1,5 +1,7 @@
 #include "GameLayer.h"
 #include "Board.h"
+#include "Grid.h"
+#include "Constants.h"
 
 USING_NS_CC;
 
@@ -30,6 +32,11 @@ bool GameLayer::init()
   this->addChild(board, static_cast<int>(ZOrderGame::BOARD));
   m_board = board;
   board->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
+
+  // Create Grid
+  Grid* grid = createGrid(Constants::CELL_SIZE, Constants::ROWS, Constants::COLUMNS);
+  board->addChild(grid, static_cast<int>(ZOrderGame::GRID));
+  m_grid = grid;
  
   return true;
 }
@@ -46,6 +53,22 @@ Board* GameLayer::createBoard()
   {
     delete pBoard;
     pBoard = nullptr;
+    return nullptr;
+  }
+}
+
+Grid* GameLayer::createGrid(float cellSize, int rows, int columns)
+{
+  Grid* pGrid = new(std::nothrow) Grid(cellSize, rows, columns);
+  if (pGrid && pGrid->init())
+  {
+    pGrid->autorelease();
+    return pGrid;
+  }
+  else
+  {
+    delete pGrid;
+    pGrid = nullptr;
     return nullptr;
   }
 }
