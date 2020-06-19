@@ -22,6 +22,8 @@ public:
 
   void calculateCellByPoint(const cocos2d::Vec2& point, float cellSize, cocos2d::Size& cellIJ);
 
+  cocos2d::Vec2 getPointByCell(int i, int j);
+
 private:
   float m_cellSize{};
   int m_rows{};

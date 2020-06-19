@@ -32,7 +32,7 @@ bool Grid::init()
   drawnode->drawCircle(Vec2(0, 0), 40, 360, 20, true, 1, 1, Color4F::GREEN);
   this->addChild(drawnode);
 
-  drawGrid(m_cellSize, m_rows, m_columns);
+  //drawGrid(m_cellSize, m_rows, m_columns);
 
   Label* labelTouchInfo = Label::createWithSystemFont("Touch or clicksomewhere to begin", "Arial", 30);
   m_labelTouchInfo = labelTouchInfo;
@@ -119,4 +119,12 @@ void Grid::calculateCellByPoint(const cocos2d::Vec2& point, float cellSize, coco
 
   cellIJ.width = i;
   cellIJ.height = j;
+}
+
+cocos2d::Vec2 Grid::getPointByCell(int i, int j)
+{
+  float x = i * m_cellSize + 0.5 * m_cellSize;
+  float y = j * m_cellSize + 0.5 * m_cellSize;
+
+  return cocos2d::Vec2(x, y);
 }
