@@ -1,6 +1,8 @@
 #include "Grid.h"
 #include "base/CCEventListener.h"
 #include "base/CCEvent.h"
+#include "math.h"
+#include <string>
 
 USING_NS_CC;
 
@@ -83,7 +85,13 @@ bool Grid::onTouchBegan(Touch* touch, Event* event)
   float x = event->getCurrentTarget()->convertToNodeSpace(touch->getLocation()).x;
   float y = event->getCurrentTarget()->convertToNodeSpace(touch->getLocation()).y;
   m_labelTouchInfo->setPosition(Vec2(x,y));
-  m_labelTouchInfo->setString("You Touched Here");
+
+  Size cellIJ{};
+  float cellSize{ m_cellSize };
+
+  calculateCellByPoint(Vec2(x, y), cellSize, cellIJ);
+
+  m_labelTouchInfo->setString("You Touched Here" + std::to_string(int(cellIJ.width)) + std::to_string(int(cellIJ.height)));
   return true;
 }
 
@@ -100,4 +108,15 @@ void Grid::onTouchMoved(Touch* touch, Event* event)
 void Grid::onTouchCancelled(Touch* touch, Event* event)
 {
   cocos2d::log("touch cancelled");
+}
+
+void Grid::calculateCellByPoint(const cocos2d::Vec2& point, float cellSize, cocos2d::Size& cellIJ)
+{
+  int i{}, j{};
+
+  i = floor(point.x / cellSize);
+  j = floor(point.y / cellSize);
+
+  cellIJ.width = i;
+  cellIJ.height = j;
 }
