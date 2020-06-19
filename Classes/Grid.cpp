@@ -37,15 +37,15 @@ void Grid::drawGrid(float cellSize, int rows, int columns)
 {
   auto drawNode = DrawNode::create();
 
-  for (int i = 0; i < 1; i++)
+  for (int i = 0; i < rows + 1; i++)
   {
     drawNode->drawLine(Vec2(0, i * cellSize), Vec2(columns * cellSize, i * cellSize), Color4F::GREEN);
   }
 
-  /*for (int j = 0; j < columns; j++)
+  for (int j = 0; j < columns + 1; j++)
   {
-    drawNode->drawLine(Vec2(j * columns * cellSize, 0), Vec2(j * columns * cellSize, j * rows), Color4F::GREEN);
-  }*/
+    drawNode->drawLine(Vec2(j * cellSize, 0), Vec2(j * cellSize, rows * cellSize), Color4F::GREEN);
+  }
 
   this->addChild(drawNode, 1);
 }
