@@ -1,4 +1,6 @@
 #include "Grid.h"
+#include "base/CCEventListener.h"
+#include "base/CCEvent.h"
 
 USING_NS_CC;
 
@@ -30,6 +32,24 @@ bool Grid::init()
 
   drawGrid(m_cellSize, m_rows, m_columns);
 
+  Label* labelTouchInfo = Label::createWithSystemFont("Touch or clicksomewhere to begin", "Arial", 30);
+  m_labelTouchInfo = labelTouchInfo;
+
+  labelTouchInfo->setPosition(Vec2(
+    Director::getInstance()->getVisibleSize().width / 2,
+    Director::getInstance()->getVisibleSize().height / 2));
+
+  auto touchListener = EventListenerTouchOneByOne::create();
+
+  touchListener->onTouchBegan = CC_CALLBACK_2(Grid::onTouchBegan, this);
+  touchListener->onTouchEnded = CC_CALLBACK_2(Grid::onTouchEnded, this);
+  touchListener->onTouchMoved = CC_CALLBACK_2(Grid::onTouchMoved, this);
+  touchListener->onTouchCancelled = CC_CALLBACK_2(Grid::onTouchCancelled, this);
+
+  _eventDispatcher->addEventListenerWithSceneGraphPriority(touchListener, this);
+
+  this->addChild(labelTouchInfo);
+
   return true;
 }
 
@@ -50,17 +70,34 @@ void Grid::drawGrid(float cellSize, int rows, int columns)
   this->addChild(drawNode, 1);
 }
 
-void Grid::drawLine(Vec2 begin, Vec2 end)
-{
-  /*auto drawNode = DrawNode::create();
-  drawNode->drawLine(begin, end, Color4F::YELLOW);
-  this->addChild(drawNode, 1);*/
-}
-
 void Grid::showGrid()
 {
 }
 
 void Grid::hideGrid()
 {
+}
+
+bool Grid::onTouchBegan(Touch* touch, Event* event)
+{
+  float x = event->getCurrentTarget()->convertToNodeSpace(touch->getLocation()).x;
+  float y = event->getCurrentTarget()->convertToNodeSpace(touch->getLocation()).y;
+  m_labelTouchInfo->setPosition(Vec2(x,y));
+  m_labelTouchInfo->setString("You Touched Here");
+  return true;
+}
+
+void Grid::onTouchEnded(Touch* touch, Event* event)
+{
+  cocos2d::log("touch ended");
+}
+
+void Grid::onTouchMoved(Touch* touch, Event* event)
+{
+  cocos2d::log("touch moved");
+}
+
+void Grid::onTouchCancelled(Touch* touch, Event* event)
+{
+  cocos2d::log("touch cancelled");
 }
