@@ -3,9 +3,11 @@
 namespace Constants
 {
   // Images
-  constexpr auto BOARD_PNG("chessBoard.png");
-  constexpr auto FIGURE_PNG("blackHorse.png");
+  extern constexpr auto BOARD_PNG("chessBoard.png");
+  extern constexpr auto FIGURE_PNG("blackHorse.png");
 
   // Game elements setting
-  constexpr auto CELL_SIZE(25.0f);
+  extern constexpr auto CELL_SIZE(25.0f);
+  extern constexpr auto ROWS(8);
+  extern constexpr auto COLUMNS(8);
 }
