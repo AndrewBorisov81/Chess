@@ -12,6 +12,10 @@ public:
   virtual bool init();
 
   void drawGrid(float cellSize, int rows, int columns);
+  void showGrid();
+  void hideGrid();
+
+  void drawLine(cocos2d::Vec2 begin, cocos2d::Vec2 end);
 
 private:
   float m_cellSize{};
