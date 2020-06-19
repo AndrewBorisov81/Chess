@@ -37,6 +37,7 @@ bool GameLayer::init()
   Grid* grid = createGrid(Constants::CELL_SIZE, Constants::ROWS, Constants::COLUMNS);
   board->addChild(grid, static_cast<int>(ZOrderGame::GRID));
   m_grid = grid;
+  grid->setPosition(Vec2(-(Constants::CELL_SIZE * Constants::COLUMNS/2), -(Constants::CELL_SIZE * Constants::ROWS/2)));
  
   return true;
 }
