@@ -1,6 +1,7 @@
 #include "Figure.h"
 
 USING_NS_CC;
+using namespace cocos2d::ui;
 
 Figure::Figure()
 {

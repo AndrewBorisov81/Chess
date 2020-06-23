@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cocos2d.h"
+#include "ui/UIImageView.h"
 
 enum class TypeFigure
 {
