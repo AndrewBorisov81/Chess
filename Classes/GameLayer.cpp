@@ -4,6 +4,9 @@
 #include "Constants.h"
 #include "Figure.h"
 
+#include "base/CCEventListener.h"
+#include "base/CCEvent.h"
+
 USING_NS_CC;
 
 GameLayer::GameLayer()
@@ -38,17 +41,21 @@ bool GameLayer::init()
   Grid* grid = createGrid(Constants::CELL_SIZE, Constants::ROWS, Constants::COLUMNS);
   board->addChild(grid, static_cast<int>(ZOrderGame::GRID));
   m_grid = grid;
+  float deltaGridX = -(Constants::CELL_SIZE * Constants::COLUMNS / 2);
+  float deltaGridY = -(Constants::CELL_SIZE * Constants::ROWS / 2);
   grid->setPosition(Vec2(-(Constants::CELL_SIZE * Constants::COLUMNS/2), -(Constants::CELL_SIZE * Constants::ROWS/2)));
 
   // Create Figure
   Figure* figure1 = Figure::createFigure(Constants::BLACK_ROOK_PNG);
   grid->addChild(figure1, static_cast<int>(ZOrderGame::FIGURE));
   figure1->setPosition(grid->getPointByCell(0, 0));
+  //figure1->activateClickEvent();
 
   // Create Figure
-  Figure* figure2 = Figure::createFigure(Constants::BLACK_HORSE_PNG);
+  /*Figure* figure2 = Figure::createFigure(Constants::BLACK_HORSE_PNG);
   grid->addChild(figure2, static_cast<int>(ZOrderGame::FIGURE));
   figure2->setPosition(grid->getPointByCell(1, 0));
+
 
   // Create Figure
   Figure* figure3 = Figure::createFigure(Constants::BLACK_OFFICER_PNG);
@@ -70,7 +77,11 @@ bool GameLayer::init()
   Figure* figure6 = Figure::createFigure(Constants::BLACK_PAWN_PNG);
   grid->addChild(figure6, static_cast<int>(ZOrderGame::FIGURE));
   figure6->setPosition(grid->getPointByCell(4, 1));
+  figure6->activateClickEvent();*/
 
+  DrawNode *drawnode = DrawNode::create();
+  drawnode->drawCircle(Vec2(0, 0), 20, 360, 20, true, 1, 1, Color4F::MAGENTA);
+  figure1->addChild(drawnode);
  
   return true;
 }
