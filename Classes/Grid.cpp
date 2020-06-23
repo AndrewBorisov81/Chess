@@ -1,7 +1,9 @@
 #include "Grid.h"
+
 #include "base/CCEventListener.h"
 #include "base/CCEvent.h"
 #include "math.h"
+
 #include <string>
 
 USING_NS_CC;
