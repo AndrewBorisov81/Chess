@@ -6,8 +6,9 @@ Figure::Figure()
 {
 }
 
-Figure::Figure(const std::string & fileName)
+Figure::Figure(const std::string& fileName)
 {
+  
 }
 
 Figure::~Figure()
@@ -31,3 +32,4 @@ Figure* Figure::createFigure(const std::string& fileName)
   }
   return pFigure;
 }
+
