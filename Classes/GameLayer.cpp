@@ -60,6 +60,10 @@ bool GameLayer::init()
   Figure* figure2 = Figure::createFigure(Constants::BLACK_HORSE_PNG);
   grid->addChild(figure2, static_cast<int>(ZOrderGame::FIGURE));
   figure2->setPosition(grid->getPointByCell(1, 0));
+  figure2->setTouchEnabled(true);
+  figure2->addClickEventListener([=](Ref*) {
+    figure2->setRotation(45);
+  });
 
 
   // Create Figure
@@ -88,9 +92,9 @@ bool GameLayer::init()
   figure1->addChild(drawnode);*/
 
   // Create the imageview
-  ImageView* imageView = ImageView::create(Constants::BLACK_PAWN_PNG);
+  /*ImageView* imageView = ImageView::create(Constants::BLACK_PAWN_PNG);
   imageView->setPosition(grid->getPointByCell(4, 1));
-  grid->addChild(imageView, static_cast<int>(ZOrderGame::FIGURE));
+  grid->addChild(imageView, static_cast<int>(ZOrderGame::FIGURE));*/
  
   return true;
 }
