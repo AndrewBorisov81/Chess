@@ -20,13 +20,6 @@ public:
   Figure(const std::string& fileName);
   ~Figure();
 
-  void InitFigure();
-
   static Figure* createFigure(const std::string& fileName);
-
-private:
-  cocos2d::ui::ImageView* m_imageView{ nullptr };
-  std::string m_fileName{};
-
 };
 

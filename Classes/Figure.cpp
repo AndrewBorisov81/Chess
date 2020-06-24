@@ -11,20 +11,11 @@ Figure::Figure() :
 }
 
 Figure::Figure(const std::string& fileName) :
-  cocos2d::ui::ImageView(),
-  m_fileName(fileName)
+  cocos2d::ui::ImageView()
 {
 
 }
 
-void Figure::InitFigure()
-{
-  this->setTouchEnabled(true);
-  this->Node::setContentSize({ 250, 250 });
-  this->addClickEventListener([=](Ref*) {
-    this->setRotation(45);
-  });
-}
 
 Figure::~Figure()
 {
@@ -36,7 +27,6 @@ Figure* Figure::createFigure(const std::string& fileName)
 
   if (pFigure && pFigure->init(fileName, cocos2d::ui::ImageView::TextureResType::PLIST))
   {
-    pFigure->InitFigure();
     pFigure->autorelease();
     return pFigure;
   }
