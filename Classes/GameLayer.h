@@ -48,4 +48,5 @@ private:
 
   Board* createBoard();
   Grid* createGrid(float cellSize, int rows, int columns);
+  void createTestFigures();
 };
