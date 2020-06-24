@@ -13,7 +13,7 @@ enum class TypeFigure
   KING = 6
 };
 
-class Figure : public cocos2d::Sprite
+class Figure : public cocos2d::ui::ImageView
 {
 public:
   Figure();
@@ -23,7 +23,6 @@ public:
   void InitFigure();
 
   static Figure* createFigure(const std::string& fileName);
-  cocos2d::ui::ImageView* getImageView();
 
 private:
   cocos2d::ui::ImageView* m_imageView{ nullptr };
