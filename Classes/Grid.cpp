@@ -115,6 +115,11 @@ void Grid::onTouchEnded(Touch* touch, Event* event)
 
 void Grid::onTouchMoved(Touch* touch, Event* event)
 {
+  if (m_currentFigure) {
+    m_currentFigure->setPosition(m_currentFigure->getPosition() + touch->getDelta());
+  }
+
+
   /*m_delta.x = event->getCurrentTarget()->convertToNodeSpace(touch->getLocation()).x;
   m_delta.y = event->getCurrentTarget()->convertToNodeSpace(touch->getLocation()).y;
   cocos2d::log("touch moved");*/
@@ -125,9 +130,6 @@ void Grid::onTouchMoved(Touch* touch, Event* event)
     m_curPosFigure.y = m_prevPosFigure.y + m_delta.y;
     m_currentFigure->setPosition(m_curPosFigure);
   }*/
-  if (m_currentFigure) {
-    m_currentFigure->setPosition(m_currentFigure->getPosition() + touch->getDelta());
-  }
 }
 
 void Grid::onTouchCancelled(Touch* touch, Event* event)
