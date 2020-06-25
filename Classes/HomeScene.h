@@ -21,6 +21,8 @@ public:
 
   virtual bool init();
 
+  void update(float) override;
+
   static HomeScene* createScene();
 
 private:

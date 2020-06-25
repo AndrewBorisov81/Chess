@@ -29,12 +29,20 @@ bool HomeScene::init()
     this->addChild(pHudLayer, static_cast<int>(ZOrderLayer::HUD));
   }
 
+  this->scheduleUpdate();
+
   return true;
+}
+
+
+void HomeScene::update(float delta) {
+  if(m_gameLayer)
+    m_gameLayer->update(delta);
 }
 
 HomeScene* HomeScene::createScene()
 {
-  HomeScene *pRet = new(std::nothrow) HomeScene();
+  HomeScene* pRet = new(std::nothrow) HomeScene();
   if (pRet && pRet->init())
   {
     pRet->autorelease();
