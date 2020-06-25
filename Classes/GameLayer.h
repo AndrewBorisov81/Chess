@@ -29,6 +29,7 @@ enum class ZOrderGame
 
 class Board;
 class Grid;
+class Figure;
 
 class GameLayer : public cocos2d::Layer
 {
@@ -37,6 +38,8 @@ public:
   virtual ~GameLayer();
 
   virtual bool init();
+
+  void update(float);
 
 private:
   Board* m_board{ nullptr };
@@ -49,4 +52,14 @@ private:
   Board* createBoard();
   Grid* createGrid(float cellSize, int rows, int columns);
   void createTestFigures();
+
+  /*cocos2d::EventListenerMouse* m_mouseListener;
+
+  void onMouseDown(cocos2d::Event* event);
+  void onMouseUp(cocos2d::Event* event);
+  void onMouseMove(cocos2d::Event* event);
+
+  cocos2d::Vec2 m_delta{};*/
+
+  Figure* m_currentFigure{ nullptr };
 };

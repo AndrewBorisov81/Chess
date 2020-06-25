@@ -49,30 +49,47 @@ bool GameLayer::init()
   // Create Test Figures
   createTestFigures();
 
-  _mouseListener = EventListenerMouse::create();
-  _mouseListener->onMouseMove = CC_CALLBACK_1(MouseTest::onMouseMove, this);
-  _mouseListener->onMouseUp = CC_CALLBACK_1(MouseTest::onMouseUp, this);
-  _mouseListener->onMouseDown = CC_CALLBACK_1(MouseTest::onMouseDown, this);
-  _mouseListener->onMouseScroll = CC_CALLBACK_1(MouseTest::onMouseScroll, this);
- 
+  /*m_mouseListener = EventListenerMouse::create();
+  m_mouseListener->onMouseMove = CC_CALLBACK_1(GameLayer::onMouseMove, this);
+  m_mouseListener->onMouseUp = CC_CALLBACK_1(GameLayer::onMouseUp, this);
+  m_mouseListener->onMouseDown = CC_CALLBACK_1(GameLayer::onMouseDown, this);
+
+  _eventDispatcher->addEventListenerWithSceneGraphPriority(m_mouseListener, this);*/
+
   return true;
 }
 
-void GameLayer::onMouseUp(Event *event)
-{
-  // to illustrate the event....
-  EventMouse* e = (EventMouse*)event;
-  /*string str = "Mouse Up detected, Key: ";
-  str += tostr(e->getMouseButton());*/
+void GameLayer::update(float delta) {
+  if (m_currentFigure) {
+    m_currentFigure->setPosition(m_grid->getLocation());
+  }
 }
 
-void GameLayer::onMouseMove(Event *event)
+/*void GameLayer::onMouseDown(Event* event)
+{
+  EventMouse* e = (EventMouse*)event;
+}
+
+void GameLayer::onMouseUp(Event* event)
 {
   // to illustrate the event....
   EventMouse* e = (EventMouse*)event;
-  /*string str = "MousePosition X:";
-  str = str + tostr(e->getCursorX()) + " Y:" + tostr(e->getCursorY());*/
+  m_currentFigure = nullptr;
+  m_delta.x = 0;
+  m_delta.y = 0;
 }
+
+void GameLayer::onMouseMove(Event* event)
+{
+  m_delta = e->getDelta();
+
+  if (m_currentFigure)
+  {
+    EventMouse* e = (EventMouse*)event;
+    Vec2 curFig(m_currentFigure->getPosition());
+    m_currentFigure->setPosition(m_currentFigure->getPosition() + e->getDelta());
+  }
+}*/
 
 Board* GameLayer::createBoard()
 {
@@ -122,7 +139,11 @@ void GameLayer::createTestFigures()
   figure2->setPosition(grid->getPointByCell(1, 0));
   figure2->setTouchEnabled(true);
   figure2->addClickEventListener([=](Ref*) {
-    figure2->setRotation(45);
+    //figure2->setRotation(45);
+    //m_currentFigure = figure2;
+    if (m_grid->getCurrentFigure() == nullptr) {
+      m_grid->setCurrentFigure(figure2);
+    }
   });
 
   // Create Figure
@@ -151,6 +172,7 @@ void GameLayer::createTestFigures()
   figure1->addChild(drawnode);*/
 
 }
+
 
 
 
