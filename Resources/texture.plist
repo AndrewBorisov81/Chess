@@ -15,7 +15,7 @@
                 <key>spriteSourceSize</key>
                 <string>{125,125}</string>
                 <key>textureRect</key>
-                <string>{{353,1153},{107,107}}</string>
+                <string>{{793,1153},{107,107}}</string>
                 <key>textureRotated</key>
                 <false/>
             </dict>
@@ -30,7 +30,7 @@
                 <key>spriteSourceSize</key>
                 <string>{125,125}</string>
                 <key>textureRect</key>
-                <string>{{127,1153},{111,113}}</string>
+                <string>{{233,1153},{111,113}}</string>
                 <key>textureRotated</key>
                 <false/>
             </dict>
@@ -45,7 +45,7 @@
                 <key>spriteSourceSize</key>
                 <string>{125,125}</string>
                 <key>textureRect</key>
-                <string>{{240,1153},{111,111}}</string>
+                <string>{{459,1153},{111,111}}</string>
                 <key>textureRotated</key>
                 <false/>
             </dict>
@@ -60,9 +60,9 @@
                 <key>spriteSourceSize</key>
                 <string>{126,125}</string>
                 <key>textureRect</key>
-                <string>{{462,1153},{80,103}}</string>
+                <string>{{1007,1256},{80,103}}</string>
                 <key>textureRotated</key>
-                <false/>
+                <true/>
             </dict>
             <key>blackQueen3.png</key>
             <dict>
@@ -77,7 +77,7 @@
                 <key>textureRect</key>
                 <string>{{1,1153},{124,115}}</string>
                 <key>textureRotated</key>
-                <false/>
+                <true/>
             </dict>
             <key>blackRook3.png</key>
             <dict>
@@ -90,7 +90,7 @@
                 <key>spriteSourceSize</key>
                 <string>{125,125}</string>
                 <key>textureRect</key>
-                <string>{{544,1153},{93,101}}</string>
+                <string>{{902,1153},{93,101}}</string>
                 <key>textureRotated</key>
                 <false/>
             </dict>
@@ -109,6 +109,96 @@
                 <key>textureRotated</key>
                 <false/>
             </dict>
+            <key>whiteHorse3.png</key>
+            <dict>
+                <key>aliases</key>
+                <array/>
+                <key>spriteOffset</key>
+                <string>{-1,0}</string>
+                <key>spriteSize</key>
+                <string>{108,107}</string>
+                <key>spriteSourceSize</key>
+                <string>{126,125}</string>
+                <key>textureRect</key>
+                <string>{{684,1153},{108,107}}</string>
+                <key>textureRotated</key>
+                <true/>
+            </dict>
+            <key>whiteKing3.png</key>
+            <dict>
+                <key>aliases</key>
+                <array/>
+                <key>spriteOffset</key>
+                <string>{0,-1}</string>
+                <key>spriteSize</key>
+                <string>{111,113}</string>
+                <key>spriteSourceSize</key>
+                <string>{125,125}</string>
+                <key>textureRect</key>
+                <string>{{346,1153},{111,113}}</string>
+                <key>textureRotated</key>
+                <false/>
+            </dict>
+            <key>whiteOfficer3.png</key>
+            <dict>
+                <key>aliases</key>
+                <array/>
+                <key>spriteOffset</key>
+                <string>{-1,0}</string>
+                <key>spriteSize</key>
+                <string>{110,111}</string>
+                <key>spriteSourceSize</key>
+                <string>{126,125}</string>
+                <key>textureRect</key>
+                <string>{{572,1153},{110,111}}</string>
+                <key>textureRotated</key>
+                <false/>
+            </dict>
+            <key>whitePawn3.png</key>
+            <dict>
+                <key>aliases</key>
+                <array/>
+                <key>spriteOffset</key>
+                <string>{-2,-1}</string>
+                <key>spriteSize</key>
+                <string>{82,103}</string>
+                <key>spriteSourceSize</key>
+                <string>{126,125}</string>
+                <key>textureRect</key>
+                <string>{{902,1256},{82,103}}</string>
+                <key>textureRotated</key>
+                <true/>
+            </dict>
+            <key>whiteQueen3.png</key>
+            <dict>
+                <key>aliases</key>
+                <array/>
+                <key>spriteOffset</key>
+                <string>{0,3}</string>
+                <key>spriteSize</key>
+                <string>{124,113}</string>
+                <key>spriteSourceSize</key>
+                <string>{126,125}</string>
+                <key>textureRect</key>
+                <string>{{118,1153},{124,113}}</string>
+                <key>textureRotated</key>
+                <true/>
+            </dict>
+            <key>whiteRook3.png</key>
+            <dict>
+                <key>aliases</key>
+                <array/>
+                <key>spriteOffset</key>
+                <string>{1,-1}</string>
+                <key>spriteSize</key>
+                <string>{92,101}</string>
+                <key>spriteSourceSize</key>
+                <string>{126,125}</string>
+                <key>textureRect</key>
+                <string>{{997,1153},{92,101}}</string>
+                <key>textureRotated</key>
+                <false/>
+            </dict>
         </dict>
         <key>metadata</key>
         <dict>
@@ -121,9 +211,9 @@
             <key>realTextureFileName</key>
             <string>texture.png</string>
             <key>size</key>
-            <string>{1152,1269}</string>
+            <string>{1152,1339}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:3a495e8502c0faae5d9655f93aff061d:d007c5b9f73345b785de7e1920ef63d0:ef86396999e18097aad14daa6638d5f9$</string>
+            <string>$TexturePacker:SmartUpdate:36be244305c973acce1b8f12e52473a7:949107994796bbe9c523e117b73704cf:ef86396999e18097aad14daa6638d5f9$</string>
             <key>textureFileName</key>
             <string>texture.png</string>
         </dict>

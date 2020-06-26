@@ -201,6 +201,12 @@
             <key type="filename">C:/Users/Andrew/Desktop/CHESS/Images/blackQueen3.png</key>
             <key type="filename">C:/Users/Andrew/Desktop/CHESS/Images/blackRook3.png</key>
             <key type="filename">C:/Users/Andrew/Desktop/CHESS/Images/chessBoard3.png</key>
+            <key type="filename">C:/Users/Andrew/Desktop/CHESS/Images/whiteHorse3.png</key>
+            <key type="filename">C:/Users/Andrew/Desktop/CHESS/Images/whiteKing3.png</key>
+            <key type="filename">C:/Users/Andrew/Desktop/CHESS/Images/whiteOfficer3.png</key>
+            <key type="filename">C:/Users/Andrew/Desktop/CHESS/Images/whitePawn3.png</key>
+            <key type="filename">C:/Users/Andrew/Desktop/CHESS/Images/whiteQueen3.png</key>
+            <key type="filename">C:/Users/Andrew/Desktop/CHESS/Images/whiteRook3.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -215,6 +221,12 @@
             <filename>C:/Users/Andrew/Desktop/CHESS/Images/blackPawn3.png</filename>
             <filename>C:/Users/Andrew/Desktop/CHESS/Images/blackQueen3.png</filename>
             <filename>C:/Users/Andrew/Desktop/CHESS/Images/blackRook3.png</filename>
+            <filename>C:/Users/Andrew/Desktop/CHESS/Images/whiteHorse3.png</filename>
+            <filename>C:/Users/Andrew/Desktop/CHESS/Images/whiteKing3.png</filename>
+            <filename>C:/Users/Andrew/Desktop/CHESS/Images/whiteOfficer3.png</filename>
+            <filename>C:/Users/Andrew/Desktop/CHESS/Images/whitePawn3.png</filename>
+            <filename>C:/Users/Andrew/Desktop/CHESS/Images/whiteQueen3.png</filename>
+            <filename>C:/Users/Andrew/Desktop/CHESS/Images/whiteRook3.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>
