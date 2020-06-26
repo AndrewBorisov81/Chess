@@ -13,6 +13,12 @@ enum class TypeFigure
   KING = 6
 };
 
+enum class Colour
+{
+  WHITE,
+  BLACK
+};
+
 class Figure : public cocos2d::ui::ImageView
 {
 public:
@@ -21,5 +27,16 @@ public:
   ~Figure();
 
   static Figure* createFigure(const std::string& fileName);
+
+  void setColour(Colour colour);
+  void setTypeFigure(TypeFigure typeFigure);
+
+  Colour getColour();
+  TypeFigure getTypeFigure();
+
+private:
+  Colour m_colour{ Colour::WHITE };
+  TypeFigure m_typeFigure{ TypeFigure::PAWN };
+
 };
 
