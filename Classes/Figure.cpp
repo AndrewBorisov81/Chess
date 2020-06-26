@@ -10,7 +10,8 @@ Figure::Figure() :
 {
 }
 
-Figure::Figure(const std::string& fileName) :
+Figure::Figure(TypeFigure typeFigure, const std::string& fileName) :
+  m_typeFigure(typeFigure),
   cocos2d::ui::ImageView()
 {
 
@@ -21,9 +22,9 @@ Figure::~Figure()
 {
 }
 
-Figure* Figure::createFigure(const std::string& fileName)
+Figure* Figure::createFigure(TypeFigure typeFigure, const std::string& fileName)
 {
-  Figure* pFigure = new(std::nothrow) Figure(fileName);
+  Figure* pFigure = new(std::nothrow) Figure(typeFigure, fileName);
 
   if (pFigure && pFigure->init(fileName, cocos2d::ui::ImageView::TextureResType::PLIST))
   {
