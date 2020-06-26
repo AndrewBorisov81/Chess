@@ -35,3 +35,15 @@ bool Board::init()
 
   return true;
 }
+
+void Board::loadAllFigures()
+{
+}
+
+void Board::addFigure()
+{
+}
+
+void Board::removeFigure()
+{
+}

@@ -10,5 +10,9 @@ public:
 
   virtual bool init();
 
+  void loadAllFigures();
+  void addFigure();
+  void removeFigure();
+
   cocos2d::Size m_boardSize;
 };
