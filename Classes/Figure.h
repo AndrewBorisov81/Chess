@@ -5,12 +5,12 @@
 
 enum class TypeFigure
 {
-  PAWN = 1,
-  ROOK = 2,
+  ROOK = 1,
+  HORSE = 2,
   KNIGHT = 3,
-  HORSE = 4,
-  QUEEN = 5,
-  KING = 6
+  QUEEN = 4,
+  KING = 5,
+  PAWN = 6
 };
 
 enum class ColourFigure
@@ -23,10 +23,12 @@ class Figure : public cocos2d::ui::ImageView
 {
 public:
   Figure();
-  Figure(TypeFigure typeFigre, ColourFigure, const std::string& fileName);
+  Figure(TypeFigure type, ColourFigure colour, const std::string& fileName);
+  //Figure(TypeFigure type, bool isWhite, const std::string& fileName);
   ~Figure();
 
-  static Figure* createFigure(TypeFigure type, ColourFigure colour, const std::string& fileName);
+  static Figure* createFigure(int type, bool isWhite, const std::string& fileName);
+  //static Figure* createFigure(TypeFigure type, ColourFigure colour, const std::string& fileName);
 
   ColourFigure getColour();
   TypeFigure getType();
