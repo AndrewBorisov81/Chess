@@ -7,7 +7,8 @@
 #include "cocos2d.h"
 #include "ui/CocosGUI.h"
 
-#include<vector>
+#include <vector>
+#include <cmath>
 
 USING_NS_CC;
 using namespace cocos2d::ui;
@@ -99,9 +100,9 @@ Grid* GameLayer::createGrid(float cellSize, int rows, int columns)
   }
 }
 
-std::vector<std::vector<Figure*>>& GameLayer::createFigures(int figures_board[8][8], int rows, int columns)
+void GameLayer::createFigures(int figures_board[8][8], int rows, int columns, std::vector<std::vector<Figure*>>& figures)
 {
-  std::vector<std::vector<Figure*>> figures;
+  std::vector<std::vector<Figure*>> lFigures = figures;
 
   for (int i = 0; i < rows; i++)
   {
@@ -109,34 +110,14 @@ std::vector<std::vector<Figure*>>& GameLayer::createFigures(int figures_board[8]
     for (int j = 0; i < columns; i++)
     {
       TypeFigure typeFigure{ TypeFigure::PAWN };
-      int tF = figures_board[i][j];
-      switch (tF)
-      {
-        case 0:
-          break;
+      ColourFigure colourFigure{ ColourFigure::WHITE };
+      std::string fileName{ Constants::WHITE_PAWN_PNG };
 
-        case 1:
-          break;
+      int figure = figures_board[i][j];
 
-        case 2:
-          break;
-
-        case 3:
-          break;
-
-        case 4:
-          break;
-
-        case 5:
-          break;
-
-        case 6:
-          break;
-      }
+      //Figure* figure = Figure::createFigure(typeFigure, colourFigure, fileName);
     }
   }
-
-  return std::vector<std::vector<Figure*>>();
 }
 
 void GameLayer::createTestFigures()
@@ -150,7 +131,8 @@ void GameLayer::createTestFigures()
  });*/
 
  // Create Figure
-  Figure* figure2 = Figure::createFigure(TypeFigure::HORSE, ColourFigure::WHITE, Constants::BLACK_HORSE_PNG);
+  //Figure* figure2 = Figure::createFigure(TypeFigure::HORSE, ColourFigure::WHITE, Constants::BLACK_HORSE_PNG);
+  Figure* figure2 = Figure::createFigure(2, true, Constants::BLACK_HORSE_PNG);
   grid->addChild(figure2, static_cast<int>(ZOrderGame::FIGURE));
   figure2->setPosition(grid->getPointByCell(1, 0));
   figure2->setTouchEnabled(true);

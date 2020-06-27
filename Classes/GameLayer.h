@@ -55,7 +55,7 @@ private:
 
   Board* createBoard();
   Grid* createGrid(float cellSize, int rows, int columns);
-  std::vector<std::vector<Figure*>>& createFigures(int figures_board[8][8], int rows, int columns);
+  void createFigures(int figures_board[8][8], int rows, int columns, std::vector<std::vector<Figure*>>& figures);
 
   void createTestFigures();
 
