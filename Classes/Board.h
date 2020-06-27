@@ -2,6 +2,8 @@
 
 #include "cocos2d.h"
 
+class Figures;
+
 class Board : public cocos2d::Layer
 {
 public:
