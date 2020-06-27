@@ -7,6 +7,8 @@
 #include "cocos2d.h"
 #include "ui/CocosGUI.h"
 
+#include<vector>
+
 USING_NS_CC;
 using namespace cocos2d::ui;
 
@@ -65,32 +67,6 @@ void GameLayer::update(float delta) {
   }
 }
 
-/*void GameLayer::onMouseDown(Event* event)
-{
-  EventMouse* e = (EventMouse*)event;
-}
-
-void GameLayer::onMouseUp(Event* event)
-{
-  // to illustrate the event....
-  EventMouse* e = (EventMouse*)event;
-  m_currentFigure = nullptr;
-  m_delta.x = 0;
-  m_delta.y = 0;
-}
-
-void GameLayer::onMouseMove(Event* event)
-{
-  m_delta = e->getDelta();
-
-  if (m_currentFigure)
-  {
-    EventMouse* e = (EventMouse*)event;
-    Vec2 curFig(m_currentFigure->getPosition());
-    m_currentFigure->setPosition(m_currentFigure->getPosition() + e->getDelta());
-  }
-}*/
-
 Board* GameLayer::createBoard()
 {
   Board* pBoard = new(std::nothrow) Board();
@@ -123,6 +99,46 @@ Grid* GameLayer::createGrid(float cellSize, int rows, int columns)
   }
 }
 
+std::vector<std::vector<Figure*>>& GameLayer::createFigures(int figures_board[8][8], int rows, int columns)
+{
+  std::vector<std::vector<Figure*>> figures;
+
+  for (int i = 0; i < rows; i++)
+  {
+    std::vector<Figure*> row;
+    for (int j = 0; i < columns; i++)
+    {
+      TypeFigure typeFigure{ TypeFigure::PAWN };
+      int tF = figures_board[i][j];
+      switch (tF)
+      {
+        case 0:
+          break;
+
+        case 1:
+          break;
+
+        case 2:
+          break;
+
+        case 3:
+          break;
+
+        case 4:
+          break;
+
+        case 5:
+          break;
+
+        case 6:
+          break;
+      }
+    }
+  }
+
+  return std::vector<std::vector<Figure*>>();
+}
+
 void GameLayer::createTestFigures()
 {
   Grid* grid = m_grid;
@@ -134,7 +150,7 @@ void GameLayer::createTestFigures()
  });*/
 
  // Create Figure
-  Figure* figure2 = Figure::createFigure(TypeFigure::HORSE, Constants::BLACK_HORSE_PNG);
+  Figure* figure2 = Figure::createFigure(TypeFigure::HORSE, ColourFigure::WHITE, Constants::BLACK_HORSE_PNG);
   grid->addChild(figure2, static_cast<int>(ZOrderGame::FIGURE));
   figure2->setPosition(grid->getPointByCell(1, 0));
   figure2->setTouchEnabled(true);
@@ -173,6 +189,30 @@ void GameLayer::createTestFigures()
 
 }
 
+/*void GameLayer::onMouseDown(Event* event)
+{
+  EventMouse* e = (EventMouse*)event;
+}
 
+void GameLayer::onMouseUp(Event* event)
+{
+  // to illustrate the event....
+  EventMouse* e = (EventMouse*)event;
+  m_currentFigure = nullptr;
+  m_delta.x = 0;
+  m_delta.y = 0;
+}
+
+void GameLayer::onMouseMove(Event* event)
+{
+  m_delta = e->getDelta();
+
+  if (m_currentFigure)
+  {
+    EventMouse* e = (EventMouse*)event;
+    Vec2 curFig(m_currentFigure->getPosition());
+    m_currentFigure->setPosition(m_currentFigure->getPosition() + e->getDelta());
+  }
+}*/
 
 
