@@ -10,8 +10,9 @@ Figure::Figure() :
 {
 }
 
-Figure::Figure(TypeFigure typeFigure, const std::string& fileName) :
-  m_typeFigure(typeFigure),
+Figure::Figure(TypeFigure type, ColourFigure colour, const std::string& fileName) :
+  m_type(type),
+  m_colour(colour),
   cocos2d::ui::ImageView()
 {
 
@@ -22,9 +23,9 @@ Figure::~Figure()
 {
 }
 
-Figure* Figure::createFigure(TypeFigure typeFigure, const std::string& fileName)
+Figure* Figure::createFigure(TypeFigure type, ColourFigure colour, const std::string& fileName)
 {
-  Figure* pFigure = new(std::nothrow) Figure(typeFigure, fileName);
+  Figure* pFigure = new(std::nothrow) Figure(type, colour, fileName);
 
   if (pFigure && pFigure->init(fileName, cocos2d::ui::ImageView::TextureResType::PLIST))
   {
@@ -40,24 +41,14 @@ Figure* Figure::createFigure(TypeFigure typeFigure, const std::string& fileName)
   return pFigure;
 }
 
-void Figure::setColour(Colour colour)
+ColourFigure Figure::getColour()
 {
-  m_colour = colour;
+  return m_colour;
 }
 
-void Figure::setTypeFigure(TypeFigure typeFigure)
+TypeFigure Figure::getType()
 {
-  m_typeFigure = typeFigure;
-}
-
-Colour Figure::getColour()
-{
-  return Colour();
-}
-
-TypeFigure Figure::getTypeFigure()
-{
-  return TypeFigure();
+  return m_type;
 }
 
 
