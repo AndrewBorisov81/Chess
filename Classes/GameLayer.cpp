@@ -51,10 +51,13 @@ bool GameLayer::init()
   float deltaGridY = -(Constants::CELL_SIZE * Constants::ROWS / 2);
   grid->setPosition(Vec2(-(Constants::CELL_SIZE * Constants::COLUMNS/2), -(Constants::CELL_SIZE * Constants::ROWS/2)));
 
-  //createFigures(Constants::FIGURES_BOARD, Constants::ROWS, Constants::COLUMNS);
+  m_figures = createFigures(Constants::FIGURES_BOARD, Constants::ROWS, Constants::COLUMNS);
+
+  board->addGrid(m_grid);
+  board->loadAllFigures(m_figures);
 
   // Create Test Figures
-  createTestFigures();
+  //createTestFigures();
 
   /*m_mouseListener = EventListenerMouse::create();
   m_mouseListener->onMouseMove = CC_CALLBACK_1(GameLayer::onMouseMove, this);
@@ -106,61 +109,76 @@ Grid* GameLayer::createGrid(float cellSize, int rows, int columns)
 
 Figure* GameLayer::createFigureFileName(int type, bool isWhite)
 {
-  std::string fileName(Constants::WHITE_ROOK_PNG);
+  std::string fileName(Constants::WHITE_PAWN_PNG);
+  TypeFigure typeFigure{TypeFigure::PAWN};
 
   switch (type)
   {
     case 1:
+      typeFigure = TypeFigure::ROOK;
       fileName = (isWhite) ? Constants::WHITE_ROOK_PNG : Constants::BLACK_ROOK_PNG;
       break;
 
     case 2:
+      typeFigure = TypeFigure::HORSE;
       fileName = (isWhite) ? Constants::WHITE_HORSE_PNG : Constants::BLACK_HORSE_PNG;
       break;
 
     case 3:
-      fileName = (isWhite) ? Constants::WHITE_KNIGHT_PNG : Constants::WHITE_KNIGHT_PNG;
+      typeFigure = TypeFigure::KNIGHT;
+      fileName = (isWhite) ? Constants::WHITE_KNIGHT_PNG : Constants::BLACK_KNIGHT_PNG;
       break;
 
     case 4:
-      fileName = (isWhite) ? Constants::WHITE_QUEEN_PNG : Constants::WHITE_QUEEN_PNG;
+      typeFigure = TypeFigure::QUEEN;
+      fileName = (isWhite) ? Constants::WHITE_QUEEN_PNG : Constants::BLACK_QUEEN_PNG;
       break;
 
     case 5:
-      fileName =(isWhite) ? Constants::WHITE_KING_PNG : Constants::WHITE_KING_PNG;
+      typeFigure = TypeFigure::KING;
+      fileName =(isWhite) ? Constants::WHITE_KING_PNG : Constants::BLACK_KING_PNG;
       break;
 
     case 6:
+      typeFigure = TypeFigure::PAWN;
       fileName = (isWhite) ? Constants::WHITE_PAWN_PNG : Constants::BLACK_PAWN_PNG;
       break;
  }
 
   Figure* pFigure = Figure::createFigure(type, isWhite, fileName);
+  pFigure->setType(typeFigure);
 
   return pFigure;
 }
 
-std::vector<std::vector<Figure*>> GameLayer::createFigures(int figures_board[8][8], int rows, int columns)
+std::vector<std::vector<Figure*>> GameLayer::createFigures(const int figures_board[8][8], int rows, int columns)
 {
-  std::vector<std::vector<Figure*>> lFigures;
+  std::vector<std::vector<Figure*>> figures;
   Figure* pFigure{ nullptr };
 
   for (int i = 0; i < rows; i++)
   {
     std::vector<Figure*> row;
-    for (int j = 0; i < columns; i++)
+    for (int j = 0; j < columns; j++)
     {
       int figure = figures_board[i][j];
 
-      int type{ figure };
+      int type{ abs(figure) };
       bool isWhite = (figure < 0) ? false : true;
 
-      pFigure = createFigureFileName(type, isWhite);
-
-      row.push_back(pFigure);
+      if (figure > 0 || figure < 0)
+      {
+        pFigure = createFigureFileName(type, isWhite);
+        row.push_back(pFigure);
+      }
+      else
+      {
+        row.push_back(0);
+      }
     }
+    figures.push_back(row);
   }
-  return lFigures;
+  return figures;
 }
 
 void GameLayer::createTestFigures()
@@ -175,7 +193,7 @@ void GameLayer::createTestFigures()
 
  // Create Figure
   //Figure* figure2 = Figure::createFigure(TypeFigure::HORSE, ColourFigure::WHITE, Constants::BLACK_HORSE_PNG);
-  Figure* figure2 = Figure::createFigure(2, true, Constants::BLACK_HORSE_PNG);
+  Figure* figure2 = Figure::createFigure(2, true, Constants::BLACK_KING_PNG);
   grid->addChild(figure2, static_cast<int>(ZOrderGame::FIGURE));
   figure2->setPosition(grid->getPointByCell(1, 0));
   figure2->setTouchEnabled(true);

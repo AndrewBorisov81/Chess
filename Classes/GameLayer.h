@@ -44,7 +44,6 @@ public:
 private:
   Board* m_board{ nullptr };
   Grid* m_grid{ nullptr };
-
   std::vector<std::vector<Figure*>> m_figures;
 
   cocos2d::Size m_screenSize{ 0.0f, 0.0f };
@@ -54,7 +53,7 @@ private:
   Board* createBoard();
   Grid* createGrid(float cellSize, int rows, int columns);
   Figure* createFigureFileName(int type, bool isWhite);
-  std::vector<std::vector<Figure*>> createFigures(int figures_board[8][8], int rows, int columns);
+  std::vector<std::vector<Figure*>> createFigures(const int figures_board[8][8], int rows, int columns);
 
   void createTestFigures();
 
