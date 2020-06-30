@@ -25,9 +25,11 @@ public:
   TypeFigure getType();
   bool isWhite();
 
+  void setType(TypeFigure type);
+  void setIsWhite(bool isWhite);
+
 private:
   TypeFigure m_type{ TypeFigure::PAWN };
   bool m_isWhite{ true };
 
 };
-

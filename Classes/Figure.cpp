@@ -46,6 +46,16 @@ bool Figure::isWhite()
   return m_isWhite;
 }
 
+void Figure::setType(TypeFigure type)
+{
+  m_type = type;
+}
+
+void Figure::setIsWhite(bool isWhite)
+{
+  m_isWhite = isWhite;
+}
+
 TypeFigure Figure::getType()
 {
   return m_type;
