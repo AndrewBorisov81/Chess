@@ -13,29 +13,21 @@ enum class TypeFigure
   PAWN = 6
 };
 
-enum class ColourFigure
-{
-  WHITE,
-  BLACK
-};
-
 class Figure : public cocos2d::ui::ImageView
 {
 public:
   Figure();
-  Figure(TypeFigure type, ColourFigure colour, const std::string& fileName);
-  //Figure(TypeFigure type, bool isWhite, const std::string& fileName);
+  Figure(int type, bool isWhite);
   ~Figure();
 
-  static Figure* createFigure(int type, bool isWhite, const std::string& fileName);
-  //static Figure* createFigure(TypeFigure type, ColourFigure colour, const std::string& fileName);
+  static Figure* createFigure(int type, bool isWhite, std::string fileName);
 
-  ColourFigure getColour();
   TypeFigure getType();
+  bool isWhite();
 
 private:
-  ColourFigure m_colour{ ColourFigure::WHITE };
   TypeFigure m_type{ TypeFigure::PAWN };
+  bool m_isWhite{ true };
 
 };
 
