@@ -1,7 +1,5 @@
 #pragma once
 
-#include<vector>
-
 enum class GameMode
 {
   HOME,
@@ -55,7 +53,8 @@ private:
 
   Board* createBoard();
   Grid* createGrid(float cellSize, int rows, int columns);
-  void createFigures(int figures_board[8][8], int rows, int columns, std::vector<std::vector<Figure*>>& figures);
+  Figure* createFigureFileName(int type, bool isWhite);
+  std::vector<std::vector<Figure*>> createFigures(int figures_board[8][8], int rows, int columns);
 
   void createTestFigures();
 

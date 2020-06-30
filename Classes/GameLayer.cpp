@@ -9,6 +9,8 @@
 
 #include <vector>
 #include <cmath>
+#include <string>
+#include <stdlib.h>
 
 USING_NS_CC;
 using namespace cocos2d::ui;
@@ -48,6 +50,8 @@ bool GameLayer::init()
   float deltaGridX = -(Constants::CELL_SIZE * Constants::COLUMNS / 2);
   float deltaGridY = -(Constants::CELL_SIZE * Constants::ROWS / 2);
   grid->setPosition(Vec2(-(Constants::CELL_SIZE * Constants::COLUMNS/2), -(Constants::CELL_SIZE * Constants::ROWS/2)));
+
+  //createFigures(Constants::FIGURES_BOARD, Constants::ROWS, Constants::COLUMNS);
 
   // Create Test Figures
   createTestFigures();
@@ -100,24 +104,63 @@ Grid* GameLayer::createGrid(float cellSize, int rows, int columns)
   }
 }
 
-void GameLayer::createFigures(int figures_board[8][8], int rows, int columns, std::vector<std::vector<Figure*>>& figures)
+Figure* GameLayer::createFigureFileName(int type, bool isWhite)
 {
-  std::vector<std::vector<Figure*>> lFigures = figures;
+  std::string fileName(Constants::WHITE_ROOK_PNG);
+
+  switch (type)
+  {
+    case 1:
+      fileName = (isWhite) ? Constants::WHITE_ROOK_PNG : Constants::BLACK_ROOK_PNG;
+      break;
+
+    case 2:
+      fileName = (isWhite) ? Constants::WHITE_HORSE_PNG : Constants::BLACK_HORSE_PNG;
+      break;
+
+    case 3:
+      fileName = (isWhite) ? Constants::WHITE_KNIGHT_PNG : Constants::WHITE_KNIGHT_PNG;
+      break;
+
+    case 4:
+      fileName = (isWhite) ? Constants::WHITE_QUEEN_PNG : Constants::WHITE_QUEEN_PNG;
+      break;
+
+    case 5:
+      fileName =(isWhite) ? Constants::WHITE_KING_PNG : Constants::WHITE_KING_PNG;
+      break;
+
+    case 6:
+      fileName = (isWhite) ? Constants::WHITE_PAWN_PNG : Constants::BLACK_PAWN_PNG;
+      break;
+ }
+
+  Figure* pFigure = Figure::createFigure(type, isWhite, fileName);
+
+  return pFigure;
+}
+
+std::vector<std::vector<Figure*>> GameLayer::createFigures(int figures_board[8][8], int rows, int columns)
+{
+  std::vector<std::vector<Figure*>> lFigures;
+  Figure* pFigure{ nullptr };
 
   for (int i = 0; i < rows; i++)
   {
     std::vector<Figure*> row;
     for (int j = 0; i < columns; i++)
     {
-      TypeFigure typeFigure{ TypeFigure::PAWN };
-      ColourFigure colourFigure{ ColourFigure::WHITE };
-      std::string fileName{ Constants::WHITE_PAWN_PNG };
-
       int figure = figures_board[i][j];
 
-      //Figure* figure = Figure::createFigure(typeFigure, colourFigure, fileName);
+      int type{ figure };
+      bool isWhite = (figure < 0) ? false : true;
+
+      pFigure = createFigureFileName(type, isWhite);
+
+      row.push_back(pFigure);
     }
   }
+  return lFigures;
 }
 
 void GameLayer::createTestFigures()
