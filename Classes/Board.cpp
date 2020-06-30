@@ -1,5 +1,7 @@
 #include "Board.h"
 #include "Constants.h"
+#include "Grid.h"
+#include "Figure.h"
 
 USING_NS_CC;
 
@@ -36,8 +38,21 @@ bool Board::init()
   return true;
 }
 
-void Board::loadAllFigures()
+void Board::loadAllFigures(std::vector<std::vector<Figure*>>& figures)
 {
+  for (int i = 0; i < figures.size(); i++)
+  {
+    std::vector<Figure*> row = figures[i];
+    for (int j = 0; j < row.size(); j++)
+    {
+      if (row[j] != 0)
+      {
+        Figure* pFigure = row[j];
+        m_grid->addChild(pFigure, 303);
+        pFigure->setPosition(Vec2(m_grid->getPointByCell(j, i)));
+      }
+    }
+  }
 }
 
 void Board::addFigure()
@@ -46,4 +61,9 @@ void Board::addFigure()
 
 void Board::removeFigure()
 {
+}
+
+void Board::addGrid(Grid* grid)
+{
+  m_grid = grid;
 }
