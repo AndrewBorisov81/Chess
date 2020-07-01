@@ -22,7 +22,8 @@ enum class ZOrderGame
 {
   BOARD = 101,
   GRID = 202,
-  FIGURE = 303
+  FIGURE = 303,
+  EVENT = 404,
 };
 
 #include "cocos2d.h"
