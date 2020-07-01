@@ -13,7 +13,11 @@ public:
 
   virtual bool init();
 
-  void loadAllFigures(std::vector<std::vector<Figure*>>& figures);
+  virtual bool onTouchBegan(cocos2d::Touch*, cocos2d::Event*);
+  virtual void onTouchEnded(cocos2d::Touch*, cocos2d::Event*);
+  virtual void onTouchMoved(cocos2d::Touch*, cocos2d::Event*);
+
+  void loadAllFigures(std::vector<std::vector<Figure*>>& figures, int zOrder);
   void addFigure();
   void removeFigure();
   void addGrid(Grid* grid);
@@ -23,4 +27,6 @@ public:
 private:
   Grid* m_grid{ nullptr };
   std::vector<std::vector<Figure*>> m_figures;
+
+  cocos2d::Label* m_labelTouchInfo;
 };
