@@ -51,13 +51,13 @@ bool GameLayer::init()
   float deltaGridY = -(Constants::CELL_SIZE * Constants::ROWS / 2);
   grid->setPosition(Vec2(-(Constants::CELL_SIZE * Constants::COLUMNS/2), -(Constants::CELL_SIZE * Constants::ROWS/2)));
 
-  m_figures = createFigures(Constants::FIGURES_BOARD, Constants::ROWS, Constants::COLUMNS);
+  /*m_figures = createFigures(Constants::FIGURES_BOARD, Constants::ROWS, Constants::COLUMNS);
 
   board->addGrid(m_grid);
-  board->loadAllFigures(m_figures);
+  board->loadAllFigures(m_figures, ZOrderGame::FIGURE);*/
 
   // Create Test Figures
-  //createTestFigures();
+  createTestFigures();
 
   /*m_mouseListener = EventListenerMouse::create();
   m_mouseListener->onMouseMove = CC_CALLBACK_1(GameLayer::onMouseMove, this);
@@ -70,9 +70,9 @@ bool GameLayer::init()
 }
 
 void GameLayer::update(float delta) {
-  if (m_currentFigure) {
+  /*if (m_currentFigure) {
     m_currentFigure->setPosition(m_grid->getLocation());
-  }
+  }*/
 }
 
 Board* GameLayer::createBoard()
@@ -197,13 +197,13 @@ void GameLayer::createTestFigures()
   grid->addChild(figure2, static_cast<int>(ZOrderGame::FIGURE));
   figure2->setPosition(grid->getPointByCell(1, 0));
   figure2->setTouchEnabled(true);
-  figure2->addClickEventListener([=](Ref*) {
+  /*figure2->addClickEventListener([=](Ref*) {
     //figure2->setRotation(45);
     //m_currentFigure = figure2;
     if (m_grid->getCurrentFigure() == nullptr) {
       m_grid->setCurrentFigure(figure2);
     }
-  });
+  });*/
 
   // Create Figure
   /*Figure* figure3 = Figure::createFigure(TypeFigure::OFFICER, Constants::BLACK_OFFICER_PNG);
