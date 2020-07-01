@@ -17,11 +17,6 @@ public:
   void showGrid();
   void hideGrid();
 
-  virtual bool onTouchBegan(cocos2d::Touch*, cocos2d::Event*);
-  virtual void onTouchEnded(cocos2d::Touch*, cocos2d::Event*);
-  virtual void onTouchMoved(cocos2d::Touch*, cocos2d::Event*);
-  virtual void onTouchCancelled(cocos2d::Touch*, cocos2d::Event*);
-
   void calculateCellByPoint(const cocos2d::Vec2& point, float cellSize, cocos2d::Size& cellIJ);
 
   cocos2d::Vec2 getPointByCell(int i, int j);
@@ -39,8 +34,6 @@ private:
 
   cocos2d::Size m_currentClickCell{};
   Figure* m_currentFigure{ nullptr };
-
-  cocos2d::Label* m_labelTouchInfo;
 
   cocos2d::Vec2 m_delta{};
   cocos2d::Vec2 m_location{};

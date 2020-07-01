@@ -35,16 +35,10 @@ bool Grid::init()
   drawnode->drawCircle(Vec2(0, 0), 40, 360, 20, true, 1, 1, Color4F::GREEN);
   this->addChild(drawnode);
 
+  //Draw grid
   //drawGrid(m_cellSize, m_rows, m_columns);
 
-  Label* labelTouchInfo = Label::createWithSystemFont("Touch or clicksomewhere to begin", "Arial", 30);
-  m_labelTouchInfo = labelTouchInfo;
-
-  labelTouchInfo->setPosition(Vec2(
-    Director::getInstance()->getVisibleSize().width / 2,
-    Director::getInstance()->getVisibleSize().height / 2));
-
-  auto touchListener = EventListenerTouchOneByOne::create();
+  /*auto touchListener = EventListenerTouchOneByOne::create();
 
   touchListener->onTouchBegan = CC_CALLBACK_2(Grid::onTouchBegan, this);
   touchListener->onTouchEnded = CC_CALLBACK_2(Grid::onTouchEnded, this);
@@ -53,7 +47,7 @@ bool Grid::init()
 
   _eventDispatcher->addEventListenerWithSceneGraphPriority(touchListener, this);
 
-  this->addChild(labelTouchInfo);
+  this->addChild(labelTouchInfo);*/
 
   this->scheduleUpdate();
 
@@ -83,58 +77,6 @@ void Grid::showGrid()
 
 void Grid::hideGrid()
 {
-}
-
-bool Grid::onTouchBegan(Touch* touch, Event* event)
-{
-  if (m_currentFigure) {
-    m_prevPosFigure = m_currentFigure->getPosition();
-  }
-  float x = event->getCurrentTarget()->convertToNodeSpace(touch->getLocation()).x;
-  float y = event->getCurrentTarget()->convertToNodeSpace(touch->getLocation()).y;
-  m_labelTouchInfo->setPosition(Vec2(x,y));
-
-  Size cellIJ{};
-  float cellSize{ m_cellSize };
-
-  calculateCellByPoint(Vec2(x, y), cellSize, cellIJ);
-
-  //m_labelTouchInfo->setString("You Touched Here" + std::to_string(int(cellIJ.width)) + std::to_string(int(cellIJ.height)));
-  return true;
-}
-
-void Grid::onTouchEnded(Touch* touch, Event* event)
-{
-  m_delta.x = 0;
-  m_delta.y = 0;
-  m_location.x = 0;
-  m_location.y = 0;
-  cocos2d::log("touch ended");
-  resetCurrentFigure();
-}
-
-void Grid::onTouchMoved(Touch* touch, Event* event)
-{
-  if (m_currentFigure) {
-    m_currentFigure->setPosition(m_currentFigure->getPosition() + touch->getDelta());
-  }
-
-
-  /*m_delta.x = event->getCurrentTarget()->convertToNodeSpace(touch->getLocation()).x;
-  m_delta.y = event->getCurrentTarget()->convertToNodeSpace(touch->getLocation()).y;
-  cocos2d::log("touch moved");*/
-  //m_labelTouchInfo->setString(std::to_string(int(m_location.x))+ " , " + std::to_string(int(m_location.y)));
-  /*m_labelTouchInfo->setString(std::to_string(int(m_delta.x))+ " , " + std::to_string(int(m_delta.y)));
-  if (m_currentFigure) {
-    m_curPosFigure.x = m_prevPosFigure.x + m_delta.x;
-    m_curPosFigure.y = m_prevPosFigure.y + m_delta.y;
-    m_currentFigure->setPosition(m_curPosFigure);
-  }*/
-}
-
-void Grid::onTouchCancelled(Touch* touch, Event* event)
-{
-  cocos2d::log("touch cancelled");
 }
 
 void Grid::calculateCellByPoint(const cocos2d::Vec2& point, float cellSize, cocos2d::Size& cellIJ)
