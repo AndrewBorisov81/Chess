@@ -23,7 +23,7 @@ enum class ZOrderGame
   BOARD = 101,
   GRID = 202,
   FIGURE = 303,
-  EVENT = 404,
+  TOUCH_AND_DRAG = 404,
 };
 
 #include "cocos2d.h"
@@ -31,6 +31,7 @@ enum class ZOrderGame
 class Board;
 class Grid;
 class Figure;
+class TouchAndDragLayer;
 
 class GameLayer : public cocos2d::Layer
 {
@@ -45,6 +46,7 @@ public:
 private:
   Board* m_board{ nullptr };
   Grid* m_grid{ nullptr };
+  TouchAndDragLayer* m_touchAndDragLayer{ nullptr };
   std::vector<std::vector<Figure*>> m_figures;
 
   cocos2d::Size m_screenSize{ 0.0f, 0.0f };
@@ -53,6 +55,7 @@ private:
 
   Board* createBoard();
   Grid* createGrid(float cellSize, int rows, int columns);
+  TouchAndDragLayer* createTouchAndDrag();
   Figure* createFigureFileName(int type, bool isWhite);
   std::vector<std::vector<Figure*>> createFigures(const int figures_board[8][8], int rows, int columns);
 
@@ -64,7 +67,7 @@ private:
   void onMouseUp(cocos2d::Event* event);
   void onMouseMove(cocos2d::Event* event);
 
-  cocos2d::Vec2 m_delta{};*/
+  cocos2d::Vec2 m_delta{};
 
-  Figure* m_currentFigure{ nullptr };
+  Figure* m_currentFigure{ nullptr };*/
 };

@@ -3,6 +3,7 @@
 #include "Grid.h"
 #include "Constants.h"
 #include "Figure.h"
+#include "TouchAndDragLayer.h"
 
 #include "cocos2d.h"
 #include "ui/CocosGUI.h"
@@ -50,6 +51,12 @@ bool GameLayer::init()
   float deltaGridX = -(Constants::CELL_SIZE * Constants::COLUMNS / 2);
   float deltaGridY = -(Constants::CELL_SIZE * Constants::ROWS / 2);
   grid->setPosition(Vec2(-(Constants::CELL_SIZE * Constants::COLUMNS/2), -(Constants::CELL_SIZE * Constants::ROWS/2)));
+
+  // Create TouchAndDragLayer
+  TouchAndDragLayer* touchAndDragLayer = createTouchAndDrag();
+  board->addChild(touchAndDragLayer, static_cast<int>(ZOrderGame::TOUCH_AND_DRAG));
+  m_touchAndDragLayer = touchAndDragLayer;
+  touchAndDragLayer->setPosition(grid->getPosition());
 
   /*m_figures = createFigures(Constants::FIGURES_BOARD, Constants::ROWS, Constants::COLUMNS);
 
@@ -103,6 +110,22 @@ Grid* GameLayer::createGrid(float cellSize, int rows, int columns)
   {
     delete pGrid;
     pGrid = nullptr;
+    return nullptr;
+  }
+}
+
+TouchAndDragLayer* GameLayer::createTouchAndDrag()
+{
+  TouchAndDragLayer* pTouchAndDrag = new(std::nothrow) TouchAndDragLayer();
+  if (pTouchAndDrag && pTouchAndDrag->init())
+  {
+    pTouchAndDrag->autorelease();
+    return pTouchAndDrag;
+  }
+  else
+  {
+    delete pTouchAndDrag;
+    pTouchAndDrag = nullptr;
     return nullptr;
   }
 }
@@ -241,16 +264,16 @@ void GameLayer::onMouseUp(Event* event)
 {
   // to illustrate the event....
   EventMouse* e = (EventMouse*)event;
-  m_currentFigure = nullptr;
+  //m_currentFigure = nullptr;
   m_delta.x = 0;
   m_delta.y = 0;
 }
 
 void GameLayer::onMouseMove(Event* event)
 {
-  m_delta = e->getDelta();
+  //m_delta = e->getDelta();
 
-  if (m_currentFigure)
+  /*if (m_currentFigure)
   {
     EventMouse* e = (EventMouse*)event;
     Vec2 curFig(m_currentFigure->getPosition());
