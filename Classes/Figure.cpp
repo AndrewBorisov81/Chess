@@ -56,6 +56,12 @@ void Figure::setIsWhite(bool isWhite)
   m_isWhite = isWhite;
 }
 
+cocos2d::Rect Figure::getRect()
+{
+  auto s = this->getContentSize();
+  return Rect(-s.width / 2, -s.height / 2, s.width, s.height);
+}
+
 TypeFigure Figure::getType()
 {
   return m_type;

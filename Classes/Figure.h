@@ -28,6 +28,8 @@ public:
   void setType(TypeFigure type);
   void setIsWhite(bool isWhite);
 
+  cocos2d::Rect getRect();
+
 private:
   TypeFigure m_type{ TypeFigure::PAWN };
   bool m_isWhite{ true };
