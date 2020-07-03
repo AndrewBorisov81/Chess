@@ -38,6 +38,9 @@ bool GameLayer::init()
   Vec2 origin = Director::getInstance()->getVisibleOrigin();
   m_screenSize = visibleSize;
 
+  // Copy figures_board
+  std::copy(&Constants::FIGURES_BOARD[0][0], &Constants::FIGURES_BOARD[0][0]+Constants::ROWS*Constants::COLUMNS, &m_figures_board[0][0]);
+
   // Create Board
   Board* board = createBoard();
   this->addChild(board, static_cast<int>(ZOrderGame::BOARD));
@@ -52,19 +55,19 @@ bool GameLayer::init()
   float deltaGridY = -(Constants::CELL_SIZE * Constants::ROWS / 2);
   grid->setPosition(Vec2(-(Constants::CELL_SIZE * Constants::COLUMNS/2), -(Constants::CELL_SIZE * Constants::ROWS/2)));
 
+  m_figures = createFigures(Constants::FIGURES_BOARD, Constants::ROWS, Constants::COLUMNS);
+
+  board->addGrid(m_grid);
+  board->loadAllFigures(m_figures, static_cast<int>(ZOrderGame::FIGURE));
+
   // Create TouchAndDragLayer
-  TouchAndDragLayer* touchAndDragLayer = createTouchAndDrag();
+  TouchAndDragLayer* touchAndDragLayer = createTouchAndDrag(m_figures_board, m_figures, grid);
   board->addChild(touchAndDragLayer, static_cast<int>(ZOrderGame::TOUCH_AND_DRAG));
   m_touchAndDragLayer = touchAndDragLayer;
   touchAndDragLayer->setPosition(grid->getPosition());
 
-  /*m_figures = createFigures(Constants::FIGURES_BOARD, Constants::ROWS, Constants::COLUMNS);
-
-  board->addGrid(m_grid);
-  board->loadAllFigures(m_figures, ZOrderGame::FIGURE);*/
-
   // Create Test Figures
-  createTestFigures();
+  //createTestFigures();
 
   /*m_mouseListener = EventListenerMouse::create();
   m_mouseListener->onMouseMove = CC_CALLBACK_1(GameLayer::onMouseMove, this);
@@ -114,9 +117,9 @@ Grid* GameLayer::createGrid(float cellSize, int rows, int columns)
   }
 }
 
-TouchAndDragLayer* GameLayer::createTouchAndDrag()
+TouchAndDragLayer* GameLayer::createTouchAndDrag(int figures_board[8][8], std::vector<std::vector<Figure*>>& figures, Grid* grid)
 {
-  TouchAndDragLayer* pTouchAndDrag = new(std::nothrow) TouchAndDragLayer();
+  TouchAndDragLayer* pTouchAndDrag = new(std::nothrow) TouchAndDragLayer(figures_board, figures, grid);
   if (pTouchAndDrag && pTouchAndDrag->init())
   {
     pTouchAndDrag->autorelease();
