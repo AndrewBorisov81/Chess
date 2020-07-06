@@ -31,9 +31,9 @@ bool Grid::init()
     return false;
   }
 
-  DrawNode *drawnode = DrawNode::create();
+  /*DrawNode *drawnode = DrawNode::create();
   drawnode->drawCircle(Vec2(0, 0), 40, 360, 20, true, 1, 1, Color4F::GREEN);
-  this->addChild(drawnode);
+  this->addChild(drawnode);*/
 
   //Draw grid
   //drawGrid(m_cellSize, m_rows, m_columns);
