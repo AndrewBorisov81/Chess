@@ -34,9 +34,9 @@ bool Board::init()
   m_boardSize = boardSize;
   this->addChild(boardSprite, 1);
 
-  DrawNode *drawnode = DrawNode::create();
+  /*DrawNode *drawnode = DrawNode::create();
   drawnode->drawCircle(Vec2(0, 0), 50, 360, 20, true, 1, 1, Color4F::RED);
-  boardSprite->addChild(drawnode);
+  boardSprite->addChild(drawnode);*/
 
   Label* labelTouchInfo = Label::createWithSystemFont("Touch or clicksomewhere to begin", "Arial", 30);
   m_labelTouchInfo = labelTouchInfo;
