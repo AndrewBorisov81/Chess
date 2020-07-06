@@ -56,7 +56,7 @@ private:
 
   Board* createBoard();
   Grid* createGrid(float cellSize, int rows, int columns);
-  TouchAndDragLayer* createTouchAndDrag(int figures_board[8][8], std::vector<std::vector<Figure*>>& figures, Grid* grid);
+  TouchAndDragLayer* createTouchAndDrag(std::vector<std::vector<Figure*>>& figures, Grid* grid);
   Figure* createFigureFileName(int type, bool isWhite);
   std::vector<std::vector<Figure*>> createFigures(const int figures_board[8][8], int rows, int columns);
 

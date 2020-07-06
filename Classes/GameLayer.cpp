@@ -61,7 +61,7 @@ bool GameLayer::init()
   board->loadAllFigures(m_figures, static_cast<int>(ZOrderGame::FIGURE));
 
   // Create TouchAndDragLayer
-  TouchAndDragLayer* touchAndDragLayer = createTouchAndDrag(m_figures_board, m_figures, grid);
+  TouchAndDragLayer* touchAndDragLayer = createTouchAndDrag(m_figures, grid);
   board->addChild(touchAndDragLayer, static_cast<int>(ZOrderGame::TOUCH_AND_DRAG));
   m_touchAndDragLayer = touchAndDragLayer;
   touchAndDragLayer->setPosition(grid->getPosition());
@@ -117,9 +117,9 @@ Grid* GameLayer::createGrid(float cellSize, int rows, int columns)
   }
 }
 
-TouchAndDragLayer* GameLayer::createTouchAndDrag(int figures_board[8][8], std::vector<std::vector<Figure*>>& figures, Grid* grid)
+TouchAndDragLayer* GameLayer::createTouchAndDrag(std::vector<std::vector<Figure*>>& figures, Grid* grid)
 {
-  TouchAndDragLayer* pTouchAndDrag = new(std::nothrow) TouchAndDragLayer(figures_board, figures, grid);
+  TouchAndDragLayer* pTouchAndDrag = new(std::nothrow) TouchAndDragLayer(figures, grid);
   if (pTouchAndDrag && pTouchAndDrag->init())
   {
     pTouchAndDrag->autorelease();
