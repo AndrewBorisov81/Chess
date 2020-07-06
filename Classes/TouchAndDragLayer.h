@@ -16,7 +16,7 @@ class TouchAndDragLayer : public cocos2d::Layer
   TouchAndDragState _state{ kUngrabbed };
 
 public:
-  TouchAndDragLayer(int figures_board[8][8], std::vector<std::vector<Figure*>>& figures, Grid* grid);
+  TouchAndDragLayer(std::vector<std::vector<Figure*>>& figures, Grid* grid);
   virtual ~TouchAndDragLayer();
 
   virtual bool init();
@@ -32,7 +32,6 @@ private:
   Grid* m_grid;
 
   Figure* m_currentDragFigure{ nullptr };
-  int m_currentTypeFigure;
 
-  cocos2d::Label* labelTouchInfo;
+  //cocos2d::Label* labelTouchInfo;
 };
