@@ -1,9 +1,10 @@
 #include "GameLayer.h"
 #include "Board.h"
 #include "Grid.h"
-#include "Constants.h"
 #include "Figure.h"
+#include "Logic.h"
 #include "TouchAndDragLayer.h"
+#include "Constants.h"
 
 #include "cocos2d.h"
 #include "ui/CocosGUI.h"
@@ -39,7 +40,7 @@ bool GameLayer::init()
   m_screenSize = visibleSize;
 
   // Copy figures_board
-  std::copy(&Constants::FIGURES_BOARD[0][0], &Constants::FIGURES_BOARD[0][0]+Constants::ROWS*Constants::COLUMNS, &m_figures_board[0][0]);
+  std::copy(&Constants::INITIAL_FIGURES_BOARD[0][0], &Constants::INITIAL_FIGURES_BOARD[0][0]+Constants::ROWS*Constants::COLUMNS, &m_figures_board[0][0]);
 
   // Create Board
   Board* board = createBoard();
@@ -51,13 +52,14 @@ bool GameLayer::init()
   Grid* grid = createGrid(Constants::CELL_SIZE, Constants::ROWS, Constants::COLUMNS);
   board->addChild(grid, static_cast<int>(ZOrderGame::GRID));
   m_grid = grid;
+  board->addGrid(m_grid);
   float deltaGridX = -(Constants::CELL_SIZE * Constants::COLUMNS / 2);
   float deltaGridY = -(Constants::CELL_SIZE * Constants::ROWS / 2);
   grid->setPosition(Vec2(-(Constants::CELL_SIZE * Constants::COLUMNS/2), -(Constants::CELL_SIZE * Constants::ROWS/2)));
 
-  m_figures = createFigures(Constants::FIGURES_BOARD, Constants::ROWS, Constants::COLUMNS);
-
-  board->addGrid(m_grid);
+  // Create Figures
+  m_figures = createFigures(Constants::INITIAL_FIGURES_BOARD, Constants::ROWS, Constants::COLUMNS);
+  // Load Figures
   board->loadAllFigures(m_figures, static_cast<int>(ZOrderGame::FIGURE));
 
   // Create TouchAndDragLayer
@@ -65,6 +67,9 @@ bool GameLayer::init()
   board->addChild(touchAndDragLayer, static_cast<int>(ZOrderGame::TOUCH_AND_DRAG));
   m_touchAndDragLayer = touchAndDragLayer;
   touchAndDragLayer->setPosition(grid->getPosition());
+
+  Logic* logic = createLogic();
+  m_logic = logic;
 
   // Create Test Figures
   //createTestFigures();
@@ -131,6 +136,27 @@ TouchAndDragLayer* GameLayer::createTouchAndDrag(std::vector<std::vector<Figure*
     pTouchAndDrag = nullptr;
     return nullptr;
   }
+}
+
+Logic* GameLayer::createLogic()
+{
+  Logic* pLogic = new(std::nothrow) Logic();
+  if (pLogic && pLogic->init())
+  {
+    pLogic->autorelease();
+    return pLogic;
+  }
+  else
+  {
+    delete pLogic;
+    pLogic = nullptr;
+    return nullptr;
+  }
+}
+
+TouchAndDragLayer* GameLayer::getTouchAndDragLayer()
+{
+  return m_touchAndDragLayer;
 }
 
 Figure* GameLayer::createFigureFileName(int type, bool isWhite)

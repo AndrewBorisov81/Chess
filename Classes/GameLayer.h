@@ -32,6 +32,7 @@ class Board;
 class Grid;
 class Figure;
 class TouchAndDragLayer;
+class Logic;
 
 class GameLayer : public cocos2d::Layer
 {
@@ -43,10 +44,13 @@ public:
 
   void update(float);
 
+  TouchAndDragLayer* getTouchAndDragLayer();
+
 private:
   int m_figures_board[8][8];
   Board* m_board{ nullptr };
   Grid* m_grid{ nullptr };
+  Logic* m_logic{ nullptr };
   TouchAndDragLayer* m_touchAndDragLayer{ nullptr };
   std::vector<std::vector<Figure*>> m_figures;
 
@@ -56,9 +60,10 @@ private:
 
   Board* createBoard();
   Grid* createGrid(float cellSize, int rows, int columns);
-  TouchAndDragLayer* createTouchAndDrag(std::vector<std::vector<Figure*>>& figures, Grid* grid);
-  Figure* createFigureFileName(int type, bool isWhite);
   std::vector<std::vector<Figure*>> createFigures(const int figures_board[8][8], int rows, int columns);
+  Figure* createFigureFileName(int type, bool isWhite);
+  TouchAndDragLayer* createTouchAndDrag(std::vector<std::vector<Figure*>>& figures, Grid* grid);
+  Logic* createLogic();
 
   void createTestFigures();
 
