@@ -24,14 +24,14 @@ namespace Constants
   extern constexpr auto ROWS(8);
   extern constexpr auto COLUMNS(8);
 
-  constexpr int FIGURES_BOARD[8][8] = 
-                {-1,-2,-3,-4,-5,-3,-2,-1,
-                 -6,-6,-6,-6,-6,-6,-6,-6,
+  constexpr int INITIAL_FIGURES_BOARD[8][8] =
+                { 1, 2, 3, 4, 5, 3, 2, 1,
+                  6, 6, 6, 6, 6, 6, 6, 6,
                   0, 0, 0, 0, 0, 0, 0, 0,
                   0, 0, 0, 0, 0, 0, 0, 0,
                   0, 0, 0, 0, 0, 0, 0, 0,
                   0, 0, 0, 0, 0, 0, 0, 0, 
-                  6, 6, 6, 6, 6, 6, 6, 6,
-                  1, 2, 3, 4, 5, 3, 2, 1
+                 -6,-6,-6,-6,-6,-6,-6,-6,
+                 -1,-2,-3,-4,-5,-3,-2,-1
                 };
 }
