@@ -21,6 +21,8 @@ public:
 
   virtual bool init();
 
+  Figure* getFigure();
+
   cocos2d::EventListenerMouse* m_mouseListener;
 
  void onMouseDown(cocos2d::Event* event);
@@ -32,6 +34,7 @@ private:
   Grid* m_grid;
 
   Figure* m_currentDragFigure{ nullptr };
+  cocos2d::Size m_currentFigureSize;
 
   //cocos2d::Label* labelTouchInfo;
 };

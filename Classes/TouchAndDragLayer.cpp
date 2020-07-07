@@ -14,6 +14,7 @@ TouchAndDragLayer::TouchAndDragLayer(std::vector<std::vector<Figure*>>& figures,
 
 TouchAndDragLayer::~TouchAndDragLayer()
 {
+
 }
 
 bool TouchAndDragLayer::init()
@@ -45,6 +46,11 @@ bool TouchAndDragLayer::init()
   return true;
 }
 
+Figure* TouchAndDragLayer::getFigure()
+{
+  return  m_currentDragFigure;
+}
+
 
 void TouchAndDragLayer::onMouseDown(Event* event)
 {
@@ -70,6 +76,7 @@ void TouchAndDragLayer::onMouseDown(Event* event)
       if (pClickFigure)
       {
         m_currentDragFigure = pClickFigure;
+        m_currentFigureSize = m_currentDragFigure->getContentSize();
 
         m_figures[cellI][cellJ] = 0;
 
@@ -102,6 +109,7 @@ void TouchAndDragLayer::onMouseUp(Event* event)
       m_figures[cellI][cellJ] = m_currentDragFigure;
 
       m_currentDragFigure = nullptr;
+      m_currentFigureSize = Size::ZERO;
     }
   }
 }
@@ -118,7 +126,7 @@ void TouchAndDragLayer::onMouseMove(Event* event)
     if (m_currentDragFigure)
     {
       if(x >= 0 && y >= 0 && y < Constants::ROWS * Constants::CELL_SIZE && x < Constants::ROWS * Constants::CELL_SIZE)
-        m_currentDragFigure->setPosition(Vec2(x, y));
+          m_currentDragFigure->setPosition(Vec2(x, y));
     }
   }
 }
