@@ -2,19 +2,15 @@
 #include "GameLayer.h"
 #include "TouchAndDragLayer.h"
 #include "Figure.h"
+#include "Constants.h"
+
+#include <stdlib.h>
 
 USING_NS_CC;
 
-FiguresMoveLogic::FiguresMoveLogic() : Node()
+FiguresMoveLogic::FiguresMoveLogic() : Logic()
 {
-
-}
-
-FiguresMoveLogic::FiguresMoveLogic(GameLayer* gameLayer) 
-  : m_gameLayer(gameLayer),
-    Node()
-{
-
+  bool stop = true;
 }
 
 FiguresMoveLogic::~FiguresMoveLogic()
@@ -32,32 +28,32 @@ bool FiguresMoveLogic::isMoveValid(Position current, Position future, EnPassant*
   // ----------------------------------------------------
   // 1. Is the piece  allowed to move in that direction?
   // ----------------------------------------------------
-  /*switch (toupper(chPiece))
+  /*switch (typeFigure)
   {
-  case 'P':
+  case TypeFigure::PAWN:
   {
     // Wants to move forward
     if (future.iColumn == present.iColumn)
     {
       // Simple move forward
-      if ((Chess::isWhitePiece(chPiece) && future.iRow == present.iRow + 1) ||
-        (Chess::isBlackPiece(chPiece) && future.iRow == present.iRow - 1))
+      if ((figure->isWhite() && future.iRow == present.iRow + 1) ||
+        (!figure->isWhite() && future.iRow == present.iRow - 1))
       {
-        if (EMPTY_SQUARE == current_game->getPieceAtPosition(future.iRow, future.iColumn))
+        if (EMPTY_SQUARE == m_gameLayer->getFigureAtPosition(future.iRow, future.iColumn))
         {
           bValid = true;
         }
       }
 
       // Double move forward
-      else if ((Chess::isWhitePiece(chPiece) && future.iRow == present.iRow + 2) ||
-        (Chess::isBlackPiece(chPiece) && future.iRow == present.iRow - 2))
+      else if ((figure->isWhite() && future.iRow == present.iRow + 2) ||
+        (!figure->isWhite() && future.iRow == present.iRow - 2))
       {
         // This is only allowed if the pawn is in its original place
-        if (Chess::isWhitePiece(chPiece))
+        if (figure->isWhite())
         {
-          if (EMPTY_SQUARE == current_game->getPieceAtPosition(future.iRow - 1, future.iColumn) &&
-            EMPTY_SQUARE == current_game->getPieceAtPosition(future.iRow, future.iColumn) &&
+          if (EMPTY_SQUARE == m_gameLayer->getFigureAtPosition(future.iRow - 1, future.iColumn) &&
+            EMPTY_SQUARE == m_gameLayer->getFigureAtPosition(future.iRow, future.iColumn) &&
             1 == present.iRow)
           {
             bValid = true;
@@ -65,8 +61,8 @@ bool FiguresMoveLogic::isMoveValid(Position current, Position future, EnPassant*
         }
         else // if ( isBlackPiece(chPiece) )
         {
-          if (EMPTY_SQUARE == current_game->getPieceAtPosition(future.iRow + 1, future.iColumn) &&
-            EMPTY_SQUARE == current_game->getPieceAtPosition(future.iRow, future.iColumn) &&
+          if (EMPTY_SQUARE == m_gameLayer->getFigureAtPosition(future.iRow + 1, future.iColumn) &&
+            EMPTY_SQUARE == m_gameLayer->getFigureAtPosition(future.iRow, future.iColumn) &&
             6 == present.iRow)
           {
             bValid = true;
@@ -81,8 +77,8 @@ bool FiguresMoveLogic::isMoveValid(Position current, Position future, EnPassant*
     }
 
     // The "en passant" move
-    else if ((Chess::isWhitePiece(chPiece) && 4 == present.iRow && 5 == future.iRow && 1 == abs(future.iColumn - present.iColumn)) ||
-      (Chess::isBlackPiece(chPiece) && 3 == present.iRow && 2 == future.iRow && 1 == abs(future.iColumn - present.iColumn)))
+    else if ((figure->isWhite() && 4 == present.iRow && 5 == future.iRow && 1 == abs(future.iColumn - present.iColumn)) ||
+      (!figure->isWhite() && 3 == present.iRow && 2 == future.iRow && 1 == abs(future.iColumn - present.iColumn)))
     {
       // It is only valid if last move of the opponent was a double move forward by a pawn on a adjacent column
       string last_move = current_game->getLastMove();

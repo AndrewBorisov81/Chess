@@ -2,7 +2,7 @@
 
 #include "cocos2d.h"
 
-#include "GameLayer.h"
+#include "Logic.h"
 
 enum class Direction
 {
@@ -61,10 +61,9 @@ struct UnderAttack
 
 class GameLayer;
 
-class FiguresMoveLogic : public cocos2d::Node
+class FiguresMoveLogic : public Logic
 {
   FiguresMoveLogic();
-  FiguresMoveLogic(GameLayer* gameLayer);
   ~FiguresMoveLogic();
 
   bool isMoveValid(Position present, Position future, EnPassant* S_enPassant, Castling* S_castling, Promotion* S_promotion);
