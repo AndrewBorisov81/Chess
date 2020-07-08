@@ -7,4 +7,6 @@ namespace Constants
   extern constexpr auto CELL_SIZE(118.0f);
   extern constexpr auto ROWS(8);
   extern constexpr auto COLUMNS(8);
+
+  extern constexpr auto EMPTY_SQUARE(0);
 }

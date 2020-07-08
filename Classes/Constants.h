@@ -23,6 +23,7 @@ namespace Constants
   extern constexpr auto CELL_SIZE(118.0f);
   extern constexpr auto ROWS(8);
   extern constexpr auto COLUMNS(8);
+  extern constexpr auto EMPTY_SQUARE(0);
 
   constexpr int INITIAL_FIGURES_BOARD[8][8] =
                 { 1, 2, 3, 4, 5, 3, 2, 1,
