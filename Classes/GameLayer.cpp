@@ -140,7 +140,7 @@ TouchAndDragLayer* GameLayer::createTouchAndDrag(std::vector<std::vector<Figure*
 
 Logic* GameLayer::createLogic()
 {
-  Logic* pLogic = new(std::nothrow) Logic();
+  Logic* pLogic = new(std::nothrow) Logic(this);
   if (pLogic && pLogic->init())
   {
     pLogic->autorelease();
@@ -157,6 +157,11 @@ Logic* GameLayer::createLogic()
 TouchAndDragLayer* GameLayer::getTouchAndDragLayer()
 {
   return m_touchAndDragLayer;
+}
+
+const std::vector<std::vector<Figure*>>& GameLayer::getFigures()
+{
+  return m_figures;
 }
 
 Figure* GameLayer::createFigureFileName(int type, bool isWhite)

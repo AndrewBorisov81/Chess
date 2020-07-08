@@ -45,6 +45,7 @@ public:
   void update(float);
 
   TouchAndDragLayer* getTouchAndDragLayer();
+  const std::vector<std::vector<Figure*>>& getFigures();
 
 private:
   int m_figures_board[8][8];
