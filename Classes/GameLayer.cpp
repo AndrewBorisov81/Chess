@@ -2,7 +2,7 @@
 #include "Board.h"
 #include "Grid.h"
 #include "Figure.h"
-#include "Logic.h"
+#include "FiguresMoveLogic.h"
 #include "TouchAndDragLayer.h"
 #include "Constants.h"
 
@@ -63,13 +63,13 @@ bool GameLayer::init()
   board->loadAllFigures(m_figures, static_cast<int>(ZOrderGame::FIGURE));
 
   // Create TouchAndDragLayer
-  TouchAndDragLayer* touchAndDragLayer = createTouchAndDrag(m_figures, grid);
+  TouchAndDragLayer* touchAndDragLayer = createTouchAndDrag(m_figures, this, grid);
   board->addChild(touchAndDragLayer, static_cast<int>(ZOrderGame::TOUCH_AND_DRAG));
   m_touchAndDragLayer = touchAndDragLayer;
   touchAndDragLayer->setPosition(grid->getPosition());
 
-  Logic* logic = createLogic();
-  m_logic = logic;
+  FiguresMoveLogic* figuresMoveLogic = createFiguresMoveLogic(this);
+  m_figuresMoveLogic = figuresMoveLogic;
 
   // Create Test Figures
   //createTestFigures();
@@ -122,9 +122,9 @@ Grid* GameLayer::createGrid(float cellSize, int rows, int columns)
   }
 }
 
-TouchAndDragLayer* GameLayer::createTouchAndDrag(std::vector<std::vector<Figure*>>& figures, Grid* grid)
+TouchAndDragLayer* GameLayer::createTouchAndDrag(std::vector<std::vector<Figure*>>& figures, GameLayer* gameLayer, Grid* grid)
 {
-  TouchAndDragLayer* pTouchAndDrag = new(std::nothrow) TouchAndDragLayer(figures, grid);
+  TouchAndDragLayer* pTouchAndDrag = new(std::nothrow) TouchAndDragLayer(figures, gameLayer, grid);
   if (pTouchAndDrag && pTouchAndDrag->init())
   {
     pTouchAndDrag->autorelease();
@@ -138,18 +138,18 @@ TouchAndDragLayer* GameLayer::createTouchAndDrag(std::vector<std::vector<Figure*
   }
 }
 
-Logic* GameLayer::createLogic()
+FiguresMoveLogic* GameLayer::createFiguresMoveLogic(GameLayer* gameLayer)
 {
-  Logic* pLogic = new(std::nothrow) Logic(this);
-  if (pLogic && pLogic->init())
+  FiguresMoveLogic* pFiguresMoveLogic = new(std::nothrow) FiguresMoveLogic(gameLayer);
+  if (pFiguresMoveLogic && pFiguresMoveLogic->init())
   {
-    pLogic->autorelease();
-    return pLogic;
+    pFiguresMoveLogic->autorelease();
+    return pFiguresMoveLogic;
   }
   else
   {
-    delete pLogic;
-    pLogic = nullptr;
+    delete pFiguresMoveLogic;
+    pFiguresMoveLogic = nullptr;
     return nullptr;
   }
 }
@@ -287,6 +287,12 @@ void GameLayer::createTestFigures()
   drawnode->drawCircle(Vec2(0, 0), 20, 360, 20, true, 1, 1, Color4F::MAGENTA);
   figure1->addChild(drawnode);*/
 
+}
+
+bool GameLayer::checkFigureMove(Size prevCellIJ, Size curCellIJ)
+{
+  //bool isMoveValid = m_figuresMoveLogic->isMove 
+  return true;
 }
 
 /*void GameLayer::onMouseDown(Event* event)
