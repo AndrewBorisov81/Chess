@@ -14,8 +14,23 @@ FiguresMoveLogic::FiguresMoveLogic() : Logic()
   
 }
 
+FiguresMoveLogic::FiguresMoveLogic(GameLayer* gameLayer) : Logic(gameLayer)
+{
+
+}
+
 FiguresMoveLogic::~FiguresMoveLogic()
 {
+}
+
+bool FiguresMoveLogic::init()
+{
+  if (!Logic::init())
+  {
+    return false;
+  }
+
+  return true;
 }
 
 bool FiguresMoveLogic::isMoveValid(Position present, Position future, EnPassant* S_enPassant, Castling* S_castling, Promotion* S_promotion)
