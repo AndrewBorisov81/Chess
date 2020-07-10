@@ -1,12 +1,14 @@
 #include "TouchAndDragLayer.h"
+#include "GameLayer.h"
 #include "Figure.h"
 #include "Constants.h"
 #include "Grid.h"
 
 USING_NS_CC;
 
-TouchAndDragLayer::TouchAndDragLayer(std::vector<std::vector<Figure*>>& figures, Grid* grid)
+TouchAndDragLayer::TouchAndDragLayer(std::vector<std::vector<Figure*>>& figures, GameLayer* gameLayer, Grid* grid)
   : m_figures(figures),
+    m_gameLayer(gameLayer),
     m_grid(grid)
 {
 
@@ -78,6 +80,9 @@ void TouchAndDragLayer::onMouseDown(Event* event)
         m_currentDragFigure = pClickFigure;
         m_currentFigureSize = m_currentDragFigure->getContentSize();
 
+        m_prevCellIJFigure.width = cellI;
+        m_prevCellIJFigure.height = cellJ;
+
         m_figures[cellI][cellJ] = 0;
 
         _state = kGrabbed;
@@ -108,8 +113,15 @@ void TouchAndDragLayer::onMouseUp(Event* event)
 
       m_figures[cellI][cellJ] = m_currentDragFigure;
 
+      m_curCellIJFigure.width = cellI;
+      m_curCellIJFigure.height = cellJ;
+
       m_currentDragFigure = nullptr;
       m_currentFigureSize = Size::ZERO;
+
+      Size prev(m_prevCellIJFigure.width, m_prevCellIJFigure.height);
+      Size cur(m_curCellIJFigure.width, m_curCellIJFigure.height);
+      m_gameLayer->checkFigureMove(prev, cur);
     }
   }
 }
