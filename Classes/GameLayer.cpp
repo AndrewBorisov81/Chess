@@ -177,13 +177,13 @@ Figure* GameLayer::createFigureFileName(int type, bool isWhite)
       break;
 
     case 2:
-      typeFigure = TypeFigure::HORSE;
-      fileName = (isWhite) ? Constants::WHITE_HORSE_PNG : Constants::BLACK_HORSE_PNG;
+      typeFigure = TypeFigure::KNIGHT;
+      fileName = (isWhite) ? Constants::WHITE_KNIGHT_PNG : Constants::BLACK_KNIGHT_PNG;
       break;
 
     case 3:
-      typeFigure = TypeFigure::KNIGHT;
-      fileName = (isWhite) ? Constants::WHITE_KNIGHT_PNG : Constants::BLACK_KNIGHT_PNG;
+      typeFigure = TypeFigure::BISHOP;
+      fileName = (isWhite) ? Constants::WHITE_BISHOP_PNG : Constants::BLACK_BISHOP_PNG;
       break;
 
     case 4:
