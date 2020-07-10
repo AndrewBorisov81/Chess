@@ -65,16 +65,6 @@ struct IntendedMove
   Position to;
 };
 
-/*struct IntendedMove
-{
-  char chPiece;
-  TypeFigure typeFigure;
-  bool isWhite;
-  Figure* figure;
-  Position from;
-  Position to;
-}*/
-
 struct Attacker
 {
   Position  pos;
@@ -100,7 +90,11 @@ public:
 
   Figure* getFigureAtPosition(int i, int j);
 
+  void logMove(std::string &to_record);
+
   std::string getLastMove();
+
+  void deleteLastMove(void);
 
   int getCurrentTurn();
 
@@ -112,7 +106,6 @@ public:
 
   UnderAttack isUnderAttack(int iRow, int iColumn, int iColor, IntendedMove* pintended_move);
 
-  //bool wouldKingBeInCheck(char chPiece, Position present, Position future, EnPassant* S_enPassant);
   bool wouldKingBeInCheck(Figure* figure, Position present, Position future, EnPassant* S_enPassant);
 
   Position findKing(int iColor);
@@ -136,9 +129,10 @@ public:
 
   void parseMove(std::string move, Position* pFrom, Position* pTo, char* chPromoted = nullptr);
 
-private:
+protected:
   GameLayer* m_gameLayer{ nullptr };
 
+private:
   // Castling requirements
   bool m_bCastlingKingSideAllowed[2];
   bool m_bCastlingQueenSideAllowed[2];

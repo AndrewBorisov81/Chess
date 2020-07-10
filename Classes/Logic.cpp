@@ -787,3 +787,53 @@ UnderAttack Logic::isUnderAttack(int iRow, int iColumn, int iColor, IntendedMove
   return attack;
 }
 
+void Logic::logMove(std::string &to_record)
+{
+  // If record contains only 5 chracters, add spaces
+  // Because when 
+  if (to_record.length() == 5)
+  {
+    to_record += "  ";
+  }
+
+  if (static_cast<int>(Player::WHITE_PLAYER) == getCurrentTurn())
+  {
+    // If this was a white player move, create a new round and leave the black_move empty
+    Round round;
+    round.white_move = to_record;
+    round.black_move = "";
+
+    rounds.push_back(round);
+  }
+  else
+  {
+    // If this was a black_move, just update the last Round
+    Round round = rounds[rounds.size() - 1];
+    round.black_move = to_record;
+
+    // Remove the last round and put it back, now with the black move
+    rounds.pop_back();
+    rounds.push_back(round);
+  }
+}
+
+void Logic::deleteLastMove(void)
+{
+  // Notice we already changed turns back
+  if (static_cast<int>(Player::WHITE_PLAYER) == getCurrentTurn())
+  {
+    // Last move was white's turn, so simply pop from the back
+    rounds.pop_back();
+  }
+  else
+  {
+    // Last move was black's, so let's 
+    Round round = rounds[rounds.size() - 1];
+    round.black_move = "";
+
+    // Pop last round and put it back, now without the black move
+    rounds.pop_back();
+    rounds.push_back(round);
+  }
+}
+
