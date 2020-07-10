@@ -6,8 +6,8 @@
 enum class TypeFigure
 {
   ROOK = 1,
-  HORSE = 2,
-  KNIGHT = 3,
+  KNIGHT = 2,
+  BISHOP = 3,
   QUEEN = 4,
   KING = 5,
   PAWN = 6
