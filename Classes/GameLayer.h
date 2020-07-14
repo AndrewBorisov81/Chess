@@ -22,9 +22,10 @@ enum class ZOrderGame
 {
   BOARD = 101,
   GRID = 202,
-  FIGURE = 303,
+  FIGURES = 303,
   TOUCH_AND_DRAG = 404,
 };
+
 
 #include "cocos2d.h"
 
@@ -33,6 +34,11 @@ class Grid;
 class Figure;
 class TouchAndDragLayer;
 class FiguresMoveLogic;
+
+struct DataChess
+{
+  std::vector<std::vector<Figure*>> figures;
+};
 
 class GameLayer : public cocos2d::Layer
 {
@@ -46,13 +52,16 @@ public:
 
   TouchAndDragLayer* getTouchAndDragLayer();
   const std::vector<std::vector<Figure*>>& getFigures();
+  DataChess& getDataChess();
 
-  bool checkFigureMove(cocos2d::Size prevCellIJ, cocos2d::Size curCellIJ);
+  bool checkFigureMove(Figure* figure, cocos2d::Size prevCellIJ, cocos2d::Size curCellIJ);
 
 private:
   cocos2d::Size m_screenSize{ 0.0f, 0.0f };
   cocos2d::Size m_cellSize{ 0.0f, 0.0f };
   cocos2d::Size m_gridSize{ 0.0f, 0.0f };
+
+  DataChess m_dataChess;
 
   int m_figures_board[8][8];
   Board* m_board{ nullptr };
@@ -65,8 +74,10 @@ private:
   Grid* createGrid(float cellSize, int rows, int columns);
   std::vector<std::vector<Figure*>> createFigures(const int figures_board[8][8], int rows, int columns);
   Figure* createFigureFileName(int type, bool isWhite);
-  TouchAndDragLayer* createTouchAndDrag(std::vector<std::vector<Figure*>>& figures, GameLayer* gameLayer, Grid* grid);
+  TouchAndDragLayer* createTouchAndDrag(GameLayer* gameLayer, Grid* grid);
   FiguresMoveLogic* createFiguresMoveLogic(GameLayer* gameField);
+
+  //void updateFiguresBoard(DataChess& dataChess, const cocos2d::Size& oldPositionIJ, const cocos2d::Size& newPositionIJ);
 
   void createTestFigures();
 

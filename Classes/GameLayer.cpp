@@ -13,6 +13,7 @@
 #include <cmath>
 #include <string>
 #include <stdlib.h>
+#include <functional>
 
 USING_NS_CC;
 using namespace cocos2d::ui;
@@ -59,14 +60,28 @@ bool GameLayer::init()
 
   // Create Figures
   m_figures = createFigures(Constants::INITIAL_FIGURES_BOARD, Constants::ROWS, Constants::COLUMNS);
+  m_dataChess.figures = m_figures;
   // Load Figures
-  board->loadAllFigures(m_figures, static_cast<int>(ZOrderGame::FIGURE));
+  board->loadAllFigures(m_figures, static_cast<int>(ZOrderGame::FIGURES));
 
   // Create TouchAndDragLayer
-  TouchAndDragLayer* touchAndDragLayer = createTouchAndDrag(m_figures, this, grid);
+  TouchAndDragLayer* touchAndDragLayer = createTouchAndDrag(this, grid);
   board->addChild(touchAndDragLayer, static_cast<int>(ZOrderGame::TOUCH_AND_DRAG));
   m_touchAndDragLayer = touchAndDragLayer;
   touchAndDragLayer->setPosition(grid->getPosition());
+
+
+  std::vector<std::vector<Figure*>> &figures = m_dataChess.figures;
+
+  // Set callBack
+  auto lfUpdateFiguresBoard = [&](Figure* figure, Size& oldPos, Size& newPos)->void
+  {
+    //std::vector<std::vector<Figure*>> figures = figures;
+    figures[oldPos.width][oldPos.height] = 0;
+    figures[newPos.width][newPos.height] = figure;
+  };
+
+  touchAndDragLayer->callBackUpdateBoardFigures(lfUpdateFiguresBoard);
 
   FiguresMoveLogic* figuresMoveLogic = createFiguresMoveLogic(this);
   m_figuresMoveLogic = figuresMoveLogic;
@@ -122,9 +137,9 @@ Grid* GameLayer::createGrid(float cellSize, int rows, int columns)
   }
 }
 
-TouchAndDragLayer* GameLayer::createTouchAndDrag(std::vector<std::vector<Figure*>>& figures, GameLayer* gameLayer, Grid* grid)
+TouchAndDragLayer* GameLayer::createTouchAndDrag(GameLayer* gameLayer, Grid* grid)
 {
-  TouchAndDragLayer* pTouchAndDrag = new(std::nothrow) TouchAndDragLayer(figures, gameLayer, grid);
+  TouchAndDragLayer* pTouchAndDrag = new(std::nothrow) TouchAndDragLayer(gameLayer, grid);
   if (pTouchAndDrag && pTouchAndDrag->init())
   {
     pTouchAndDrag->autorelease();
@@ -152,6 +167,11 @@ FiguresMoveLogic* GameLayer::createFiguresMoveLogic(GameLayer* gameLayer)
     pFiguresMoveLogic = nullptr;
     return nullptr;
   }
+}
+
+DataChess& GameLayer::getDataChess()
+{
+  return m_dataChess;
 }
 
 TouchAndDragLayer* GameLayer::getTouchAndDragLayer()
@@ -251,7 +271,7 @@ void GameLayer::createTestFigures()
  // Create Figure
   //Figure* figure2 = Figure::createFigure(TypeFigure::HORSE, ColourFigure::WHITE, Constants::BLACK_HORSE_PNG);
   Figure* figure2 = Figure::createFigure(2, true, Constants::BLACK_KING_PNG);
-  grid->addChild(figure2, static_cast<int>(ZOrderGame::FIGURE));
+  grid->addChild(figure2, static_cast<int>(ZOrderGame::FIGURES));
   figure2->setPosition(grid->getPointByCell(1, 0));
   figure2->setTouchEnabled(true);
   /*figure2->addClickEventListener([=](Ref*) {
@@ -289,9 +309,25 @@ void GameLayer::createTestFigures()
 
 }
 
-bool GameLayer::checkFigureMove(Size prevCellIJ, Size curCellIJ)
+bool GameLayer::checkFigureMove(Figure* figure, Size prevCellIJ, Size curCellIJ)
 {
-  //bool isMoveValid = m_figuresMoveLogic->isMove 
+  EnPassant  S_enPassant = { 0 };
+  Castling   S_castling = { 0 };
+  Promotion  S_promotion = { 0 };
+
+  Position present;
+  present.iRow = (int)(prevCellIJ.width);
+  present.iColumn = (int)(prevCellIJ.height);
+
+  Position future;
+  future.iRow = (int)(curCellIJ.width);
+  future.iColumn = (int)(curCellIJ.height);
+
+  m_figuresMoveLogic->m_gameLayer = this;
+  m_figuresMoveLogic->updateFigures(m_figures);
+
+  bool isMoveValid = m_figuresMoveLogic->isMoveValid(figure, present, future, &S_enPassant, &S_castling, &S_promotion);
+
   return true;
 }
 
