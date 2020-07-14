@@ -6,6 +6,7 @@
 
 #include <stdlib.h>
 #include <string>
+#include <vector>
 
 USING_NS_CC;
 
@@ -16,7 +17,6 @@ FiguresMoveLogic::FiguresMoveLogic() : Logic()
 
 FiguresMoveLogic::FiguresMoveLogic(GameLayer* gameLayer) : Logic(gameLayer)
 {
-
 }
 
 FiguresMoveLogic::~FiguresMoveLogic()
@@ -33,12 +33,14 @@ bool FiguresMoveLogic::init()
   return true;
 }
 
-bool FiguresMoveLogic::isMoveValid(Position present, Position future, EnPassant* S_enPassant, Castling* S_castling, Promotion* S_promotion)
+bool FiguresMoveLogic::isMoveValid(Figure* figure, Position present, Position future, EnPassant* S_enPassant, Castling* S_castling, Promotion* S_promotion)
 {
+  if (!figure) return false;
   bool bValid = false;
 
   //char chPiece = current_game->getPieceAtPosition(present.iRow, present.iColumn);
-  Figure* figure = m_gameLayer->getTouchAndDragLayer()->getFigure();
+  /*TouchAndDragLayer* touchAndDragLayer = m_gameLayer->getTouchAndDragLayer();
+  Figure* figure = touchAndDragLayer->getFigure();*/
   TypeFigure typeFigure = figure->getType();
 
   // ----------------------------------------------------
@@ -106,6 +108,7 @@ bool FiguresMoveLogic::isMoveValid(Position present, Position future, EnPassant*
 
       // First of all, was it a pawn?
       Figure* LstMvFigure = getFigureAtPosition(LastMoveTo.iRow, LastMoveTo.iColumn);
+
 
       if (LstMvFigure->getType() != TypeFigure::PAWN)
       {

@@ -3,8 +3,7 @@
 #include "cocos2d.h"
 
 #include "Logic.h"
-
-class GameLayer;
+#include "GameLayer.h"
 
 class FiguresMoveLogic : public Logic
 {
@@ -15,5 +14,5 @@ public:
 
   virtual bool init();
 
-  bool isMoveValid(Position present, Position future, EnPassant* S_enPassant, Castling* S_castling, Promotion* S_promotion);
+  bool isMoveValid(Figure* figure, Position present, Position future, EnPassant* S_enPassant, Castling* S_castling, Promotion* S_promotion);
 };
