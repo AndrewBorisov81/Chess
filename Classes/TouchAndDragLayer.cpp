@@ -4,11 +4,12 @@
 #include "Constants.h"
 #include "Grid.h"
 
+#include <vector>
+
 USING_NS_CC;
 
-TouchAndDragLayer::TouchAndDragLayer(std::vector<std::vector<Figure*>>& figures, GameLayer* gameLayer, Grid* grid)
-  : m_figures(figures),
-    m_gameLayer(gameLayer),
+TouchAndDragLayer::TouchAndDragLayer(GameLayer* gameLayer, Grid* grid)
+  : m_gameLayer(gameLayer),
     m_grid(grid)
 {
 
@@ -74,7 +75,8 @@ void TouchAndDragLayer::onMouseDown(Event* event)
 
     if (cellI >= 0 && cellJ >= 0 && cellI < Constants::COLUMNS && cellJ < Constants::ROWS)
     {
-      Figure* pClickFigure = m_figures[cellI][cellJ];
+      DataChess& dataChess = m_gameLayer->getDataChess();
+      Figure* pClickFigure = dataChess.figures[cellI][cellJ];
       if (pClickFigure)
       {
         m_currentDragFigure = pClickFigure;
@@ -82,8 +84,6 @@ void TouchAndDragLayer::onMouseDown(Event* event)
 
         m_prevCellIJFigure.width = cellI;
         m_prevCellIJFigure.height = cellJ;
-
-        m_figures[cellI][cellJ] = 0;
 
         _state = kGrabbed;
       }
@@ -111,17 +111,16 @@ void TouchAndDragLayer::onMouseUp(Event* event)
 
       m_currentDragFigure->setPosition(m_grid->getPointByCell(curFigureCellIJ.width, curFigureCellIJ.height));
 
-      m_figures[cellI][cellJ] = m_currentDragFigure;
-
       m_curCellIJFigure.width = cellI;
       m_curCellIJFigure.height = cellJ;
 
-      m_currentDragFigure = nullptr;
-      m_currentFigureSize = Size::ZERO;
-
       Size prev(m_prevCellIJFigure.width, m_prevCellIJFigure.height);
       Size cur(m_curCellIJFigure.width, m_curCellIJFigure.height);
-      m_gameLayer->checkFigureMove(prev, cur);
+
+      m_updateBoardFigures(m_currentDragFigure, prev, cur);
+
+      m_currentDragFigure = nullptr;
+      m_currentFigureSize = Size::ZERO;
     }
   }
 }
@@ -141,4 +140,9 @@ void TouchAndDragLayer::onMouseMove(Event* event)
           m_currentDragFigure->setPosition(Vec2(x, y));
     }
   }
+}
+
+void TouchAndDragLayer::callBackUpdateBoardFigures(const std::function<void(Figure* figure, Size& oldPos, Size& newPos)>& callBack)
+{
+  m_updateBoardFigures = callBack;
 }
