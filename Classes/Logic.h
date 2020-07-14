@@ -129,8 +129,11 @@ public:
 
   void parseMove(std::string move, Position* pFrom, Position* pTo, char* chPromoted = nullptr);
 
-protected:
   GameLayer* m_gameLayer{ nullptr };
+
+  std::vector<std::vector<Figure*>> m_figures;
+
+  void updateFigures(const std::vector<std::vector<Figure*>>& figures);
 
 private:
   // Castling requirements

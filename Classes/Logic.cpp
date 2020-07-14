@@ -13,8 +13,21 @@ Logic::Logic()
 
 }
 
-Logic::Logic(GameLayer * gameLayer) : m_gameLayer(gameLayer)
+Logic::Logic(GameLayer* gameLayer) 
+  : m_gameLayer(gameLayer)
 {
+  DataChess& dataChess = m_gameLayer->getDataChess();
+
+  for (int i = 0; i < dataChess.figures.size(); i++)
+  {
+    std::vector<Figure*> figuresRow = dataChess.figures[i];
+    std::vector<Figure*> newRow;
+    for (int j = 0; j < figuresRow.size(); j++)
+    {
+      newRow.push_back(dataChess.figures[i][j]);
+    }
+    m_figures.push_back(newRow);
+  }
 }
 
 Logic::~Logic()
@@ -45,8 +58,8 @@ bool Logic::castlingAllowed(Side iSide, int iColor)
 
 Figure* Logic::getFigureAtPosition(int i, int j)
 {
-  std::vector<std::vector<Figure*>> figures = m_gameLayer->getFigures();
-  return figures[i][j];
+  Figure* figure = m_figures[i][j];
+  return figure;
 }
 
 std::string Logic::getLastMove()
@@ -99,6 +112,31 @@ void Logic::parseMove(std::string move, Position* pFrom, Position* pTo, char* ch
       *chPromoted = Constants::EMPTY_SQUARE;
     }
   }
+}
+
+void Logic::updateFigures(const std::vector<std::vector<Figure*>>& figures)
+{
+  //m_figures.clear();
+
+  for (unsigned int i = 0; i < figures.size(); i++)
+  {
+    std::vector<Figure*> figuresRow = figures[i];
+    std::vector<Figure*> newRow;
+    for (unsigned int j = 0; j < figuresRow.size(); j++)
+    {
+      newRow.push_back(figures[i][j]);
+    }
+    m_figures.push_back(newRow);
+  }
+
+  /*for (int i = 0; i < m_figures.size(); i++)
+  {
+    std::vector<Figure*> figuresRow = m_figures[i];
+    for (int j = 0; j < figuresRow.size(); j++)
+    {
+      figuresRow[j] = figures[i][j];
+    }
+  }*/
 }
 
 bool Logic::isPathFree(Position startingPos, Position finishingPos, int iDirection)
