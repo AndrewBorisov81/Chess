@@ -41,7 +41,210 @@ bool Logic::init()
     return false;
   }
 
+  // -------------------------------------------------------------------
+   // Game class
+   // -------------------------------------------------------------------
+   // White player always starts
+  //m_currentTurn = static_cast<int>(Player::WHITE_PLAYER);
+  m_currentTurn = 0;
+
+  // Game on!
+  m_bGameFinished = false;
+
+  // Nothing has happend yet
+  m_undo.bCapturedLastMove = false;
+  m_undo.bCanUndo = false;
+  m_undo.bCastlingKingSideAllowed = false;
+  m_undo.bCastlingQueenSideAllowed = false;
+  m_undo.en_passant.bApplied = false;
+  m_undo.castling.bApplied = false;
+
+  // Initial board settings
+  //memcpy(board, initial_board, sizeof(char) * 8 * 8);
+
+  // Castling is allowed (to each side) until the player moves the king or the rook
+  m_bCastlingKingSideAllowed[static_cast<int>(Player::WHITE_PLAYER)] = true;
+  m_bCastlingKingSideAllowed[static_cast<int>(Player::BLACK_PLAYER)] = true;
+
+  m_bCastlingQueenSideAllowed[static_cast<int>(Player::WHITE_PLAYER)] = true;
+  m_bCastlingQueenSideAllowed[static_cast<int>(Player::BLACK_PLAYER)] = true;
+
   return true;
+}
+
+void Logic::moveFigure(Position present, Position future, EnPassant* S_enPassant, Castling* S_castling, Promotion* S_promotion)
+{
+  // Get the piece to be moved
+  //char chPiece = getPieceAtPosition(present);
+  Figure* figure = getFigureAtPosition(present.iRow, present.iColumn);
+
+  // Is the destination square occupied?
+  //char chCapturedPiece = getPieceAtPosition(future);
+  Figure* capturedFigure = getFigureAtPosition(future.iRow, future.iColumn);
+
+  // So, was a piece captured in this move?
+  //if (0x20 != chCapturedPiece)
+  if(Constants::EMPTY_SQUARE != capturedFigure)
+  {
+    //if (WHITE_PIECE == getPieceColor(chCapturedPiece))
+    if(capturedFigure->isWhite())
+    {
+      // A white piece was captured
+      white_captured.push_back(capturedFigure);
+    }
+    else
+    {
+      // A black piece was captured
+      black_captured.push_back(capturedFigure);
+    }
+
+    // Set Undo structure. If a piece was captured, then no "en passant" move performed
+    m_undo.bCapturedLastMove = true;
+
+    // Reset m_undo.castling
+    memset(&m_undo.en_passant, 0, sizeof(EnPassant));
+  }
+  else if (true == S_enPassant->bApplied)
+  {
+    //char chCapturedEP = getPieceAtPosition(S_enPassant->PawnCaptured.iRow, S_enPassant->PawnCaptured.iColumn);
+    Figure* capturedEPFigure = getFigureAtPosition(S_enPassant->PawnCaptured.iRow, S_enPassant->PawnCaptured.iColumn);
+
+    //if (WHITE_PIECE == getPieceColor(chCapturedEP))
+    if(capturedEPFigure->isWhite())
+    {
+      // A white piece was captured
+      white_captured.push_back(capturedEPFigure);
+    }
+    else
+    {
+      // A black piece was captured
+      black_captured.push_back(capturedEPFigure);
+    }
+
+    // Now, remove the captured pawn
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //board[S_enPassant->PawnCaptured.iRow][S_enPassant->PawnCaptured.iColumn] = EMPTY_SQUARE;
+    m_gameLayer->removeFigureBoard(Size(S_enPassant->PawnCaptured.iRow, S_enPassant->PawnCaptured.iColumn));
+
+    // Set Undo structure as piece was captured and "en passant" move was performed
+    m_undo.bCapturedLastMove = true;
+    memcpy(&m_undo.en_passant, S_enPassant, sizeof(EnPassant));
+  }
+  else
+  {
+    m_undo.bCapturedLastMove = false;
+
+    // Reset m_undo.castling
+    memset(&m_undo.en_passant, 0, sizeof(EnPassant));
+  }
+
+  // Remove piece from present position
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  //board[present.iRow][present.iColumn] = EMPTY_SQUARE;
+  m_gameLayer->removeFigureBoard(Size(present.iRow, present.iColumn));
+
+  // Move piece to new position
+  if (true == S_promotion->bApplied)
+  {
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //board[future.iRow][future.iColumn] = S_promotion->chAfter;
+
+    // Set Undo structure as a promotion occured
+    memcpy(&m_undo.promotion, S_promotion, sizeof(Promotion));
+  }
+  else
+  {
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //board[future.iRow][future.iColumn] = chPiece;
+
+    // Reset m_undo.promotion
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //memset(&m_undo.promotion, 0, sizeof(Promotion));
+  }
+
+  // Was it a castling move?
+  if (S_castling->bApplied == true)
+  {
+    // The king was already move, but we still have to move the rook to 'jump' the king
+    //char chPiece = getPieceAtPosition(S_castling->rook_before.iRow, S_castling->rook_before.iColumn);
+    Figure* figure = getFigureAtPosition(S_castling->rook_before.iRow, S_castling->rook_before.iColumn);
+
+    // Remove the rook from present position
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //board[S_castling->rook_before.iRow][S_castling->rook_before.iColumn] = EMPTY_SQUARE;
+
+    // 'Jump' into to new position
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //board[S_castling->rook_after.iRow][S_castling->rook_after.iColumn] = chPiece;
+
+    // Write this information to the m_undo struct
+    memcpy(&m_undo.castling, S_castling, sizeof(Castling));
+
+    // Save the 'CastlingAllowed' information in case the move is undone
+    m_undo.bCastlingKingSideAllowed = m_bCastlingKingSideAllowed[getCurrentTurn()];
+    m_undo.bCastlingQueenSideAllowed = m_bCastlingQueenSideAllowed[getCurrentTurn()];
+  }
+  else
+  {
+    // Reset m_undo.castling
+    memset(&m_undo.castling, 0, sizeof(Castling));
+  }
+
+  // Castling requirements
+  //if ('K' == toupper(chPiece))
+  if(TypeFigure::KING == figure->getType())
+  {
+    // After the king has moved once, no more castling allowed
+    m_bCastlingKingSideAllowed[getCurrentTurn()] = false;
+    m_bCastlingQueenSideAllowed[getCurrentTurn()] = false;
+  }
+  //else if ('R' == toupper(chPiece))
+  else if (TypeFigure::ROOK == figure->getType())
+  {
+    // If the rook moved from column 'A', no more castling allowed on the queen side
+    if (0 == present.iColumn)
+    {
+      m_bCastlingQueenSideAllowed[getCurrentTurn()] = false;
+    }
+
+    // If the rook moved from column 'A', no more castling allowed on the queen side
+    else if (7 == present.iColumn)
+    {
+      m_bCastlingKingSideAllowed[getCurrentTurn()] = false;
+    }
+  }
+
+  // Change turns
+  changeTurns();
+
+  // This move can be undone
+  m_undo.bCanUndo = true;
+}
+
+void Logic::changeTurns(void)
+{
+  if (static_cast<int>(Player::WHITE_PLAYER) == m_currentTurn)
+  {
+    m_currentTurn = static_cast<int>(Player::BLACK_PLAYER);
+  }
+  else
+  {
+    m_currentTurn = static_cast<int>(Player::WHITE_PLAYER);
+  }
 }
 
 bool Logic::castlingAllowed(Side iSide, int iColor)
@@ -58,8 +261,9 @@ bool Logic::castlingAllowed(Side iSide, int iColor)
 
 Figure* Logic::getFigureAtPosition(int i, int j)
 {
-  Figure* figure = m_figures[i][j];
-  return figure;
+  //Figure* figure = m_figures[i][j];
+  DataChess& dataChess = m_gameLayer->getDataChess();
+  return dataChess.figures[i][j];
 }
 
 std::string Logic::getLastMove()
@@ -128,15 +332,6 @@ void Logic::updateFigures(const std::vector<std::vector<Figure*>>& figures)
     }
     m_figures.push_back(newRow);
   }
-
-  /*for (int i = 0; i < m_figures.size(); i++)
-  {
-    std::vector<Figure*> figuresRow = m_figures[i];
-    for (int j = 0; j < figuresRow.size(); j++)
-    {
-      figuresRow[j] = figures[i][j];
-    }
-  }*/
 }
 
 bool Logic::isPathFree(Position startingPos, Position finishingPos, int iDirection)
@@ -346,7 +541,7 @@ Position Logic::findKing(int iColor)
     for (int j = 0; j < 8; j++)
     {
       Figure* figure = getFigureAtPosition(i, j);
-      if(figure->getType() == TypeFigure::KING && figure->isWhite() == isWhiteKing)
+      if(figure && figure->getType() == TypeFigure::KING && figure->isWhite() == isWhiteKing)
       {
         king.iRow = i;
         king.iColumn = j;
@@ -386,7 +581,8 @@ bool Logic::isKingInCheck(int iColor, IntendedMove* pintended_move)
 
 bool Logic::playerKingInCheck(IntendedMove* intended_move)
 {
-  return isKingInCheck(getCurrentTurn(), intended_move);
+  int colorKing = getCurrentTurn();
+  return isKingInCheck(static_cast<int>(getCurrentTurn()), intended_move);
 }
 
 Figure* Logic::getPiece_considerMove(int iRow, int iColumn, IntendedMove* intended_move)

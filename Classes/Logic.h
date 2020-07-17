@@ -86,6 +86,8 @@ public:
   ~Logic();
   virtual bool init();
 
+  void moveFigure(Position present, Position future, EnPassant* S_enPassant, Castling* S_castling, Promotion* S_promotion);
+
   bool castlingAllowed(Side iSide, int iColor);
 
   Figure* getFigureAtPosition(int i, int j);
@@ -108,6 +110,8 @@ public:
 
   bool wouldKingBeInCheck(Figure* figure, Position present, Position future, EnPassant* S_enPassant);
 
+  void changeTurns(void);
+
   Position findKing(int iColor);
 
   bool isKingInCheck(int iColor, IntendedMove* intended_move = nullptr);
@@ -124,22 +128,41 @@ public:
   std::deque<Round> rounds;
 
   // Save the captured pieces
-  std::vector<char> white_captured;
-  std::vector<char> black_captured;
+  /*std::vector<char> white_captured;
+  std::vector<char> black_captured;*/
+  std::vector<Figure*> white_captured;
+  std::vector<Figure*> black_captured;
 
   void parseMove(std::string move, Position* pFrom, Position* pTo, char* chPromoted = nullptr);
 
   GameLayer* m_gameLayer{ nullptr };
+  int  m_currentTurn{ 0 };
 
   std::vector<std::vector<Figure*>> m_figures;
 
   void updateFigures(const std::vector<std::vector<Figure*>>& figures);
 
-private:
+protected:
+
+  // Undo is possible?
+  struct Undo
+  {
+    bool bCanUndo;
+    bool bCapturedLastMove;
+
+    bool bCastlingKingSideAllowed;
+    bool bCastlingQueenSideAllowed;
+
+    EnPassant en_passant;
+    Castling  castling;
+    Promotion promotion;
+  } m_undo;
+
   // Castling requirements
   bool m_bCastlingKingSideAllowed[2];
   bool m_bCastlingQueenSideAllowed[2];
 
   //Holds the current turn
-  int  m_currentTurn;
+  //int  m_currentTurn{ static_cast<int>(Player::WHITE_PLAYER) };
+  bool m_bGameFinished{ false };
 };
