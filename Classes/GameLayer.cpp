@@ -74,11 +74,18 @@ bool GameLayer::init()
   std::vector<std::vector<Figure*>> &figures = m_dataChess.figures;
 
   // Set callBack
-  auto lfUpdateFiguresBoard = [&](Figure* figure, Size& oldPos, Size& newPos)->void
+  auto lfUpdateFiguresBoard = [&, this](Figure* figure, Size& prevPos, Size& newPos)->void
   {
-    //std::vector<std::vector<Figure*>> figures = figures;
-    figures[oldPos.width][oldPos.height] = 0;
-    figures[newPos.width][newPos.height] = figure;
+    bool isMoveValid = this->checkFigureMove(figure, prevPos, newPos);
+
+    if (isMoveValid)
+    {
+      updateBoardChess(figure, prevPos, newPos);
+    }
+    else
+    {
+      setBackFigureToPrevPos(figure, prevPos);
+    } 
   };
 
   touchAndDragLayer->callBackUpdateBoardFigures(lfUpdateFiguresBoard);
@@ -169,9 +176,26 @@ FiguresMoveLogic* GameLayer::createFiguresMoveLogic(GameLayer* gameLayer)
   }
 }
 
+void GameLayer::setBackFigureToPrevPos(Figure* figure, const Size& prevPos)
+{
+  Vec2 prevPosFigure = m_grid->getPointByCell(int(prevPos.height), int(prevPos.width));
+  figure->setPosition(prevPosFigure);
+}
+
 DataChess& GameLayer::getDataChess()
 {
   return m_dataChess;
+}
+
+void GameLayer::updateBoardChess(Figure* figure, const Size& prevPos, const Size& newPos)
+{
+  m_dataChess.figures[newPos.width][newPos.height] = figure;
+  m_dataChess.figures[prevPos.width][prevPos.height] = 0;
+}
+
+void GameLayer::removeFigureBoard(const Size& pos)
+{
+  m_dataChess.figures[pos.width][pos.height] = 0;
 }
 
 TouchAndDragLayer* GameLayer::getTouchAndDragLayer()
@@ -323,12 +347,14 @@ bool GameLayer::checkFigureMove(Figure* figure, Size prevCellIJ, Size curCellIJ)
   future.iRow = (int)(curCellIJ.width);
   future.iColumn = (int)(curCellIJ.height);
 
+  //????????????????????????????????????????????????
+  //????????????????????????????????????????????????
   m_figuresMoveLogic->m_gameLayer = this;
-  m_figuresMoveLogic->updateFigures(m_figures);
+  m_figuresMoveLogic->m_currentTurn = 0;
 
   bool isMoveValid = m_figuresMoveLogic->isMoveValid(figure, present, future, &S_enPassant, &S_castling, &S_promotion);
 
-  return true;
+  return isMoveValid;
 }
 
 /*void GameLayer::onMouseDown(Event* event)

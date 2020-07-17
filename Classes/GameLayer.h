@@ -54,6 +54,9 @@ public:
   const std::vector<std::vector<Figure*>>& getFigures();
   DataChess& getDataChess();
 
+  void updateBoardChess(Figure* figure, const cocos2d::Size& prevPos, const cocos2d::Size& newPos);
+  void removeFigureBoard(const cocos2d::Size& pos);
+
   bool checkFigureMove(Figure* figure, cocos2d::Size prevCellIJ, cocos2d::Size curCellIJ);
 
 private:
@@ -76,6 +79,8 @@ private:
   Figure* createFigureFileName(int type, bool isWhite);
   TouchAndDragLayer* createTouchAndDrag(GameLayer* gameLayer, Grid* grid);
   FiguresMoveLogic* createFiguresMoveLogic(GameLayer* gameField);
+
+  void setBackFigureToPrevPos(Figure* figure, const cocos2d::Size& prevPos);
 
   //void updateFiguresBoard(DataChess& dataChess, const cocos2d::Size& oldPositionIJ, const cocos2d::Size& newPositionIJ);
 
