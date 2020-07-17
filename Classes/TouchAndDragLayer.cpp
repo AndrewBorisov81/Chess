@@ -137,7 +137,7 @@ void TouchAndDragLayer::onMouseMove(Event* event)
     if (m_currentDragFigure)
     {
       if(x >= 0 && y >= 0 && y < Constants::ROWS * Constants::CELL_SIZE && x < Constants::ROWS * Constants::CELL_SIZE)
-          m_currentDragFigure->setPosition(Vec2(x, y));
+        m_currentDragFigure->setPosition(Vec2(x, y));
     }
   }
 }
