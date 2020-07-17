@@ -38,9 +38,6 @@ bool FiguresMoveLogic::isMoveValid(Figure* figure, Position present, Position fu
   if (!figure) return false;
   bool bValid = false;
 
-  //char chPiece = current_game->getPieceAtPosition(present.iRow, present.iColumn);
-  /*TouchAndDragLayer* touchAndDragLayer = m_gameLayer->getTouchAndDragLayer();
-  Figure* figure = touchAndDragLayer->getFigure();*/
   TypeFigure typeFigure = figure->getType();
 
   // ----------------------------------------------------
