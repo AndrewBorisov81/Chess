@@ -182,6 +182,11 @@ void GameLayer::setBackFigureToPrevPos(Figure* figure, const Size& prevPos)
   figure->setPosition(prevPosFigure);
 }
 
+void GameLayer::setFigureToNewPos(Figure* figure, const cocos2d::Size& newPos)
+{
+  m_dataChess.figures[newPos.width][newPos.height] = figure;
+}
+
 DataChess& GameLayer::getDataChess()
 {
   return m_dataChess;

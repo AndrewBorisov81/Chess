@@ -56,6 +56,7 @@ public:
 
   void updateBoardChess(Figure* figure, const cocos2d::Size& prevPos, const cocos2d::Size& newPos);
   void removeFigureBoard(const cocos2d::Size& pos);
+  void setFigureToNewPos(Figure* figure, const cocos2d::Size& newPos);
 
   bool checkFigureMove(Figure* figure, cocos2d::Size prevCellIJ, cocos2d::Size curCellIJ);
 
