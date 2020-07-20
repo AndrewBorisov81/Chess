@@ -56,6 +56,8 @@ struct Promotion
   //Position  pos;
   char chBefore;
   char chAfter;
+  Figure* figureBefore;
+  Figure* figureAfter;
 };
 
 struct IntendedMove
@@ -94,6 +96,10 @@ public:
 
   void logMove(std::string &to_record);
 
+  bool undoIsPossible();
+
+  void undoLastMove();
+
   std::string getLastMove();
 
   void deleteLastMove(void);
@@ -101,6 +107,8 @@ public:
   int getCurrentTurn();
 
   bool isPathFree(Position startingPos, Position finishingPos, int iDirection);
+
+  bool isReachable(int iRow, int iColumn, int iColor);
 
   bool Logic::isSquareOccupied(int iRow, int iColumn);
 
@@ -110,9 +118,15 @@ public:
 
   bool wouldKingBeInCheck(Figure* figure, Position present, Position future, EnPassant* S_enPassant);
 
+  int getOpponentColor();
+
   void changeTurns(void);
 
   Position findKing(int iColor);
+
+  bool canBeBlocked(Position startingPos, Position finishingPos, int iDirection);
+
+  bool isCheckMate();
 
   bool isKingInCheck(int iColor, IntendedMove* intended_move = nullptr);
 
