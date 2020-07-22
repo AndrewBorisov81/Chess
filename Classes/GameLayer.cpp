@@ -64,6 +64,10 @@ bool GameLayer::init()
   // Load Figures
   board->loadAllFigures(m_figures, static_cast<int>(ZOrderGame::FIGURES));
 
+  FiguresMoveLogic* pFiguresMoveLogic = createFiguresMoveLogic(this);
+  m_figuresMoveLogic = pFiguresMoveLogic;
+  this->addChild(pFiguresMoveLogic, 1);
+
   // Create TouchAndDragLayer
   TouchAndDragLayer* touchAndDragLayer = createTouchAndDrag(this, grid);
   board->addChild(touchAndDragLayer, static_cast<int>(ZOrderGame::TOUCH_AND_DRAG));
@@ -74,13 +78,15 @@ bool GameLayer::init()
   std::vector<std::vector<Figure*>> &figures = m_dataChess.figures;
 
   // Set callBack
-  auto lfUpdateFiguresBoard = [&, this](Figure* figure, Size& prevPos, Size& newPos)->void
+  auto lfUpdateFiguresBoard = [this](Figure* figure, Size& prevPos, Size& newPos)->void
   {
+    //moveFigure(prevPos, newPos);
     bool isMoveValid = this->checkFigureMove(figure, prevPos, newPos);
 
     if (isMoveValid)
     {
-      updateBoardChess(figure, prevPos, newPos);
+      moveFigure(prevPos, newPos);
+      //updateBoardChess(figure, prevPos, newPos);
     }
     else
     {
@@ -89,9 +95,6 @@ bool GameLayer::init()
   };
 
   touchAndDragLayer->callBackUpdateBoardFigures(lfUpdateFiguresBoard);
-
-  FiguresMoveLogic* figuresMoveLogic = createFiguresMoveLogic(this);
-  m_figuresMoveLogic = figuresMoveLogic;
 
   // Create Test Figures
   //createTestFigures();
@@ -185,6 +188,287 @@ void GameLayer::setBackFigureToPrevPos(Figure* figure, const Size& prevPos)
 void GameLayer::setFigureToNewPos(Figure* figure, const cocos2d::Size& newPos)
 {
   m_dataChess.figures[newPos.width][newPos.height] = figure;
+}
+
+void GameLayer::moveFigure(const Size& move_from, const Size& move_to)
+{
+  std::string to_record;
+
+  // Get user input for the piece they want to move
+  /*cout << "Choose piece to be moved. (example: A1 or b2): ";
+
+  std::string move_from;
+  getline(cin, move_from);
+
+  if (move_from.length() > 2)
+  {
+    createNextMessage("You should type only two characters (column and row)\n");
+    return;
+  }*/
+
+  Position present;
+  present.iColumn = move_from.height;
+  present.iRow = move_from.width;
+
+  // ---------------------------------------------------
+  // Did the user pick a valid piece?
+  // Must check if:
+  // - It's inside the board (A1-H8)
+  // - There is a piece in the square
+  // - The piece is consistent with the player's turn
+  // ---------------------------------------------------
+  /*present.iColumn = toupper(present.iColumn);
+
+  if (present.iColumn < 'A' || present.iColumn > 'H')
+  {
+    createNextMessage("Invalid column.\n");
+    return;
+  }
+
+  if (present.iRow < '0' || present.iRow > '8')
+  {
+    createNextMessage("Invalid row.\n");
+    return;
+  }
+
+  // Put in the string to be logged
+  to_record += present.iColumn;
+  to_record += present.iRow;
+  to_record += "-";
+
+  // Convert column from ['A'-'H'] to [0x00-0x07]
+  present.iColumn = present.iColumn - 'A';
+
+  // Convert row from ['1'-'8'] to [0x00-0x07]
+  present.iRow = present.iRow - '1';*/
+
+  //char chPiece = current_game->getPieceAtPosition(present.iRow, present.iColumn);
+  Figure* figure = m_figuresMoveLogic->getFigureAtPosition(present.iRow, present.iColumn);
+  //cout << "Piece is " << char(chPiece) << "\n";
+
+  if (Constants::EMPTY_SQUARE == figure)
+  {
+    //createNextMessage("You picked an EMPTY square.\n");
+    return;
+  }
+
+  if (static_cast<int>(Player::WHITE_PLAYER) == m_figuresMoveLogic->getCurrentTurn())
+  {
+    if (false == figure->isWhite())
+    {
+      //createNextMessage("It is WHITE's turn and you picked a BLACK piece\n");
+      setBackFigureToPrevPos(figure, move_from);
+      return;
+    }
+  }
+  else
+  {
+    if (false != figure->isWhite())
+    {
+      //createNextMessage("It is BLACK's turn and you picked a WHITE piece\n");
+      setBackFigureToPrevPos(figure, move_from);
+      return;
+    }
+  }
+
+  // ---------------------------------------------------
+  // Get user input for the square to move to
+  // ---------------------------------------------------
+  /*cout << "Move to: ";
+  std::string move_to;
+  getline(cin, move_to);
+
+  if (move_to.length() > 2)
+  {
+    createNextMessage("You should type only two characters (column and row)\n");
+    return;
+  }*/
+
+  // ---------------------------------------------------
+  // Did the user pick a valid house to move?
+  // Must check if:
+  // - It's inside the board (A1-H8)
+  // - The move is valid
+  // ---------------------------------------------------
+  Position future;
+  future.iColumn = move_to.height;
+  future.iRow = move_to.width;
+
+  //future.iColumn = toupper(future.iColumn);
+
+  /*if (future.iColumn < 'A' || future.iColumn > 'H')
+  {
+    createNextMessage("Invalid column.\n");
+    return;
+  }
+
+  if (future.iRow < '0' || future.iRow > '8')
+  {
+    createNextMessage("Invalid row.\n");
+    return;
+  }*/
+
+  // Put in the string to be logged
+  /*to_record += future.iColumn;
+  to_record += future.iRow;
+
+  // Convert columns from ['A'-'H'] to [0x00-0x07]
+  future.iColumn = future.iColumn - 'A';
+
+  // Convert row from ['1'-'8'] to [0x00-0x07]
+  future.iRow = future.iRow - '1';*/
+
+  // Check if it is not the exact same square
+  if (future.iRow == present.iRow && future.iColumn == present.iColumn)
+  {
+    //createNextMessage("[Invalid] You picked the same square!\n");
+    return;
+  }
+
+  // Is that move allowed?
+  EnPassant  S_enPassant = { 0 };
+  Castling   S_castling = { 0 };
+  Promotion  S_promotion = { 0 };
+
+  if (false == m_figuresMoveLogic->isMoveValid(figure, present, future, &S_enPassant, &S_castling, &S_promotion))
+  {
+    //createNextMessage("[Invalid] Piece can not move to that square!\n");
+    //setBackFigureToPrevPos(figure, move_from);
+    return;
+  }
+
+  // ---------------------------------------------------
+  // Promotion: user most choose a piece to
+  // replace the pawn
+  // ---------------------------------------------------
+  /*if (S_promotion.bApplied == true)
+  {
+    cout << "Promote to (Q, R, N, B): ";
+    std::string piece;
+    getline(cin, piece);
+
+    if (piece.length() > 1)
+    {
+      createNextMessage("You should type only one character (Q, R, N or B)\n");
+      return;
+    }
+
+    char chPromoted = toupper(piece[0]);
+
+    if (chPromoted != 'Q' && chPromoted != 'R' && chPromoted != 'N' && chPromoted != 'B')
+    {
+      createNextMessage("Invalid character.\n");
+      return;
+    }
+
+    S_promotion.chBefore = current_game->getPieceAtPosition(present.iRow, present.iColumn);
+
+    if (Chess::WHITE_PLAYER == current_game->getCurrentTurn())
+    {
+      S_promotion.chAfter = toupper(chPromoted);
+    }
+    else
+    {
+      S_promotion.chAfter = tolower(chPromoted);
+    }
+
+    to_record += '=';
+    to_record += toupper(chPromoted); // always log with a capital letter
+  }*/
+
+  // ---------------------------------------------------
+  // Log the move: do it prior to making the move
+  // because we need the getCurrentTurn()
+  // ---------------------------------------------------
+  m_figuresMoveLogic->logMove(to_record);
+
+  // ---------------------------------------------------
+  // Make the move
+  // ---------------------------------------------------
+
+  makeTheMove(Size(present.iRow, present.iColumn), Size(future.iRow, future.iColumn), &S_enPassant, &S_castling, &S_promotion);
+
+  // ---------------------------------------------------------------
+  // Check if this move we just did put the oponent's king in check
+  // Keep in mind that player turn has already changed
+  // ---------------------------------------------------------------
+  if (true == m_figuresMoveLogic->playerKingInCheck())
+  {
+    if (true == m_figuresMoveLogic->isCheckMate())
+    {
+      if (static_cast<int>(Player::WHITE_PLAYER) == m_figuresMoveLogic->getCurrentTurn())
+      {
+        //appendToNextMessage("Checkmate! Black wins the game!\n");
+      }
+      else
+      {
+        //appendToNextMessage("Checkmate! White wins the game!\n");
+      }
+    }
+    else
+    {
+      // Add to the string with '+=' because it's possible that
+      // there is already one message (e.g., piece captured)
+      if (static_cast<int>(Player::WHITE_PLAYER) == m_figuresMoveLogic->getCurrentTurn())
+      {
+        //appendToNextMessage("White king is in check!\n");
+      }
+      else
+      {
+        //appendToNextMessage("Black king is in check!\n");
+      }
+    }
+  }
+
+  return;
+}
+
+void GameLayer::makeTheMove(const Size& present, const Size& future, EnPassant* S_enPassant, Castling* S_castling, Promotion* S_promotion)
+{
+  //char chPiece = current_game->getPieceAtPosition(present.iRow, present.iColumn);
+  Figure* figure = m_figuresMoveLogic->getFigureAtPosition(present.width, present.height);
+
+  // -----------------------
+  // Captured a piece?
+  // -----------------------
+  if (m_figuresMoveLogic->isSquareOccupied(future.width, future.height))
+  {
+    //char chAuxPiece = current_game->getPieceAtPosition(future.iRow, future.iColumn);
+    Figure* auxFigures = m_figuresMoveLogic->getFigureAtPosition(future.width, future.height);
+
+    //if (Chess::getPieceColor(chPiece) != Chess::getPieceColor(chAuxPiece))
+    if(figure->isWhite() != auxFigures->isWhite())
+    {
+      //createNextMessage(Chess::describePiece(chAuxPiece) + " captured!\n");
+    }
+    else
+    {
+      //std::cout << "Error. We should not be making this move\n";
+      throw("Error. We should not be making this move");
+    }
+  }
+  else if (true == S_enPassant->bApplied)
+  {
+    bool stop = true;
+    //createNextMessage("Pawn captured by \"en passant\" move!\n");
+  }
+
+  if ((true == S_castling->bApplied))
+  {
+    bool stop = true;
+    //createNextMessage("Castling applied!\n");
+  }
+
+  //current_game->movePiece(present, future, S_enPassant, S_castling, S_promotion);
+  Position ppresent;
+  ppresent.iRow = present.width;
+  ppresent.iColumn = present.height;
+
+  Position pfuture;
+  pfuture.iRow = future.width;
+  pfuture.iColumn = future.height;
+
+  m_figuresMoveLogic->moveFigure(ppresent, pfuture, S_enPassant, S_castling, S_promotion);
 }
 
 DataChess& GameLayer::getDataChess()
@@ -354,8 +638,8 @@ bool GameLayer::checkFigureMove(Figure* figure, Size prevCellIJ, Size curCellIJ)
 
   //????????????????????????????????????????????????
   //????????????????????????????????????????????????
-  m_figuresMoveLogic->m_gameLayer = this;
-  m_figuresMoveLogic->m_currentTurn = 0;
+  /*m_figuresMoveLogic->m_gameLayer = this;
+  m_figuresMoveLogic->m_currentTurn = 0;*/
 
   bool isMoveValid = m_figuresMoveLogic->isMoveValid(figure, present, future, &S_enPassant, &S_castling, &S_promotion);
 
