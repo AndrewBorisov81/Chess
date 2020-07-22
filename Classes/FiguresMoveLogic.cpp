@@ -382,3 +382,4 @@ bool FiguresMoveLogic::isMoveValid(Figure* figure, Position present, Position fu
 
   return bValid;
 }
+
