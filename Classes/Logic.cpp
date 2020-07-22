@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <string>
+#include <deque>
 
 USING_NS_CC;
 
@@ -129,6 +130,7 @@ void Logic::moveFigure(Position present, Position future, EnPassant* S_enPassant
     // Now, remove the captured pawn
     //board[S_enPassant->PawnCaptured.iRow][S_enPassant->PawnCaptured.iColumn] = EMPTY_SQUARE;
     m_gameLayer->removeFigureBoard(Size(S_enPassant->PawnCaptured.iRow, S_enPassant->PawnCaptured.iColumn));
+    //m_gameLayer->setFigureToNewPos(S_promotion->figureBefore, Size(future.iRow, future.iColumn));
 
     // Set Undo structure as piece was captured and "en passant" move was performed
     m_undo.bCapturedLastMove = true;
@@ -408,11 +410,11 @@ void Logic::parseMove(std::string move, Position* pFrom, Position* pTo, char* ch
   {
     if (move[5] == '=')
     {
-      *chPromoted = move[6];
+      //*chPromoted = move[6];
     }
     else
     {
-      *chPromoted = Constants::EMPTY_SQUARE;
+      //*chPromoted = Constants::EMPTY_SQUARE;
     }
   }
 }

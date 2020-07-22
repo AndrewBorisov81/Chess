@@ -2,6 +2,8 @@
 
 #include "cocos2d.h"
 
+#include <deque>
+
 class GameLayer;
 class Figure;
 
