@@ -181,4 +181,6 @@ protected:
   //Holds the current turn
   //int  m_currentTurn{ static_cast<int>(Player::WHITE_PLAYER) };
   bool m_bGameFinished{ false };
+
+  //void Logic::term_func();
 };

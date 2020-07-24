@@ -74,6 +74,12 @@ bool Logic::init()
   return true;
 }
 
+/*void Logic::term_func()
+{
+  std::cout << "term_func was called by terminate." << std::endl;
+  exit(-1);
+}*/
+
 //---------------------------------------------------------------------------------------
 // Commands
 // Functions to handle the commands of the program
@@ -631,6 +637,16 @@ bool Logic::isPathFree(Position startingPos, Position finishingPos, int iDirecti
   break;
   }
 
+  /*try
+  {
+    set_terminate(term_func);
+    throw "Out of memory!"; // No catch handler for this exception
+  }
+  catch (int)
+  {
+   std::cout << "Integer exception raised." << std::endl;
+  }*/
+
   return bFree;
 }
 
@@ -1008,7 +1024,7 @@ bool Logic::isKingInCheck(int iColor, IntendedMove* pintended_move)
   Position king = { 0 };
 
   // Must check if the intended move is to move the king itself
-  if (nullptr != pintended_move && TypeFigure::KING == pintended_move->figure->getType() && true == pintended_move->figure->isWhite())
+  if (nullptr != pintended_move && TypeFigure::KING == pintended_move->figure->getType())
   {
     king.iRow = pintended_move->to.iRow;
     king.iColumn = pintended_move->to.iColumn;
