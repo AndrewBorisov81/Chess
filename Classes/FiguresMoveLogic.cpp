@@ -101,11 +101,12 @@ bool FiguresMoveLogic::isMoveValid(Figure* figure, Position present, Position fu
       // Parse the line
       Position LastMoveFrom;
       Position LastMoveTo;
-      parseMove(last_move, &LastMoveFrom, &LastMoveTo);
+
+      //parseMove(last_move, &LastMoveFrom, &LastMoveTo);
+      parseMoveStringToCell(last_move, &LastMoveFrom, &LastMoveTo);
 
       // First of all, was it a pawn?
       Figure* LstMvFigure = getFigureAtPosition(LastMoveTo.iRow, LastMoveTo.iColumn);
-
 
       if (LstMvFigure->getType() != TypeFigure::PAWN)
       {
