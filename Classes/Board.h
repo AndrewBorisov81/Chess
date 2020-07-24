@@ -19,8 +19,10 @@ public:
 
   void loadAllFigures(std::vector<std::vector<Figure*>>& figures, int zOrder);
   void addFigure();
-  void removeFigure();
+  void removeFigure(Figure* figure);
   void addGrid(Grid* grid);
+
+  //void moveFigureTo(Figure* figure, Position pos);
 
   cocos2d::Size m_boardSize;
 

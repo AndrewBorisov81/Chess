@@ -77,8 +77,9 @@ void Board::addFigure()
 {
 }
 
-void Board::removeFigure()
+void Board::removeFigure(Figure* figure)
 {
+  m_grid->removeChild(figure);
 }
 
 void Board::addGrid(Grid* grid)
