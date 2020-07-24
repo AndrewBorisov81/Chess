@@ -1,5 +1,6 @@
 #include "Logic.h"
 #include "GameLayer.h"
+#include "Board.h"
 #include "Figure.h"
 #include "Constants.h"
 
@@ -130,6 +131,7 @@ void Logic::moveFigure(Position present, Position future, EnPassant* S_enPassant
     // Now, remove the captured pawn
     //board[S_enPassant->PawnCaptured.iRow][S_enPassant->PawnCaptured.iColumn] = EMPTY_SQUARE;
     m_gameLayer->removeFigureBoard(Size(S_enPassant->PawnCaptured.iRow, S_enPassant->PawnCaptured.iColumn));
+    m_gameLayer->getBoard()->removeFigure(capturedEPFigure);
     //m_gameLayer->setFigureToNewPos(S_promotion->figureBefore, Size(future.iRow, future.iColumn));
 
     // Set Undo structure as piece was captured and "en passant" move was performed
@@ -147,6 +149,12 @@ void Logic::moveFigure(Position present, Position future, EnPassant* S_enPassant
   // Remove piece from present position
   //board[present.iRow][present.iColumn] = EMPTY_SQUARE;
   m_gameLayer->removeFigureBoard(Size(present.iRow, present.iColumn));
+  if (capturedFigure && m_gameLayer)
+  {
+    Board* board = m_gameLayer->getBoard();
+    if(board)
+      board->removeFigure(capturedFigure);
+  }
 
   // Move piece to new position
   if (true == S_promotion->bApplied)
@@ -180,6 +188,7 @@ void Logic::moveFigure(Position present, Position future, EnPassant* S_enPassant
     // 'Jump' into to new position
     //board[S_castling->rook_after.iRow][S_castling->rook_after.iColumn] = chPiece;
     m_gameLayer->setFigureToNewPos(figure, Size(S_castling->rook_after.iRow, S_castling->rook_after.iColumn));
+    m_gameLayer->moveFigureToPos(figure, Size(S_castling->rook_after.iRow, S_castling->rook_after.iColumn));
 
     // Write this information to the m_undo struct
     memcpy(&m_undo.castling, S_castling, sizeof(Castling));
@@ -410,13 +419,31 @@ void Logic::parseMove(std::string move, Position* pFrom, Position* pTo, char* ch
   {
     if (move[5] == '=')
     {
-      //*chPromoted = move[6];
+      *chPromoted = move[6];
     }
     else
     {
-      //*chPromoted = Constants::EMPTY_SQUARE;
+      chPromoted = Constants::EMPTY_SQUARE;
     }
   }
+}
+
+std::string Logic::parseMoveCellIntToString(const Position& pos)
+{
+  // A B C D E F G H - COLUMNS
+  std::string s = "";
+  s += char(pos.iColumn + 97);
+  s += char(pos.iRow + 49);
+  return s;
+}
+
+void Logic::parseMoveStringToCell(std::string move, Position* pFrom, Position* pTo)
+{
+  // a5a9
+  pFrom->iColumn = static_cast<int>(move[0]) - 97;
+  pFrom->iRow = static_cast<int>(move[1]) - 49;
+  pTo->iColumn = static_cast<int>(move[2]) - 97;
+  pTo->iRow = static_cast<int>(move[3]) - 49;
 }
 
 void Logic::updateFigures(const std::vector<std::vector<Figure*>>& figures)

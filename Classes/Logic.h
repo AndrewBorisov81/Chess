@@ -150,15 +150,15 @@ public:
   std::vector<Figure*> black_captured;
 
   void parseMove(std::string move, Position* pFrom, Position* pTo, char* chPromoted = nullptr);
-
-  GameLayer* m_gameLayer{ nullptr };
-  int  m_currentTurn{ 0 };
-
-  std::vector<std::vector<Figure*>> m_figures;
+  std::string parseMoveCellIntToString(const Position& pFrom);
+  void parseMoveStringToCell(std::string move, Position* pFrom, Position* pTo);
 
   void updateFigures(const std::vector<std::vector<Figure*>>& figures);
 
 protected:
+  GameLayer* m_gameLayer{ nullptr };
+  int  m_currentTurn{ 0 };
+  std::vector<std::vector<Figure*>> m_figures;
 
   // Undo is possible?
   struct Undo
