@@ -185,6 +185,12 @@ void GameLayer::setBackFigureToPrevPos(Figure* figure, const Size& prevPos)
   figure->setPosition(prevPosFigure);
 }
 
+void GameLayer::moveFigureToPos(Figure* figure, const Size& pos)
+{
+  Vec2 prevPosFigure = m_grid->getPointByCell(int(pos.height), int(pos.width));
+  figure->setPosition(prevPosFigure);
+}
+
 void GameLayer::setFigureToNewPos(Figure* figure, const cocos2d::Size& newPos)
 {
   m_dataChess.figures[newPos.width][newPos.height] = figure;
@@ -209,6 +215,12 @@ void GameLayer::moveFigure(const Size& move_from, const Size& move_to)
   Position present;
   present.iColumn = move_from.height;
   present.iRow = move_from.width;
+
+  std::string presentStr = m_figuresMoveLogic->parseMoveCellIntToString(present);
+
+  //Put in the string to be logged
+  to_record += presentStr;
+  //to_record += "-";
 
   // ---------------------------------------------------
   // Did the user pick a valid piece?
@@ -293,6 +305,11 @@ void GameLayer::moveFigure(const Size& move_from, const Size& move_to)
   Position future;
   future.iColumn = move_to.height;
   future.iRow = move_to.width;
+
+  std::string futureStr = m_figuresMoveLogic->parseMoveCellIntToString(future);
+
+  //Put in the string to be logged
+  to_record += futureStr;
 
   //future.iColumn = toupper(future.iColumn);
 
@@ -476,6 +493,11 @@ DataChess& GameLayer::getDataChess()
   return m_dataChess;
 }
 
+Board* GameLayer::getBoard()
+{
+  return m_board;
+}
+
 void GameLayer::updateBoardChess(Figure* figure, const Size& prevPos, const Size& newPos)
 {
   m_dataChess.figures[newPos.width][newPos.height] = figure;
@@ -635,11 +657,6 @@ bool GameLayer::checkFigureMove(Figure* figure, Size prevCellIJ, Size curCellIJ)
   Position future;
   future.iRow = (int)(curCellIJ.width);
   future.iColumn = (int)(curCellIJ.height);
-
-  //????????????????????????????????????????????????
-  //????????????????????????????????????????????????
-  /*m_figuresMoveLogic->m_gameLayer = this;
-  m_figuresMoveLogic->m_currentTurn = 0;*/
 
   bool isMoveValid = m_figuresMoveLogic->isMoveValid(figure, present, future, &S_enPassant, &S_castling, &S_promotion);
 

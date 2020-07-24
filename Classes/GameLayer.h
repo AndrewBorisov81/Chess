@@ -56,10 +56,12 @@ public:
   TouchAndDragLayer* getTouchAndDragLayer();
   const std::vector<std::vector<Figure*>>& getFigures();
   DataChess& getDataChess();
+  Board* getBoard();
 
   void updateBoardChess(Figure* figure, const cocos2d::Size& prevPos, const cocos2d::Size& newPos);
   void removeFigureBoard(const cocos2d::Size& pos);
   void setFigureToNewPos(Figure* figure, const cocos2d::Size& newPos);
+  void moveFigureToPos(Figure* figure, const cocos2d::Size& pos);
 
   void makeTheMove(const cocos2d::Size& present, const cocos2d::Size& future, EnPassant* S_enPassant, Castling* S_castling, Promotion* S_promotion);
   void moveFigure(const cocos2d::Size& move_from, const cocos2d::Size& move_to);
