@@ -29,7 +29,7 @@ namespace Constants
   // Keep in mind that pieces[0][0] represents A1
   // pieces[1][1] represents B2 and so on.
   // Numbers with a minus sign are white
-  constexpr int INITIAL_FIGURES_BOARD[8][8] =
+  /*constexpr int INITIAL_FIGURES_BOARD[8][8] =
                 { 1, 2, 3, 4, 5, 3, 2, 1,
                   6, 6, 6, 6, 6, 6, 6, 6,
                   0, 0, 0, 0, 0, 0, 0, 0,
@@ -38,5 +38,17 @@ namespace Constants
                   0, 0, 0, 0, 0, 0, 0, 0, 
                  -6,-6,-6,-6,-6,-6,-6,-6,
                  -1,-2,-3,-4,-5,-3,-2,-1
-                };
+                };*/
+
+  // Debug
+  constexpr int INITIAL_FIGURES_BOARD[8][8] =
+  { 1, 0, 0, 0, 5, 0, 0, 1,
+    6, 6, 6, 6, 6, 6, 6, 6,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+   -6,-6,-6,-6,-6,-6,-6,-6,
+   -1, 0,-0,-0,-5, 0, 0,-1
+  };
 }
