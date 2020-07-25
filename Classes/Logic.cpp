@@ -74,12 +74,6 @@ bool Logic::init()
   return true;
 }
 
-/*void Logic::term_func()
-{
-  std::cout << "term_func was called by terminate." << std::endl;
-  exit(-1);
-}*/
-
 //---------------------------------------------------------------------------------------
 // Commands
 // Functions to handle the commands of the program
@@ -631,21 +625,16 @@ bool Logic::isPathFree(Position startingPos, Position finishingPos, int iDirecti
 
     else
     {
-      throw("Error. Diagonal move not allowed");
+      if (isSquareOccupied(startingPos.iRow, startingPos.iColumn))
+      {
+        bFree = false;
+        //throw("Error. Diagonal move not allowed\n");
+        std::cout << "Diagonal move not allowed\n";
+      }
     }
   }
   break;
   }
-
-  /*try
-  {
-    set_terminate(term_func);
-    throw "Out of memory!"; // No catch handler for this exception
-  }
-  catch (int)
-  {
-   std::cout << "Integer exception raised." << std::endl;
-  }*/
 
   return bFree;
 }
