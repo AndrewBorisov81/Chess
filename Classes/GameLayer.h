@@ -24,6 +24,7 @@ enum class ZOrderGame
   GRID = 202,
   FIGURES = 303,
   TOUCH_AND_DRAG = 404,
+  HUD = 505
 };
 
 
@@ -34,6 +35,8 @@ class Grid;
 class Figure;
 class TouchAndDragLayer;
 class FiguresMoveLogic;
+class HudLayer;
+
 struct EnPassant;
 struct Castling;
 struct Promotion;
@@ -53,11 +56,6 @@ public:
 
   void update(float);
 
-  TouchAndDragLayer* getTouchAndDragLayer();
-  const std::vector<std::vector<Figure*>>& getFigures();
-  DataChess& getDataChess();
-  Board* getBoard();
-
   void updateBoardChess(Figure* figure, const cocos2d::Size& prevPos, const cocos2d::Size& newPos);
   void removeFigureBoard(const cocos2d::Size& pos);
   void setFigureToNewPos(Figure* figure, const cocos2d::Size& newPos);
@@ -68,26 +66,37 @@ public:
 
   bool checkFigureMove(Figure* figure, cocos2d::Size prevCellIJ, cocos2d::Size curCellIJ);
 
+  void undoMove();
+
+  TouchAndDragLayer* getTouchAndDragLayer();
+  const std::vector<std::vector<Figure*>>& getFigures();
+  DataChess& getDataChess();
+  Board* getBoard();
+
 private:
   cocos2d::Size m_screenSize{ 0.0f, 0.0f };
   cocos2d::Size m_cellSize{ 0.0f, 0.0f };
   cocos2d::Size m_gridSize{ 0.0f, 0.0f };
 
-  DataChess m_dataChess;
-
-  int m_figures_board[8][8];
   Board* m_board{ nullptr };
   Grid* m_grid{ nullptr };
+
+  std::vector<std::vector<Figure*>> m_figures;
+  DataChess m_dataChess;
+  int m_figures_board[8][8];
+
   FiguresMoveLogic* m_figuresMoveLogic{ nullptr };
   TouchAndDragLayer* m_touchAndDragLayer{ nullptr };
-  std::vector<std::vector<Figure*>> m_figures;
+  HudLayer* m_hudLayer{ nullptr };
 
-  Board* createBoard();
   Grid* createGrid(float cellSize, int rows, int columns);
+  TouchAndDragLayer* createTouchAndDrag(GameLayer* gameLayer, Grid* grid);
+  Board* createBoard();
+
   std::vector<std::vector<Figure*>> createFigures(const int figures_board[8][8], int rows, int columns);
   Figure* createFigureFileName(int type, bool isWhite);
-  TouchAndDragLayer* createTouchAndDrag(GameLayer* gameLayer, Grid* grid);
   FiguresMoveLogic* createFiguresMoveLogic(GameLayer* gameField);
+  HudLayer* createHudLayer();
 
   void setBackFigureToPrevPos(Figure* figure, const cocos2d::Size& prevPos);
 

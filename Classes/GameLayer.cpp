@@ -4,6 +4,7 @@
 #include "Figure.h"
 #include "FiguresMoveLogic.h"
 #include "TouchAndDragLayer.h"
+#include "HudLayer.h"
 #include "Constants.h"
 
 #include "cocos2d.h"
@@ -13,7 +14,6 @@
 #include <cmath>
 #include <string>
 #include <stdlib.h>
-#include <functional>
 
 USING_NS_CC;
 using namespace cocos2d::ui;
@@ -64,6 +64,7 @@ bool GameLayer::init()
   // Load Figures
   board->loadAllFigures(m_figures, static_cast<int>(ZOrderGame::FIGURES));
 
+  // Create FiguresMoveLogic
   FiguresMoveLogic* pFiguresMoveLogic = createFiguresMoveLogic(this);
   m_figuresMoveLogic = pFiguresMoveLogic;
   this->addChild(pFiguresMoveLogic, 1);
@@ -74,6 +75,14 @@ bool GameLayer::init()
   m_touchAndDragLayer = touchAndDragLayer;
   touchAndDragLayer->setPosition(grid->getPosition());
 
+  // Create HudLayer
+  HudLayer* pHudLayer = createHudLayer();
+  this->addChild(pHudLayer, static_cast<int>(ZOrderGame::HUD));
+  m_hudLayer = pHudLayer;
+  auto lfUndoMove = [this]() {
+    this->undoMove();
+  };
+  pHudLayer->callBackUndoLastMove(lfUndoMove);
 
   std::vector<std::vector<Figure*>> &figures = m_dataChess.figures;
 
@@ -159,6 +168,22 @@ TouchAndDragLayer* GameLayer::createTouchAndDrag(GameLayer* gameLayer, Grid* gri
   {
     delete pTouchAndDrag;
     pTouchAndDrag = nullptr;
+    return nullptr;
+  }
+}
+
+HudLayer* GameLayer::createHudLayer()
+{
+  HudLayer* pHudLayer = new(std::nothrow) HudLayer();
+  if (pHudLayer && pHudLayer->init())
+  {
+    pHudLayer->autorelease();
+    return pHudLayer;
+  }
+  else
+  {
+    delete pHudLayer;
+    pHudLayer = nullptr;
     return nullptr;
   }
 }
@@ -661,6 +686,18 @@ bool GameLayer::checkFigureMove(Figure* figure, Size prevCellIJ, Size curCellIJ)
   bool isMoveValid = m_figuresMoveLogic->isMoveValid(figure, present, future, &S_enPassant, &S_castling, &S_promotion);
 
   return isMoveValid;
+}
+
+void GameLayer::undoMove(void)
+{
+  if (false == m_figuresMoveLogic->undoIsPossible())
+  {
+    //createNextMessage("Undo is not possible now!\n");
+    return;
+  }
+
+  m_figuresMoveLogic->undoLastMove();
+  //createNextMessage("Last move was undone\n");
 }
 
 /*void GameLayer::onMouseDown(Event* event)
