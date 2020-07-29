@@ -29,6 +29,5 @@ private:
   GameLayer* m_gameLayer{ nullptr };
   HudLayer* m_hudLayer{ nullptr };
 
-  HudLayer* createHudLayer();
   GameLayer* createGameLayer();
 };
