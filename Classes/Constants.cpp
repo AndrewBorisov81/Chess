@@ -1,3 +1,5 @@
+#include "Constants.h"
+
 namespace Constants
 {
   // Images
@@ -9,4 +11,6 @@ namespace Constants
   extern constexpr auto COLUMNS(8);
 
   extern constexpr auto EMPTY_SQUARE(nullptr);*/
+
+  const std::string BOARD_PNG = "chessBoard3.png";
 }
