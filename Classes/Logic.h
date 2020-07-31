@@ -3,6 +3,7 @@
 #include "cocos2d.h"
 
 #include <deque>
+#include <stack>
 
 class GameLayer;
 class Figure;
@@ -173,6 +174,9 @@ protected:
     Castling  castling;
     Promotion promotion;
   } m_undo;
+
+  std::stack<Undo> m_undos;
+  Undo m_currentUndo;
 
   // Castling requirements
   bool m_bCastlingKingSideAllowed[2];

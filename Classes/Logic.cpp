@@ -81,6 +81,7 @@ bool Logic::init()
 //---------------------------------------------------------------------------------------
 void Logic::moveFigure(Position present, Position future, EnPassant* S_enPassant, Castling* S_castling, Promotion* S_promotion)
 {
+  Undo curUndo;
   // Get the piece to be moved
   //char chPiece = getPieceAtPosition(present);
   Figure* figure = getFigureAtPosition(present.iRow, present.iColumn);
@@ -106,10 +107,12 @@ void Logic::moveFigure(Position present, Position future, EnPassant* S_enPassant
     }
 
     // Set Undo structure. If a piece was captured, then no "en passant" move performed
-    m_undo.bCapturedLastMove = true;
+    //m_undo.bCapturedLastMove = true;
+    curUndo.bCapturedLastMove = true;
 
     // Reset m_undo.castling
-    memset(&m_undo.en_passant, 0, sizeof(EnPassant));
+    //memset(&m_undo.en_passant, 0, sizeof(EnPassant));
+    memset(&curUndo.en_passant, 0, sizeof(EnPassant));
   }
   else if (true == S_enPassant->bApplied)
   {
@@ -135,15 +138,19 @@ void Logic::moveFigure(Position present, Position future, EnPassant* S_enPassant
     //m_gameLayer->setFigureToNewPos(S_promotion->figureBefore, Size(future.iRow, future.iColumn));
 
     // Set Undo structure as piece was captured and "en passant" move was performed
-    m_undo.bCapturedLastMove = true;
-    memcpy(&m_undo.en_passant, S_enPassant, sizeof(EnPassant));
+    //m_undo.bCapturedLastMove = true;
+    curUndo.bCapturedLastMove = true;
+    //memcpy(&m_undo.en_passant, S_enPassant, sizeof(EnPassant));
+    memcpy(&curUndo.en_passant, S_enPassant, sizeof(EnPassant));
   }
   else
   {
-    m_undo.bCapturedLastMove = false;
+    //m_undo.bCapturedLastMove = false;
+    curUndo.bCapturedLastMove = false;
 
     // Reset m_undo.castling
-    memset(&m_undo.en_passant, 0, sizeof(EnPassant));
+    //memset(&m_undo.en_passant, 0, sizeof(EnPassant));
+    memset(&curUndo.en_passant, 0, sizeof(EnPassant));
   }
 
   // Remove piece from present position
@@ -163,7 +170,8 @@ void Logic::moveFigure(Position present, Position future, EnPassant* S_enPassant
     m_gameLayer->setFigureToNewPos(S_promotion->figureBefore, Size(future.iRow, future.iColumn));
 
     // Set Undo structure as a promotion occured
-    memcpy(&m_undo.promotion, S_promotion, sizeof(Promotion));
+    //memcpy(&m_undo.promotion, S_promotion, sizeof(Promotion));
+    memcpy(&curUndo.promotion, S_promotion, sizeof(Promotion));
   }
   else
   {
@@ -171,7 +179,8 @@ void Logic::moveFigure(Position present, Position future, EnPassant* S_enPassant
     m_gameLayer->setFigureToNewPos(figure, Size(future.iRow, future.iColumn));
 
     // Reset m_undo.promotion
-    memset(&m_undo.promotion, 0, sizeof(Promotion));
+    //memset(&m_undo.promotion, 0, sizeof(Promotion));
+    memset(&curUndo.promotion, 0, sizeof(Promotion));
   }
 
   // Was it a castling move?
@@ -191,16 +200,20 @@ void Logic::moveFigure(Position present, Position future, EnPassant* S_enPassant
     m_gameLayer->moveFigureToPos(figure, Size(S_castling->rook_after.iRow, S_castling->rook_after.iColumn));
 
     // Write this information to the m_undo struct
-    memcpy(&m_undo.castling, S_castling, sizeof(Castling));
+    //memcpy(&m_undo.castling, S_castling, sizeof(Castling));
+    memcpy(&curUndo.castling, S_castling, sizeof(Castling));
 
     // Save the 'CastlingAllowed' information in case the move is undone
-    m_undo.bCastlingKingSideAllowed = m_bCastlingKingSideAllowed[getCurrentTurn()];
-    m_undo.bCastlingQueenSideAllowed = m_bCastlingQueenSideAllowed[getCurrentTurn()];
+    //m_undo.bCastlingKingSideAllowed = m_bCastlingKingSideAllowed[getCurrentTurn()];
+    curUndo.bCastlingKingSideAllowed = m_bCastlingKingSideAllowed[getCurrentTurn()];
+    //m_undo.bCastlingQueenSideAllowed = m_bCastlingQueenSideAllowed[getCurrentTurn()];
+    curUndo.bCastlingQueenSideAllowed = m_bCastlingQueenSideAllowed[getCurrentTurn()];
   }
   else
   {
     // Reset m_undo.castling
-    memset(&m_undo.castling, 0, sizeof(Castling));
+    //memset(&m_undo.castling, 0, sizeof(Castling));
+    memset(&curUndo.castling, 0, sizeof(Castling));
   }
 
   // Castling requirements
@@ -231,17 +244,24 @@ void Logic::moveFigure(Position present, Position future, EnPassant* S_enPassant
   changeTurns();
 
   // This move can be undone
-  m_undo.bCanUndo = true;
+  //m_undo.bCanUndo = true;
+  curUndo.bCanUndo = true;
+
+  m_undos.push(curUndo);
+  m_currentUndo = curUndo;
 }
 
 void Logic::undoLastMove()
 {
+  Undo curUndo = m_undos.top();
+
   std::string last_move = getLastMove();
 
   // Parse the line
   Position from;
   Position to;
-  parseMove(last_move, &from, &to);
+  //parseMove(last_move, &from, &to);
+  parseMoveStringToCell(last_move, &from, &to);
 
   // Since we want to undo a move, we will be moving the piece from (iToRow, iToColumn) to (iFromRow, iFromColumn)
   //char chPiece = getPieceAtPosition(to.iRow, to.iColumn);
@@ -249,22 +269,28 @@ void Logic::undoLastMove()
 
   // Moving it back
   // If there was a castling
-  if (true == m_undo.promotion.bApplied)
+  if (true == curUndo.promotion.bApplied)
+  //if (true == m_undo.promotion.bApplied)
   {
     //board[from.iRow][from.iColumn] = m_undo.promotion.chBefore;
-    m_gameLayer->setFigureToNewPos(m_undo.promotion.figureBefore, Size(from.iRow, from.iColumn));
+    //m_gameLayer->setFigureToNewPos(m_undo.promotion.figureBefore, Size(from.iRow, from.iColumn));
+    m_gameLayer->setFigureToNewPos(curUndo.promotion.figureBefore, Size(from.iRow, from.iColumn));
+    //m_gameLayer->moveFigureToPos(m_undo.promotion.figureBefore, Size(from.iRow, from.iColumn));
+    m_gameLayer->moveFigureToPos(curUndo.promotion.figureBefore, Size(from.iRow, from.iColumn));
   }
   else
   {
     //board[from.iRow][from.iColumn] = chPiece;
     m_gameLayer->setFigureToNewPos(figure, Size(from.iRow, from.iColumn));
+    m_gameLayer->moveFigureToPos(figure, Size(from.iRow, from.iColumn));
   }
 
   // Change turns
   changeTurns();
 
   // If a piece was captured, move it back to the board
-  if (m_undo.bCapturedLastMove)
+  //if (m_undo.bCapturedLastMove)
+  if (curUndo.bCapturedLastMove)
   {
     // Let's retrieve the last captured piece
     //char chCaptured;
@@ -285,11 +311,13 @@ void Logic::undoLastMove()
     }
 
     // Move the captured piece back. Was this an "en passant" move?
-    if (m_undo.en_passant.bApplied)
+    if (curUndo.en_passant.bApplied)
+    //if (m_undo.en_passant.bApplied)
     {
       // Move the captured piece back
       //board[m_undo.en_passant.PawnCaptured.iRow][m_undo.en_passant.PawnCaptured.iColumn] = chCaptured;
-      m_gameLayer->setFigureToNewPos(capturedFigure, Size(m_undo.en_passant.PawnCaptured.iRow, m_undo.en_passant.PawnCaptured.iColumn));
+      //m_gameLayer->setFigureToNewPos(capturedFigure, Size(m_undo.en_passant.PawnCaptured.iRow, m_undo.en_passant.PawnCaptured.iColumn));
+      m_gameLayer->setFigureToNewPos(capturedFigure, Size(curUndo.en_passant.PawnCaptured.iRow, curUndo.en_passant.PawnCaptured.iColumn));
 
       // Remove the attacker
       //board[to.iRow][to.iColumn] = EMPTY_SQUARE;
@@ -299,6 +327,7 @@ void Logic::undoLastMove()
     {
       //board[to.iRow][to.iColumn] = chCaptured;
       m_gameLayer->setFigureToNewPos(figure, Size(to.iRow, to.iColumn));
+      m_gameLayer->moveFigureToPos(figure, Size(to.iRow, to.iColumn));
     }
   }
   else
@@ -311,27 +340,33 @@ void Logic::undoLastMove()
   if (m_undo.castling.bApplied)
   {
     //char chRook = getPieceAtPosition(m_undo.castling.rook_after.iRow, m_undo.castling.rook_after.iColumn);
-    Figure* rookFigure = getFigureAtPosition(m_undo.castling.rook_after.iRow, m_undo.castling.rook_after.iColumn);
+    //Figure* rookFigure = getFigureAtPosition(m_undo.castling.rook_after.iRow, m_undo.castling.rook_after.iColumn);
+    Figure* rookFigure = getFigureAtPosition(curUndo.castling.rook_after.iRow, curUndo.castling.rook_after.iColumn);
 
     // Remove the rook from present position
     //board[m_undo.castling.rook_after.iRow][m_undo.castling.rook_after.iColumn] = EMPTY_SQUARE;
-    m_gameLayer->removeFigureBoard(Size(m_undo.castling.rook_after.iRow, m_undo.castling.rook_after.iColumn));
+    //m_gameLayer->removeFigureBoard(Size(m_undo.castling.rook_after.iRow, m_undo.castling.rook_after.iColumn));
+    m_gameLayer->removeFigureBoard(Size(curUndo.castling.rook_after.iRow, curUndo.castling.rook_after.iColumn));
 
     // 'Jump' into to new position
     //board[m_undo.castling.rook_before.iRow][m_undo.castling.rook_before.iColumn] = chRook;
-    m_gameLayer->setFigureToNewPos(rookFigure, Size(m_undo.castling.rook_before.iRow, m_undo.castling.rook_before.iColumn));
+    //m_gameLayer->setFigureToNewPos(rookFigure, Size(m_undo.castling.rook_before.iRow, m_undo.castling.rook_before.iColumn));
+    m_gameLayer->setFigureToNewPos(rookFigure, Size(curUndo.castling.rook_before.iRow, curUndo.castling.rook_before.iColumn));
+    m_gameLayer->moveFigureToPos(rookFigure, Size(curUndo.castling.rook_before.iRow, curUndo.castling.rook_before.iColumn));
 
     // Restore the values of castling allowed or not
-    m_bCastlingKingSideAllowed[getCurrentTurn()] = m_undo.bCastlingKingSideAllowed;
-    m_bCastlingQueenSideAllowed[getCurrentTurn()] = m_undo.bCastlingQueenSideAllowed;
+    //m_bCastlingKingSideAllowed[getCurrentTurn()] = m_undo.bCastlingKingSideAllowed;
+    m_bCastlingKingSideAllowed[getCurrentTurn()] = curUndo.bCastlingKingSideAllowed;
+    //m_bCastlingQueenSideAllowed[getCurrentTurn()] = m_undo.bCastlingQueenSideAllowed;
+    m_bCastlingQueenSideAllowed[getCurrentTurn()] = curUndo.bCastlingQueenSideAllowed;
   }
 
   // Clean m_undo struct
-  m_undo.bCanUndo = false;
+  /*m_undo.bCanUndo = false;
   m_undo.bCapturedLastMove = false;
   m_undo.en_passant.bApplied = false;
   m_undo.castling.bApplied = false;
-  m_undo.promotion.bApplied = false;
+  m_undo.promotion.bApplied = false;*/
 
   // If it was a checkmate, toggle back to game not finished
   m_bGameFinished = false;
@@ -354,7 +389,8 @@ void Logic::changeTurns(void)
 
 bool Logic::undoIsPossible()
 {
-  return m_undo.bCanUndo;
+  //return m_undo.bCanUndo;
+  return m_currentUndo.bCanUndo;
 }
 
 bool Logic::castlingAllowed(Side iSide, int iColor)
@@ -1523,6 +1559,8 @@ void Logic::deleteLastMove(void)
     rounds.pop_back();
     rounds.push_back(round);
   }
+
+  m_undos.pop();
 }
 
 int Logic::getOpponentColor(void)
