@@ -201,6 +201,9 @@
             <key type="filename">C:/Users/Andrew/Desktop/CHESS/Images/blackQueen3.png</key>
             <key type="filename">C:/Users/Andrew/Desktop/CHESS/Images/blackRook3.png</key>
             <key type="filename">C:/Users/Andrew/Desktop/CHESS/Images/chessBoard3.png</key>
+            <key type="filename">C:/Users/Andrew/Desktop/CHESS/Images/promotionTable.png</key>
+            <key type="filename">C:/Users/Andrew/Desktop/CHESS/Images/undoButtonNormal.png</key>
+            <key type="filename">C:/Users/Andrew/Desktop/CHESS/Images/undoButtonSelected.png</key>
             <key type="filename">C:/Users/Andrew/Desktop/CHESS/Images/whiteHorse3.png</key>
             <key type="filename">C:/Users/Andrew/Desktop/CHESS/Images/whiteKing3.png</key>
             <key type="filename">C:/Users/Andrew/Desktop/CHESS/Images/whiteOfficer3.png</key>
@@ -227,6 +230,9 @@
             <filename>C:/Users/Andrew/Desktop/CHESS/Images/whitePawn3.png</filename>
             <filename>C:/Users/Andrew/Desktop/CHESS/Images/whiteQueen3.png</filename>
             <filename>C:/Users/Andrew/Desktop/CHESS/Images/whiteRook3.png</filename>
+            <filename>C:/Users/Andrew/Desktop/CHESS/Images/promotionTable.png</filename>
+            <filename>C:/Users/Andrew/Desktop/CHESS/Images/undoButtonSelected.png</filename>
+            <filename>C:/Users/Andrew/Desktop/CHESS/Images/undoButtonNormal.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>
