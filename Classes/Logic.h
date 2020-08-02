@@ -178,6 +178,7 @@ protected:
   std::stack<Undo> m_undos;
   Undo m_currentUndo;
 
+
   // Castling requirements
   bool m_bCastlingKingSideAllowed[2];
   bool m_bCastlingQueenSideAllowed[2];

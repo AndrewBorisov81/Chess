@@ -149,7 +149,7 @@ void Logic::moveFigure(Position present, Position future, EnPassant* S_enPassant
     curUndo.bCapturedLastMove = false;
 
     // Reset m_undo.castling
-    //memset(&m_undo.en_passant, 0, sizeof(EnPassant));
+    //memset(&m_undo.en_passant, 0, sizeof(EnPassant));S_promotion.bApplied
     memset(&curUndo.en_passant, 0, sizeof(EnPassant));
   }
 
@@ -389,8 +389,12 @@ void Logic::changeTurns(void)
 
 bool Logic::undoIsPossible()
 {
-  //return m_undo.bCanUndo;
-  return m_currentUndo.bCanUndo;
+  if (m_undos.size() > 0 && m_currentUndo.bCanUndo == true)
+  {
+    return true;
+  }
+
+  return false;
 }
 
 bool Logic::castlingAllowed(Side iSide, int iColor)
@@ -455,11 +459,11 @@ void Logic::parseMove(std::string move, Position* pFrom, Position* pTo, char* ch
   {
     if (move[5] == '=')
     {
-      *chPromoted = move[6];
+      //*chPromoted = move[6];
     }
     else
     {
-      chPromoted = Constants::EMPTY_SQUARE;
+      //chPromoted = Constants::EMPTY_SQUARE;
     }
   }
 }
