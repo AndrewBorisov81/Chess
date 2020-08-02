@@ -24,11 +24,7 @@ bool Board::init()
     return false;
   }
 
-  // Load the Sprite Sheet
-  auto spritecache = SpriteFrameCache::getInstance();
-  spritecache->addSpriteFramesWithFile("texture.plist");
-
-  // Block
+  // Board image
   auto boardSprite = Sprite::createWithSpriteFrameName(Constants::BOARD_PNG);
   Size boardSize = boardSprite->getContentSize();
   m_boardSize = boardSize;
