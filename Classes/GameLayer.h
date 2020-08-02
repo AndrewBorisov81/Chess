@@ -24,7 +24,8 @@ enum class ZOrderGame
   GRID = 202,
   FIGURES = 303,
   TOUCH_AND_DRAG = 404,
-  HUD = 505
+  PROMOTION = 505,
+  HUD = 606
 };
 
 
@@ -35,6 +36,7 @@ class Grid;
 class Figure;
 class TouchAndDragLayer;
 class FiguresMoveLogic;
+class PromotionLayer;
 class HudLayer;
 
 struct EnPassant;
@@ -86,16 +88,20 @@ private:
   int m_figures_board[8][8];
 
   FiguresMoveLogic* m_figuresMoveLogic{ nullptr };
+
   TouchAndDragLayer* m_touchAndDragLayer{ nullptr };
+  PromotionLayer* m_promotionLayer{ nullptr };
   HudLayer* m_hudLayer{ nullptr };
 
   Grid* createGrid(float cellSize, int rows, int columns);
-  TouchAndDragLayer* createTouchAndDrag(GameLayer* gameLayer, Grid* grid);
   Board* createBoard();
 
   std::vector<std::vector<Figure*>> createFigures(const int figures_board[8][8], int rows, int columns);
   Figure* createFigureFileName(int type, bool isWhite);
   FiguresMoveLogic* createFiguresMoveLogic(GameLayer* gameField);
+
+  TouchAndDragLayer* createTouchAndDragLayer(GameLayer* gameLayer, Grid* grid);
+  PromotionLayer* createPromotionLayer();
   HudLayer* createHudLayer();
 
   void setBackFigureToPrevPos(Figure* figure, const cocos2d::Size& prevPos);

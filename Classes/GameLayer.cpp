@@ -4,6 +4,7 @@
 #include "Figure.h"
 #include "FiguresMoveLogic.h"
 #include "TouchAndDragLayer.h"
+#include "PromotionLayer.h"
 #include "HudLayer.h"
 #include "Constants.h"
 
@@ -34,6 +35,10 @@ bool GameLayer::init()
 
     return false;
   }
+
+  // Load the Sprite Sheet
+  auto spritecache = SpriteFrameCache::getInstance();
+  spritecache->addSpriteFramesWithFile("texture.plist");
 
   Size winSize = Director::getInstance()->getWinSize();
   auto visibleSize = Director::getInstance()->getVisibleSize();
@@ -69,8 +74,16 @@ bool GameLayer::init()
   m_figuresMoveLogic = pFiguresMoveLogic;
   this->addChild(pFiguresMoveLogic, 1);
 
+  // Create Promotion Layer
+  PromotionLayer* pPromotionLayer = createPromotionLayer();
+  m_promotionLayer = pPromotionLayer;
+  this->addChild(pPromotionLayer, static_cast<int>(ZOrderGame::PROMOTION));
+  /*pPromotionLayer->setPosition(Vec2(origin.x + visibleSize.width - m_promotionLayer->getTableSize().width / 2,
+    origin.y + m_promotionLayer->getTableSize().height / 2));*/
+  pPromotionLayer->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
+
   // Create TouchAndDragLayer
-  TouchAndDragLayer* touchAndDragLayer = createTouchAndDrag(this, grid);
+  TouchAndDragLayer* touchAndDragLayer = createTouchAndDragLayer(this, grid);
   board->addChild(touchAndDragLayer, static_cast<int>(ZOrderGame::TOUCH_AND_DRAG));
   m_touchAndDragLayer = touchAndDragLayer;
   touchAndDragLayer->setPosition(grid->getPosition());
@@ -156,7 +169,7 @@ Grid* GameLayer::createGrid(float cellSize, int rows, int columns)
   }
 }
 
-TouchAndDragLayer* GameLayer::createTouchAndDrag(GameLayer* gameLayer, Grid* grid)
+TouchAndDragLayer* GameLayer::createTouchAndDragLayer(GameLayer* gameLayer, Grid* grid)
 {
   TouchAndDragLayer* pTouchAndDrag = new(std::nothrow) TouchAndDragLayer(gameLayer, grid);
   if (pTouchAndDrag && pTouchAndDrag->init())
@@ -168,6 +181,22 @@ TouchAndDragLayer* GameLayer::createTouchAndDrag(GameLayer* gameLayer, Grid* gri
   {
     delete pTouchAndDrag;
     pTouchAndDrag = nullptr;
+    return nullptr;
+  }
+}
+
+PromotionLayer* GameLayer::createPromotionLayer()
+{
+  PromotionLayer* pPromotionLayer = new(std::nothrow) PromotionLayer();
+  if (pPromotionLayer && pPromotionLayer->init())
+  {
+    pPromotionLayer->autorelease();
+    return pPromotionLayer;
+  }
+  else
+  {
+    delete pPromotionLayer;
+    pPromotionLayer = nullptr;
     return nullptr;
   }
 }
@@ -383,9 +412,10 @@ void GameLayer::moveFigure(const Size& move_from, const Size& move_to)
   // Promotion: user most choose a piece to
   // replace the pawn
   // ---------------------------------------------------
-  /*if (S_promotion.bApplied == true)
+  if (S_promotion.bApplied == true)
   {
-    cout << "Promote to (Q, R, N, B): ";
+    bool stop = true;
+    /*cout << "Promote to (Q, R, N, B): ";
     std::string piece;
     getline(cin, piece);
 
@@ -416,7 +446,8 @@ void GameLayer::moveFigure(const Size& move_from, const Size& move_to)
 
     to_record += '=';
     to_record += toupper(chPromoted); // always log with a capital letter
-  }*/
+    */
+  }
 
   // ---------------------------------------------------
   // Log the move: do it prior to making the move
