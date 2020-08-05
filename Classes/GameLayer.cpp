@@ -78,9 +78,26 @@ bool GameLayer::init()
   PromotionLayer* pPromotionLayer = createPromotionLayer();
   m_promotionLayer = pPromotionLayer;
   this->addChild(pPromotionLayer, static_cast<int>(ZOrderGame::PROMOTION));
-  /*pPromotionLayer->setPosition(Vec2(origin.x + visibleSize.width - m_promotionLayer->getTableSize().width / 2,
-    origin.y + m_promotionLayer->getTableSize().height / 2));*/
   pPromotionLayer->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
+
+  // Set callBack
+  auto lfClickFigure = [this](int typeFigure)
+  {
+    this->applyPromotion(typeFigure);
+  };
+
+  pPromotionLayer->callBackClickFigure(lfClickFigure);
+
+
+  // Set callBack
+  auto lfHidePromotion = [this](int typeFigure)
+  {
+    std::string to_record;
+    Size present;
+    Promotion promotion;
+    this->movePromotion(to_record, present, promotion, typeFigure);
+  };
+  //pPromotionLayer->callBackHide(lfHidePromotion);
 
   // Create TouchAndDragLayer
   TouchAndDragLayer* touchAndDragLayer = createTouchAndDragLayer(this, grid);
@@ -127,6 +144,16 @@ bool GameLayer::init()
   m_mouseListener->onMouseDown = CC_CALLBACK_1(GameLayer::onMouseDown, this);
 
   _eventDispatcher->addEventListenerWithSceneGraphPriority(m_mouseListener, this);*/
+
+  // test
+   // add "HelloWorld" splash screen"
+  /*auto sprite = Sprite::createWithSpriteFrameName(Constants::WHITE_ROOK_PNG);
+ 
+  // position the sprite on the center of the screen
+  sprite->setPosition(Vec2(visibleSize.width / 2 + origin.x + 150, visibleSize.height / 2 + origin.y));
+
+  // add the sprite as a child to this layer
+  this->addChild(sprite, 1000);*/
 
   return true;
 }
@@ -237,6 +264,69 @@ void GameLayer::setBackFigureToPrevPos(Figure* figure, const Size& prevPos)
 {
   Vec2 prevPosFigure = m_grid->getPointByCell(int(prevPos.height), int(prevPos.width));
   figure->setPosition(prevPosFigure);
+}
+
+int GameLayer::applyPromotion(int typeFigure)
+{
+  m_promotionLayer->hide();
+  m_lastPromotedFigure = typeFigure;
+
+  return typeFigure;
+}
+
+void GameLayer::movePromotion(std::string to_string, Size& present, Promotion& promotion, int typePromotionFigure)
+{
+  /*cout << "Promote to (Q, R, N, B): ";
+    std::string piece;
+    getline(cin, piece);
+
+    if (piece.length() > 1)
+    {
+      createNextMessage("You should type only one character (Q, R, N or B)\n");
+      return;
+    }
+
+    char chPromoted = toupper(piece[0]);
+
+    if (chPromoted != 'Q' && chPromoted != 'R' && chPromoted != 'N' && chPromoted != 'B')
+    {
+      createNextMessage("Invalid character.\n");
+      return;
+    }
+
+    S_promotion.chBefore = current_game->getPieceAtPosition(present.iRow, present.iColumn);
+
+    if (Chess::WHITE_PLAYER == current_game->getCurrentTurn())
+    {
+      S_promotion.chAfter = toupper(chPromoted);
+    }
+    else
+    {
+      S_promotion.chAfter = tolower(chPromoted);
+    }
+
+    to_record += '=';
+    to_record += toupper(chPromoted); // always log with a capital letter
+    */
+
+  Figure* figure = m_figuresMoveLogic->getFigureAtPosition(present.width, present.height);
+  promotion.figureBefore = figure;
+
+
+  Figure* promotedFigure{ nullptr };
+
+  if(static_cast<int>(Player::WHITE_PLAYER) == m_figuresMoveLogic->getCurrentTurn())
+  {
+    //S_promotion.chAfter = toupper(chPromoted);
+    promotedFigure = createFigureFileName(typePromotionFigure, true);
+    promotion.figureAfter = promotedFigure;
+  }
+  else
+  {
+    //S_promotion.chAfter = tolower(chPromoted);
+    promotedFigure = createFigureFileName(typePromotionFigure, false);
+    promotion.figureAfter = promotedFigure;
+  }
 }
 
 void GameLayer::moveFigureToPos(Figure* figure, const Size& pos)
@@ -414,7 +504,10 @@ void GameLayer::moveFigure(const Size& move_from, const Size& move_to)
   // ---------------------------------------------------
   if (S_promotion.bApplied == true)
   {
-    bool stop = true;
+    bool isWhite = (static_cast<int>(Player::WHITE_PLAYER) == m_figuresMoveLogic->getCurrentTurn());
+    m_promotionLayer->show(isWhite);
+    //movePromotion(to_record, Size(present.iRow, present.iColumn), S_promotion, m_lastPromotedFigure);
+
     /*cout << "Promote to (Q, R, N, B): ";
     std::string piece;
     getline(cin, piece);
