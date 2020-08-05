@@ -38,9 +38,7 @@ bool PromotionLayer::init()
   // Create black figures
   createFigures(false, tableSize);
 
-  hideFigures();
-
-  show(false);
+  hide();
 
   return true;
 }
@@ -89,7 +87,7 @@ void PromotionLayer::showFigures(bool isWhite)
   for (int i = 0; i < itemFigures.size(); i++)
   {
     Menu* figures = itemFigures[i];
-    figures->setOpacityModifyRGB(255);
+    figures->setOpacity(255);
   }
 }
 
@@ -106,12 +104,27 @@ void PromotionLayer::hideFigures()
     Menu* figures = m_blackFigures[i];
     figures->setOpacity(0);
   }
+
+  //m_hide(m_tagFigure);
 }
 
 void PromotionLayer::figureCallback(cocos2d::Ref * pSender)
 {
-  
+  auto menu = static_cast<Menu*>(static_cast<Node*>(pSender)->getParent());
+  int tag = menu->getTag();
+  m_tagFigure = tag;
+  m_clickFigure(tag);
 }
+
+void PromotionLayer::callBackClickFigure(const std::function<void(int)>& callBack)
+{
+  m_clickFigure = callBack;
+}
+
+/*void PromotionLayer::callBackHide(const std::function<void(int)>& callBack)
+{
+  m_hide = callBack;
+}*/
 
 void PromotionLayer::createFigures(bool isWhite, Size tableSize)
 {
@@ -128,6 +141,8 @@ void PromotionLayer::createFigures(bool isWhite, Size tableSize)
     Rect curRect;
 
     Menu* figure = createFigure(i, isWhite, curRect);
+    
+    figure->setTag(i);
 
     sumSizeWidthFigures += curRect.size.width;
 
@@ -172,7 +187,7 @@ Menu* PromotionLayer::createFigure(int typeFigure, bool isWhite, Rect& figureRec
     break;
 
   case 3:
-    pngName = (isWhite) ? Constants::WHITE_BISHOP_PNG : Constants::BLACK_KING_PNG;
+    pngName = (isWhite) ? Constants::WHITE_BISHOP_PNG : Constants::BLACK_BISHOP_PNG;
     break;
 
   case 4:
