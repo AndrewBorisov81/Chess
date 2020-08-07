@@ -18,6 +18,5 @@ public:
   void callBackUndoLastMove(const std::function<void()>& callBack);
 
 private:
-
   std::function<void()> m_undoLastMove{ nullptr };
 };
