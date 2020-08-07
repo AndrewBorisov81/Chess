@@ -66,6 +66,8 @@ void PromotionLayer::show(bool isWhite)
   }
 
   m_table->setOpacity(255);
+
+  m_isShow = true;
 }
 
 void PromotionLayer::hide()
@@ -73,6 +75,14 @@ void PromotionLayer::hide()
   hideFigures();
   
   m_table->setOpacity(0);
+
+  if (m_hide)
+  {
+    int tagFigure = m_tagFigure;
+    m_hide(tagFigure);
+  }
+
+  m_isShow = false;
 }
 
 void PromotionLayer::showFigures(bool isWhite)
@@ -104,16 +114,17 @@ void PromotionLayer::hideFigures()
     Menu* figures = m_blackFigures[i];
     figures->setOpacity(0);
   }
-
-  //m_hide(m_tagFigure);
 }
 
 void PromotionLayer::figureCallback(cocos2d::Ref * pSender)
 {
-  auto menu = static_cast<Menu*>(static_cast<Node*>(pSender)->getParent());
-  int tag = menu->getTag();
-  m_tagFigure = tag;
-  m_clickFigure(tag);
+  if (m_isShow)
+  {
+    auto menu = static_cast<Menu*>(static_cast<Node*>(pSender)->getParent());
+    int tagFigure = menu->getTag();
+    m_tagFigure = tagFigure;
+    m_clickFigure(tagFigure);
+  }
 }
 
 void PromotionLayer::callBackClickFigure(const std::function<void(int)>& callBack)
@@ -121,10 +132,10 @@ void PromotionLayer::callBackClickFigure(const std::function<void(int)>& callBac
   m_clickFigure = callBack;
 }
 
-/*void PromotionLayer::callBackHide(const std::function<void(int)>& callBack)
+void PromotionLayer::callBackHide(const std::function<void(int)>& callBack)
 {
   m_hide = callBack;
-}*/
+}
 
 void PromotionLayer::createFigures(bool isWhite, Size tableSize)
 {

@@ -26,12 +26,14 @@ public:
   void figureCallback(cocos2d::Ref* pSender);
 
   void callBackClickFigure(const std::function<void(int)>& callBack);
-  //void callBackHide(const std::function<void(int)>& callBack);
+  void callBackHide(const std::function<void(int)>& callBack);
 
   void createFigures(bool isWhite, cocos2d::Size tableSize); 
   cocos2d::Menu* createFigure(int typeFigure, bool isWhite, cocos2d::Rect& figureRect);
 
 private:
+  bool m_isShow = false;
+
   cocos2d::Sprite* m_table{ nullptr };
   cocos2d::Size m_tableSize;
   float m_imageFigureScale{ 0 };
@@ -44,5 +46,5 @@ private:
   bool m_isWhite{ true };
 
   std::function<void(int)> m_clickFigure{ nullptr };
-  //std::function<void(int)> m_hide{ nullptr };
+  std::function<void(int)> m_hide{ nullptr };
 };
