@@ -88,17 +88,6 @@ bool GameLayer::init()
 
   pPromotionLayer->callBackClickFigure(lfClickFigure);
 
-
-  // Set callBack
-  auto lfHidePromotion = [this](int typeFigure)
-  {
-    std::string to_record;
-    Size present;
-    Promotion promotion;
-    this->movePromotion(to_record, present, promotion, typeFigure);
-  };
-  //pPromotionLayer->callBackHide(lfHidePromotion);
-
   // Create TouchAndDragLayer
   TouchAndDragLayer* touchAndDragLayer = createTouchAndDragLayer(this, grid);
   board->addChild(touchAndDragLayer, static_cast<int>(ZOrderGame::TOUCH_AND_DRAG));
@@ -274,7 +263,7 @@ int GameLayer::applyPromotion(int typeFigure)
   return typeFigure;
 }
 
-void GameLayer::movePromotion(std::string to_string, Size& present, Promotion& promotion, int typePromotionFigure)
+void GameLayer::movePromotion(std::string& to_record, Size& present, Size& future, Promotion& promotion, int typePromotionFigure)
 {
   /*cout << "Promote to (Q, R, N, B): ";
     std::string piece;
@@ -312,7 +301,6 @@ void GameLayer::movePromotion(std::string to_string, Size& present, Promotion& p
   Figure* figure = m_figuresMoveLogic->getFigureAtPosition(present.width, present.height);
   promotion.figureBefore = figure;
 
-
   Figure* promotedFigure{ nullptr };
 
   if(static_cast<int>(Player::WHITE_PLAYER) == m_figuresMoveLogic->getCurrentTurn())
@@ -326,6 +314,61 @@ void GameLayer::movePromotion(std::string to_string, Size& present, Promotion& p
     //S_promotion.chAfter = tolower(chPromoted);
     promotedFigure = createFigureFileName(typePromotionFigure, false);
     promotion.figureAfter = promotedFigure;
+  }
+
+  removeFigureBoard(Size(present.width, present.height));
+  //setFigureToNewPos(promotion.figureAfter, Size(future.width, future.height));
+  setFigureToNewPos(promotion.figureAfter, Size(present.width, present.height));
+
+  m_board->removeFigure(figure);
+  m_board->addFigure(promotedFigure, Size(future.width, future.height),static_cast<int>(ZOrderGame::FIGURES));
+  //m_board->addFigure(promotedFigure, Size(present.width, present.height), static_cast<int>(ZOrderGame::FIGURES)); 
+
+  // ---------------------------------------------------
+  // Log the move: do it prior to making the move
+  // because we need the getCurrentTurn()
+  // ---------------------------------------------------
+  m_figuresMoveLogic->logMove(to_record);
+
+  // ---------------------------------------------------
+  // Make the move
+  // ---------------------------------------------------
+  // Is that move allowed?
+  EnPassant  S_enPassant = { 0 };
+  Castling   S_castling = { 0 };
+  //makeTheMove(Size(present.iRow, present.iColumn), Size(future.iRow, future.iColumn), &S_enPassant, &S_castling, &S_promotion);
+  makeTheMove(present, future, &S_enPassant, &S_castling, &promotion);
+
+  // ---------------------------------------------------------------
+  // Check if this move we just did put the oponent's king in check
+  // Keep in mind that player turn has already changed
+  // ---------------------------------------------------------------
+  if (true == m_figuresMoveLogic->playerKingInCheck())
+  {
+    if (true == m_figuresMoveLogic->isCheckMate())
+    {
+      if (static_cast<int>(Player::WHITE_PLAYER) == m_figuresMoveLogic->getCurrentTurn())
+      {
+        //appendToNextMessage("Checkmate! Black wins the game!\n");
+      }
+      else
+      {
+        //appendToNextMessage("Checkmate! White wins the game!\n");
+      }
+    }
+    else
+    {
+      // Add to the string with '+=' because it's possible that
+      // there is already one message (e.g., piece captured)
+      if (static_cast<int>(Player::WHITE_PLAYER) == m_figuresMoveLogic->getCurrentTurn())
+      {
+        //appendToNextMessage("White king is in check!\n");
+      }
+      else
+      {
+        //appendToNextMessage("Black king is in check!\n");
+      }
+    }
   }
 }
 
@@ -505,6 +548,19 @@ void GameLayer::moveFigure(const Size& move_from, const Size& move_to)
   if (S_promotion.bApplied == true)
   {
     bool isWhite = (static_cast<int>(Player::WHITE_PLAYER) == m_figuresMoveLogic->getCurrentTurn());
+
+    // Set callBack
+    //auto lfHidePromotion = [this, to_record, present, future, &S_promotion](int typeFigure)
+    auto lfHidePromotion = [this, present, future, &S_promotion, &to_record](int typeFigure)
+    //auto lfHidePromotion = [this](int typeFigure)
+    {
+      Size sPresent(present.iRow, present.iColumn);
+      Size sFuture(future.iRow, future.iColumn);
+      this->movePromotion(to_record, sPresent, sFuture, S_promotion, typeFigure);
+    };
+
+    m_promotionLayer->callBackHide(lfHidePromotion);
+
     m_promotionLayer->show(isWhite);
     //movePromotion(to_record, Size(present.iRow, present.iColumn), S_promotion, m_lastPromotedFigure);
 
@@ -540,6 +596,8 @@ void GameLayer::moveFigure(const Size& move_from, const Size& move_to)
     to_record += '=';
     to_record += toupper(chPromoted); // always log with a capital letter
     */
+
+    return;
   }
 
   // ---------------------------------------------------
@@ -603,7 +661,7 @@ void GameLayer::makeTheMove(const Size& present, const Size& future, EnPassant* 
     Figure* auxFigures = m_figuresMoveLogic->getFigureAtPosition(future.width, future.height);
 
     //if (Chess::getPieceColor(chPiece) != Chess::getPieceColor(chAuxPiece))
-    if(figure->isWhite() != auxFigures->isWhite())
+    if(figure && figure->isWhite() != auxFigures->isWhite())
     {
       //createNextMessage(Chess::describePiece(chAuxPiece) + " captured!\n");
     }

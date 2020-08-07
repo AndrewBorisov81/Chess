@@ -87,6 +87,7 @@ private:
   DataChess m_dataChess;
   int m_figures_board[8][8];
 
+  //Promotion
   int m_lastPromotedFigure;
 
   FiguresMoveLogic* m_figuresMoveLogic{ nullptr };
@@ -108,8 +109,9 @@ private:
 
   void setBackFigureToPrevPos(Figure* figure, const cocos2d::Size& prevPos);
 
+  // Promotion
   int applyPromotion(int typeFigure);
-  void movePromotion(std::string to_string, cocos2d::Size& present, Promotion& promotion, int typePromotionFigure);
+  void movePromotion(std::string& to_string, cocos2d::Size& present, cocos2d::Size& future, Promotion& promotion, int typePromotionFigure);
 
   void createTestFigures();
 
