@@ -18,7 +18,7 @@ public:
   virtual void onTouchMoved(cocos2d::Touch*, cocos2d::Event*);
 
   void loadAllFigures(std::vector<std::vector<Figure*>>& figures, int zOrder);
-  void addFigure();
+  void addFigure(Figure* figure, cocos2d::Size& cellIJ, int zOrder);
   void removeFigure(Figure* figure);
   void addGrid(Grid* grid);
 

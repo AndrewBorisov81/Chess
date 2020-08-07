@@ -69,8 +69,10 @@ void Board::loadAllFigures(std::vector<std::vector<Figure*>>& figures, int zOrde
   }
 }
 
-void Board::addFigure()
+void Board::addFigure(Figure* figure, Size& cellIJ, int zOrder)
 {
+  figure->setPosition(Vec2(m_grid->getPointByCell(cellIJ.height, cellIJ.width)));
+  m_grid->addChild(figure, zOrder);
 }
 
 void Board::removeFigure(Figure* figure)
