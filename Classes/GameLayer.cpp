@@ -36,6 +36,10 @@ bool GameLayer::init()
     return false;
   }
 
+  //Bg
+  LayerColor * bgColor = LayerColor::create(Color4B(84, 33, 30, 255));
+  this->addChild(bgColor, -10);
+
   // Load the Sprite Sheet
   auto spritecache = SpriteFrameCache::getInstance();
   spritecache->addSpriteFramesWithFile("texture.plist");
@@ -263,8 +267,24 @@ int GameLayer::applyPromotion(int typeFigure)
   return typeFigure;
 }
 
-void GameLayer::movePromotion(std::string& to_record, Size& present, Size& future, Promotion& promotion, int typePromotionFigure)
+void GameLayer::movePromotion(Size& present, Size& future, Promotion& promotion, int typePromotionFigure)
 {
+  std::string to_record;
+
+  Position ppresent;
+  ppresent.iRow = present.width;
+  ppresent.iColumn = present.height;
+  
+  Position pfuture;
+  pfuture.iRow = future.width;
+  pfuture.iColumn = future.height;
+
+  std::string presentStr = m_figuresMoveLogic->parseMoveCellIntToString(ppresent);
+  std::string futureStr = m_figuresMoveLogic->parseMoveCellIntToString(pfuture);
+
+  to_record += presentStr;
+  to_record += futureStr;
+
   /*cout << "Promote to (Q, R, N, B): ";
     std::string piece;
     getline(cin, piece);
@@ -551,17 +571,18 @@ void GameLayer::moveFigure(const Size& move_from, const Size& move_to)
 
     // Set callBack
     //auto lfHidePromotion = [this, to_record, present, future, &S_promotion](int typeFigure)
-    auto lfHidePromotion = [this, present, future, &S_promotion, &to_record](int typeFigure)
-    //auto lfHidePromotion = [this](int typeFigure)
+    auto lfHidePromotion = [this, present, future, &S_promotion](int typeFigure)
     {
       Size sPresent(present.iRow, present.iColumn);
       Size sFuture(future.iRow, future.iColumn);
-      this->movePromotion(to_record, sPresent, sFuture, S_promotion, typeFigure);
+      this->movePromotion(sPresent, sFuture, S_promotion, typeFigure);
     };
 
     m_promotionLayer->callBackHide(lfHidePromotion);
 
     m_promotionLayer->show(isWhite);
+
+    return;
     //movePromotion(to_record, Size(present.iRow, present.iColumn), S_promotion, m_lastPromotedFigure);
 
     /*cout << "Promote to (Q, R, N, B): ";
@@ -596,8 +617,6 @@ void GameLayer::moveFigure(const Size& move_from, const Size& move_to)
     to_record += '=';
     to_record += toupper(chPromoted); // always log with a capital letter
     */
-
-    return;
   }
 
   // ---------------------------------------------------

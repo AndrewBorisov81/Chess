@@ -111,7 +111,7 @@ private:
 
   // Promotion
   int applyPromotion(int typeFigure);
-  void movePromotion(std::string& to_string, cocos2d::Size& present, cocos2d::Size& future, Promotion& promotion, int typePromotionFigure);
+  void movePromotion(cocos2d::Size& present, cocos2d::Size& future, Promotion& promotion, int typePromotionFigure);
 
   void createTestFigures();
 
