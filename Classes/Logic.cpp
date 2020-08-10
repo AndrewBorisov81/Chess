@@ -163,11 +163,14 @@ void Logic::moveFigure(Position present, Position future, EnPassant* S_enPassant
       board->removeFigure(capturedFigure);
   }
 
+  bool testPromotion = S_promotion->bApplied;
+
   // Move piece to new position
-  if (true == S_promotion->bApplied)
+  if (S_promotion->bApplied)
   {
     //board[future.iRow][future.iColumn] = S_promotion->chAfter;
-    m_gameLayer->setFigureToNewPos(S_promotion->figureBefore, Size(future.iRow, future.iColumn));
+    //m_gameLayer->setFigureToNewPos(S_promotion->figureBefore, Size(future.iRow, future.iColumn));
+    m_gameLayer->setFigureToNewPos(S_promotion->figureAfter, Size(future.iRow, future.iColumn));
 
     // Set Undo structure as a promotion occured
     //memcpy(&m_undo.promotion, S_promotion, sizeof(Promotion));
