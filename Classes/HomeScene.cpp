@@ -27,10 +27,10 @@ bool HomeScene::init()
 }
 
 
-void HomeScene::update(float delta) {
+/*void HomeScene::update(float delta) {
   if(m_gameLayer)
     m_gameLayer->update(delta);
-}
+}*/
 
 HomeScene* HomeScene::createScene()
 {
