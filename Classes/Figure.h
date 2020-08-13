@@ -18,7 +18,11 @@ class Figure : public cocos2d::ui::ImageView
 public:
   Figure();
   Figure(int type, bool isWhite);
+  Figure(int type, bool isWhite, const std::string& fileName);
   ~Figure();
+
+  // Copy constructor
+  Figure(const Figure& figure);
 
   static Figure* createFigure(int type, bool isWhite, std::string fileName);
 
@@ -30,8 +34,11 @@ public:
 
   cocos2d::Rect getRect();
 
+  Figure* cloneFigure();
+
 private:
   TypeFigure m_type{ TypeFigure::PAWN };
   bool m_isWhite{ true };
 
+  std::string m_fileName;
 };
