@@ -22,7 +22,7 @@ public:
   void removeFigure(Figure* figure);
   void addGrid(Grid* grid);
 
-  //void moveFigureTo(Figure* figure, Position pos);
+  void moveFigureTo(Figure* figure, const cocos2d::Size& newPos);
 
   cocos2d::Size m_boardSize;
 

@@ -85,6 +85,17 @@ void Board::addGrid(Grid* grid)
   m_grid = grid;
 }
 
+void Board::moveFigureTo(Figure* figure, const cocos2d::Size& newPos)
+{
+  Vector<Node*> allNodes = this->getChildren();
+  for (auto& node : allNodes) {
+    if (dynamic_cast<Figure*>(node) == figure) { //It is Sprite 
+      Figure* target = dynamic_cast<Figure*>(node);
+      target->setPosition(m_grid->getPointByCell(newPos.width, newPos.height));
+    }
+  }
+}
+
 bool Board::onTouchBegan(Touch* touch, Event* event)
 {
   bool stop = true;
