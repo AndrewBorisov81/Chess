@@ -11,7 +11,6 @@
 #include "cocos2d.h"
 #include "ui/CocosGUI.h"
 
-#include <vector>
 #include <cmath>
 #include <string>
 #include <stdlib.h>
@@ -37,7 +36,7 @@ bool GameLayer::init()
   }
 
   //Bg
-  LayerColor * bgColor = LayerColor::create(Color4B(84, 33, 30, 255));
+  LayerColor* bgColor = LayerColor::create(Color4B(84, 33, 30, 255));
   this->addChild(bgColor, -10);
 
   // Load the Sprite Sheet
@@ -50,7 +49,27 @@ bool GameLayer::init()
   m_screenSize = visibleSize;
 
   // Copy figures_board
-  std::copy(&Constants::INITIAL_FIGURES_BOARD[0][0], &Constants::INITIAL_FIGURES_BOARD[0][0]+Constants::ROWS*Constants::COLUMNS, &m_figures_board[0][0]);
+  std::copy(&Constants::INITIAL_FIGURES_BOARD[0][0], &Constants::INITIAL_FIGURES_BOARD[0][0] + Constants::ROWS*Constants::COLUMNS, &m_figures_board[0][0]);
+
+  // Board presentation
+  for (int i = 0; i < Constants::ROWS; i++)
+  {
+    std::vector<int> row;
+    for (int j = 0; j < Constants::COLUMNS; j++)
+    {
+      row.push_back(0);
+    }
+    m_dataChess.board.push_back(row);
+  }
+
+  // Board presentation
+  for (int i = 0; i < Constants::ROWS; i++)
+  {
+    for (int j = 0; j < Constants::COLUMNS; j++)
+    {
+      m_dataChess.board[i][j] = Constants::INITIAL_FIGURES_BOARD[i][j];
+    }
+  }
 
   // Create Board
   Board* board = createBoard();
@@ -147,6 +166,16 @@ bool GameLayer::init()
 
   // add the sprite as a child to this layer
   this->addChild(sprite, 1000);*/
+
+  /*Figure* testFigure = createFigureFileName(1, true);
+  m_board->addFigure(testFigure, Size(4,5), 1001);
+
+  Figure* cloneFigure = testFigure->cloneFigure();
+  m_board->addFigure(cloneFigure, Size(4, 6), 1001);
+
+  m_board->removeFigure(testFigure);
+
+  cloneFigure->setPosition(m_grid->getPointByCell(3, 3));*/
 
   return true;
 }
@@ -319,7 +348,9 @@ void GameLayer::movePromotion(Size& present, Size& future, Promotion& promotion,
     */
 
   Figure* figure = m_figuresMoveLogic->getFigureAtPosition(present.width, present.height);
+  //promotion.figureBefore = figure->cloneFigure();
   promotion.figureBefore = figure;
+  promotion.typeBefore = static_cast<int>(figure->getType());
 
   Figure* promotedFigure{ nullptr };
 
@@ -327,22 +358,28 @@ void GameLayer::movePromotion(Size& present, Size& future, Promotion& promotion,
   {
     //S_promotion.chAfter = toupper(chPromoted);
     promotedFigure = createFigureFileName(typePromotionFigure, true);
+    //promotion.figureAfter = promotedFigure->cloneFigure();
     promotion.figureAfter = promotedFigure;
+    promotion.typeAfter = static_cast<int>(promotedFigure->getType());
+    promotion.isWhite = true;
   }
   else
   {
     //S_promotion.chAfter = tolower(chPromoted);
     promotedFigure = createFigureFileName(typePromotionFigure, false);
+    //promotion.figureAfter = promotedFigure->cloneFigure();
     promotion.figureAfter = promotedFigure;
+    promotion.typeAfter = static_cast<int>(promotedFigure->getType());
+    promotion.isWhite = false;
   }
 
-  removeFigureBoard(Size(present.width, present.height));
-  //setFigureToNewPos(promotion.figureAfter, Size(future.width, future.height));
-  setFigureToNewPos(promotion.figureAfter, Size(present.width, present.height));
-
+  /*removeFigureBoard(Size(present.width, present.height));
   m_board->removeFigure(figure);
-  m_board->addFigure(promotedFigure, Size(future.width, future.height),static_cast<int>(ZOrderGame::FIGURES));
-  //m_board->addFigure(promotedFigure, Size(present.width, present.height), static_cast<int>(ZOrderGame::FIGURES)); 
+
+  Figure* promotionFigureAfter = createFigureFileName(promotion.typeAfter, promotion.isWhite);
+  //setFigureToNewPos(promotionFigureAfter, Size(present.width, present.height));
+  setFigureToNewPos(promotionFigureAfter, Size(future.width, future.height));
+  m_board->addFigure(promotionFigureAfter, Size(future.width, future.height), static_cast<int>(ZOrderGame::FIGURES));*/
 
   // ---------------------------------------------------
   // Log the move: do it prior to making the move
@@ -463,6 +500,8 @@ void GameLayer::moveFigure(const Size& move_from, const Size& move_to)
 
   //char chPiece = current_game->getPieceAtPosition(present.iRow, present.iColumn);
   Figure* figure = m_figuresMoveLogic->getFigureAtPosition(present.iRow, present.iColumn);
+  //new Code
+
   //cout << "Piece is " << char(chPiece) << "\n";
 
   if (Constants::EMPTY_SQUARE == figure)
@@ -724,10 +763,12 @@ Board* GameLayer::getBoard()
   return m_board;
 }
 
-void GameLayer::updateBoardChess(Figure* figure, const Size& prevPos, const Size& newPos)
+void GameLayer::updateBoard(int typeFigure, const Size& prevPos, const Size& newPos)
 {
-  m_dataChess.figures[newPos.width][newPos.height] = figure;
-  m_dataChess.figures[prevPos.width][prevPos.height] = 0;
+  /*m_dataChess.figures[newPos.width][newPos.height] = figure;
+  m_dataChess.figures[prevPos.width][prevPos.height] = 0;*/
+  m_dataChess.board[newPos.width][newPos.height] = typeFigure;
+  m_dataChess.board[prevPos.width][prevPos.height] = 0;
 }
 
 void GameLayer::removeFigureBoard(const Size& pos)
