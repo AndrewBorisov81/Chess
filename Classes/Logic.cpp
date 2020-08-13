@@ -170,7 +170,18 @@ void Logic::moveFigure(Position present, Position future, EnPassant* S_enPassant
   {
     //board[future.iRow][future.iColumn] = S_promotion->chAfter;
     //m_gameLayer->setFigureToNewPos(S_promotion->figureBefore, Size(future.iRow, future.iColumn));
-    m_gameLayer->setFigureToNewPos(S_promotion->figureAfter, Size(future.iRow, future.iColumn));
+
+    // Commited
+    //m_gameLayer->setFigureToNewPos(S_promotion->figureAfter, Size(future.iRow, future.iColumn));
+
+
+  m_gameLayer->removeFigureBoard(Size(present.iRow, present.iColumn));
+  m_gameLayer->getBoard()->removeFigure(figure);
+
+  Figure* promotionFigureAfter = m_gameLayer->createFigureFileName(S_promotion->typeAfter, S_promotion->isWhite);
+  //setFigureToNewPos(promotionFigureAfter, Size(present.width, present.height));
+  m_gameLayer->setFigureToNewPos(promotionFigureAfter, Size(future.iRow, future.iColumn));
+  m_gameLayer->getBoard()->addFigure(promotionFigureAfter, Size(future.iRow, future.iColumn), static_cast<int>(ZOrderGame::FIGURES));
 
     // Set Undo structure as a promotion occured
     //memcpy(&m_undo.promotion, S_promotion, sizeof(Promotion));
@@ -271,15 +282,22 @@ void Logic::undoLastMove()
   Figure* figure = getFigureAtPosition(to.iRow, to.iColumn);
 
   // Moving it back
-  // If there was a castling
-  if (true == curUndo.promotion.bApplied)
-  //if (true == m_undo.promotion.bApplied)
+  // If there was a promotion
+  if (curUndo.promotion.bApplied)
   {
     //board[from.iRow][from.iColumn] = m_undo.promotion.chBefore;
     //m_gameLayer->setFigureToNewPos(m_undo.promotion.figureBefore, Size(from.iRow, from.iColumn));
-    m_gameLayer->setFigureToNewPos(curUndo.promotion.figureBefore, Size(from.iRow, from.iColumn));
     //m_gameLayer->moveFigureToPos(m_undo.promotion.figureBefore, Size(from.iRow, from.iColumn));
-    m_gameLayer->moveFigureToPos(curUndo.promotion.figureBefore, Size(from.iRow, from.iColumn));
+
+    Figure* figureBefore = m_gameLayer->createFigureFileName(curUndo.promotion.typeBefore, curUndo.promotion.isWhite);
+
+    m_gameLayer->moveFigureToPos(figureBefore, Size(from.iRow, from.iColumn));
+    m_gameLayer->setFigureToNewPos(figureBefore, Size(from.iRow, from.iColumn));
+
+    //m_gameLayer->setFigureToNewPos(temp, Size(from.iRow, from.iColumn));
+    m_gameLayer->getBoard()->removeFigure(figure);
+    //Figure* figureBefore = m_gameLayer->createFigureFileName(curUndo.promotion.typeBefore, curUndo.promotion.isWhite);
+    m_gameLayer->getBoard()->addFigure(figureBefore, Size(from.iRow, from.iColumn), static_cast<int>(ZOrderGame::FIGURES));
   }
   else
   {
@@ -315,16 +333,19 @@ void Logic::undoLastMove()
 
     // Move the captured piece back. Was this an "en passant" move?
     if (curUndo.en_passant.bApplied)
-    //if (m_undo.en_passant.bApplied)
     {
       // Move the captured piece back
       //board[m_undo.en_passant.PawnCaptured.iRow][m_undo.en_passant.PawnCaptured.iColumn] = chCaptured;
       //m_gameLayer->setFigureToNewPos(capturedFigure, Size(m_undo.en_passant.PawnCaptured.iRow, m_undo.en_passant.PawnCaptured.iColumn));
       m_gameLayer->setFigureToNewPos(capturedFigure, Size(curUndo.en_passant.PawnCaptured.iRow, curUndo.en_passant.PawnCaptured.iColumn));
-
+      m_gameLayer->getBoard()->addFigure(capturedFigure, Size(curUndo.en_passant.PawnCaptured.iRow, curUndo.en_passant.PawnCaptured.iColumn), static_cast<int>(ZOrderGame::FIGURES));
       // Remove the attacker
       //board[to.iRow][to.iColumn] = EMPTY_SQUARE;
-      m_gameLayer->removeFigureBoard(Size(to.iRow, to.iColumn));
+      //m_gameLayer->removeFigureBoard(Size(to.iRow, to.iColumn));
+      if (capturedFigure)
+      {
+        //m_gameLayer->getBoard()->addFigure(caturedFigure, )
+      }
     }
     else
     {

@@ -56,9 +56,11 @@ struct Castling
 struct Promotion
 {
   bool bApplied;
-  //Position  pos;
   char chBefore;
   char chAfter;
+  int typeBefore;
+  int typeAfter;
+  bool isWhite;
   Figure* figureBefore;
   Figure* figureAfter;
 };
@@ -150,6 +152,9 @@ public:
   std::vector<Figure*> white_captured;
   std::vector<Figure*> black_captured;
 
+  std::vector<int> iwhite_captured;
+  std::vector<int> iblack_captured;
+
   void parseMove(std::string move, Position* pFrom, Position* pTo, char* chPromoted = nullptr);
   std::string parseMoveCellIntToString(const Position& pFrom);
   void parseMoveStringToCell(std::string move, Position* pFrom, Position* pTo);
@@ -160,6 +165,7 @@ protected:
   GameLayer* m_gameLayer{ nullptr };
   int  m_currentTurn{ 0 };
   std::vector<std::vector<Figure*>> m_figures;
+  std::vector<std::vector<int>> m_board;
 
   // Undo is possible?
   struct Undo
@@ -177,7 +183,6 @@ protected:
 
   std::stack<Undo> m_undos;
   Undo m_currentUndo;
-
 
   // Castling requirements
   bool m_bCastlingKingSideAllowed[2];
