@@ -767,6 +767,7 @@ void GameLayer::updateBoard(int typeFigure, const Size& prevPos, const Size& new
 {
   /*m_dataChess.figures[newPos.width][newPos.height] = figure;
   m_dataChess.figures[prevPos.width][prevPos.height] = 0;*/
+
   m_dataChess.board[newPos.width][newPos.height] = typeFigure;
   m_dataChess.board[prevPos.width][prevPos.height] = 0;
 }
