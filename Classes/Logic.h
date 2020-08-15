@@ -99,6 +99,8 @@ public:
 
   Figure* getFigureAtPosition(int i, int j);
 
+  int getFigureAtPositionI(int i, int j);
+
   void logMove(std::string &to_record);
 
   bool undoIsPossible();

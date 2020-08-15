@@ -84,11 +84,13 @@ void Logic::moveFigure(Position present, Position future, EnPassant* S_enPassant
   Undo curUndo;
   // Get the piece to be moved
   //char chPiece = getPieceAtPosition(present);
-  int iPiece{0};
+  int iPiece = getFigureAtPositionI(present.iRow, present.iColumn);
   Figure* figure = getFigureAtPosition(present.iRow, present.iColumn);
 
   // Is the destination square occupied?
   //char chCapturedPiece = getPieceAtPosition(future);
+  int iCapturedPiece = getFigureAtPositionI(present.iRow, present.iColumn);
+
   Figure* capturedFigure = getFigureAtPosition(future.iRow, future.iColumn);
 
   // So, was a piece captured in this move?
@@ -121,6 +123,8 @@ void Logic::moveFigure(Position present, Position future, EnPassant* S_enPassant
   else if (true == S_enPassant->bApplied)
   {
     //char chCapturedEP = getPieceAtPosition(S_enPassant->PawnCaptured.iRow, S_enPassant->PawnCaptured.iColumn);
+    int iCapturedEP = getFigureAtPositionI(S_enPassant->PawnCaptured.iRow, S_enPassant->PawnCaptured.iColumn);
+
     Figure* capturedEPFigure = getFigureAtPosition(S_enPassant->PawnCaptured.iRow, S_enPassant->PawnCaptured.iColumn);
 
     //if (WHITE_PIECE == getPieceColor(chCapturedEP))
@@ -129,14 +133,14 @@ void Logic::moveFigure(Position present, Position future, EnPassant* S_enPassant
       // A white piece was captured
       white_captured.push_back(capturedEPFigure);
 
-      iwhite_captured.push_back(static_cast<int>(capturedEPFigure->getType()));
+      iwhite_captured.push_back(iCapturedEP);
     }
     else
     {
       // A black piece was captured
       black_captured.push_back(capturedEPFigure);
 
-      iblack_captured.push_back(static_cast<int>(capturedEPFigure->getType()));
+      iblack_captured.push_back(iCapturedEP);
     }
 
     // Now, remove the captured pawn
@@ -218,6 +222,9 @@ void Logic::moveFigure(Position present, Position future, EnPassant* S_enPassant
   {
     // The king was already move, but we still have to move the rook to 'jump' the king
     //char chPiece = getPieceAtPosition(S_castling->rook_before.iRow, S_castling->rook_before.iColumn);
+
+    int iPiece = getFigureAtPositionI(S_castling->rook_before.iRow, S_castling->rook_before.iColumn);
+
     Figure* figure = getFigureAtPosition(S_castling->rook_before.iRow, S_castling->rook_before.iColumn);
 
     // Remove the rook from present position
@@ -299,6 +306,8 @@ void Logic::undoLastMove()
 
   // Since we want to undo a move, we will be moving the piece from (iToRow, iToColumn) to (iFromRow, iFromColumn)
   //char chPiece = getPieceAtPosition(to.iRow, to.iColumn);
+  int iFigure = getFigureAtPositionI(to.iRow, to.iColumn);
+
   Figure* figure = getFigureAtPosition(to.iRow, to.iColumn);
 
   // Moving it back
@@ -306,15 +315,13 @@ void Logic::undoLastMove()
   if (curUndo.promotion.bApplied)
   {
     //board[from.iRow][from.iColumn] = m_undo.promotion.chBefore;
-    //m_gameLayer->setFigureToNewPos(m_undo.promotion.figureBefore, Size(from.iRow, from.iColumn));
-    //m_gameLayer->moveFigureToPos(m_undo.promotion.figureBefore, Size(from.iRow, from.iColumn));
+    m_gameLayer->getDataChess().board[from.iRow][from.iColumn] = m_undo.promotion.typeBefore;
 
     Figure* figureBefore = m_gameLayer->createFigureFileName(curUndo.promotion.typeBefore, curUndo.promotion.isWhite);
 
     m_gameLayer->moveFigureToPos(figureBefore, Size(from.iRow, from.iColumn));
     m_gameLayer->setFigureToNewPos(figureBefore, Size(from.iRow, from.iColumn));
 
-    //m_gameLayer->setFigureToNewPos(temp, Size(from.iRow, from.iColumn));
     m_gameLayer->getBoard()->removeFigure(figure);
     //Figure* figureBefore = m_gameLayer->createFigureFileName(curUndo.promotion.typeBefore, curUndo.promotion.isWhite);
     m_gameLayer->getBoard()->addFigure(figureBefore, Size(from.iRow, from.iColumn), static_cast<int>(ZOrderGame::FIGURES));
@@ -322,6 +329,8 @@ void Logic::undoLastMove()
   else
   {
     //board[from.iRow][from.iColumn] = chPiece;
+    m_gameLayer->getDataChess().board[from.iRow][from.iColumn] = iFigure;
+
     m_gameLayer->setFigureToNewPos(figure, Size(from.iRow, from.iColumn));
     m_gameLayer->moveFigureToPos(figure, Size(from.iRow, from.iColumn));
   }
@@ -354,6 +363,7 @@ void Logic::undoLastMove()
       iCaptured = iwhite_captured.back();
 
       capturedFigure = white_captured.back();
+
       white_captured.pop_back();
       iwhite_captured.pop_back();
     }
@@ -361,9 +371,11 @@ void Logic::undoLastMove()
     // Move the captured piece back. Was this an "en passant" move?
     if (curUndo.en_passant.bApplied)
     {
+      bool isWhite = (iCaptured < 0) ? false : true;
+      capturedFigure = m_gameLayer->createFigureFileName(abs(iCaptured), isWhite);
       // Move the captured piece back
       //board[m_undo.en_passant.PawnCaptured.iRow][m_undo.en_passant.PawnCaptured.iColumn] = chCaptured;
-      m_gameLayer->getDataChess().board[m_undo.en_passant.PawnCaptured.iRow][m_undo.en_passant.PawnCaptured.iColumn] = iCaptured;
+      m_gameLayer->getDataChess().board[curUndo.en_passant.PawnCaptured.iRow][curUndo.en_passant.PawnCaptured.iColumn] = iCaptured;
 
       //m_gameLayer->setFigureToNewPos(capturedFigure, Size(m_undo.en_passant.PawnCaptured.iRow, m_undo.en_passant.PawnCaptured.iColumn));
       m_gameLayer->setFigureToNewPos(capturedFigure, Size(curUndo.en_passant.PawnCaptured.iRow, curUndo.en_passant.PawnCaptured.iColumn));
@@ -391,22 +403,22 @@ void Logic::undoLastMove()
   }
 
   // If there was a castling
-  if (m_undo.castling.bApplied)
+  if (curUndo.castling.bApplied)
   {
     //char chRook = getPieceAtPosition(m_undo.castling.rook_after.iRow, m_undo.castling.rook_after.iColumn);
-    int iRook;
+    int iRook = getFigureAtPositionI(curUndo.castling.rook_after.iRow, curUndo.castling.rook_after.iColumn);
 
     Figure* rookFigure = getFigureAtPosition(curUndo.castling.rook_after.iRow, curUndo.castling.rook_after.iColumn);
 
     // Remove the rook from present position
     //board[m_undo.castling.rook_after.iRow][m_undo.castling.rook_after.iColumn] = EMPTY_SQUARE;
-    m_gameLayer->getDataChess().board[m_undo.castling.rook_after.iRow][m_undo.castling.rook_after.iColumn] = 0;
+    m_gameLayer->getDataChess().board[curUndo.castling.rook_after.iRow][curUndo.castling.rook_after.iColumn] = 0;
 
     m_gameLayer->removeFigureBoard(Size(curUndo.castling.rook_after.iRow, curUndo.castling.rook_after.iColumn));
 
     // 'Jump' into to new position
     //board[m_undo.castling.rook_before.iRow][m_undo.castling.rook_before.iColumn] = chRook;
-    m_gameLayer->getDataChess().board[m_undo.castling.rook_before.iRow][m_undo.castling.rook_before.iColumn] = 0;
+    m_gameLayer->getDataChess().board[curUndo.castling.rook_before.iRow][curUndo.castling.rook_before.iColumn] = iRook;
     
     m_gameLayer->setFigureToNewPos(rookFigure, Size(curUndo.castling.rook_before.iRow, curUndo.castling.rook_before.iColumn));
     m_gameLayer->moveFigureToPos(rookFigure, Size(curUndo.castling.rook_before.iRow, curUndo.castling.rook_before.iColumn));
@@ -471,6 +483,12 @@ Figure* Logic::getFigureAtPosition(int i, int j)
   //Figure* figure = m_figures[i][j];
   DataChess& dataChess = m_gameLayer->getDataChess();
   return dataChess.figures[i][j];
+}
+
+int Logic::getFigureAtPositionI(int i, int j)
+{
+  DataChess& dataChess = m_gameLayer->getDataChess();
+  return dataChess.board[i][j];
 }
 
 std::string Logic::getLastMove()
