@@ -54,7 +54,7 @@ bool FiguresMoveLogic::isMoveValid(Figure* figure, Position present, Position fu
       if ((figure->isWhite() && future.iRow == present.iRow + 1) ||
         (!figure->isWhite() && future.iRow == present.iRow - 1))
       {
-        if (Constants::EMPTY_SQUARE == getFigureAtPosition(future.iRow, future.iColumn))
+        if (Constants::EMPTY_SQUAREI == getFigureAtPositionI(future.iRow, future.iColumn))
         {
           bValid = true;
         }
@@ -67,8 +67,8 @@ bool FiguresMoveLogic::isMoveValid(Figure* figure, Position present, Position fu
         // This is only allowed if the pawn is in its original place
         if (figure->isWhite())
         {
-          if (Constants::EMPTY_SQUARE == getFigureAtPosition(future.iRow - 1, future.iColumn) &&
-            Constants::EMPTY_SQUARE == getFigureAtPosition(future.iRow, future.iColumn) &&
+          if (Constants::EMPTY_SQUAREI == getFigureAtPositionI(future.iRow - 1, future.iColumn) &&
+            Constants::EMPTY_SQUAREI == getFigureAtPositionI(future.iRow, future.iColumn) &&
             1 == present.iRow)
           {
             bValid = true;
@@ -76,8 +76,8 @@ bool FiguresMoveLogic::isMoveValid(Figure* figure, Position present, Position fu
         }
         else // if ( isBlackPiece(chPiece) )
         {
-          if (Constants::EMPTY_SQUARE == getFigureAtPosition(future.iRow + 1, future.iColumn) &&
-            Constants::EMPTY_SQUARE == getFigureAtPosition(future.iRow, future.iColumn) &&
+          if (Constants::EMPTY_SQUAREI == getFigureAtPositionI(future.iRow + 1, future.iColumn) &&
+            Constants::EMPTY_SQUAREI == getFigureAtPositionI(future.iRow, future.iColumn) &&
             6 == present.iRow)
           {
             bValid = true;
@@ -106,9 +106,10 @@ bool FiguresMoveLogic::isMoveValid(Figure* figure, Position present, Position fu
       parseMoveStringToCell(last_move, &LastMoveFrom, &LastMoveTo);
 
       // First of all, was it a pawn?
-      Figure* LstMvFigure = getFigureAtPosition(LastMoveTo.iRow, LastMoveTo.iColumn);
+      int iLstMvFigure = getFigureAtPositionI(LastMoveTo.iRow, LastMoveTo.iColumn);
+      //Figure* LstMvFigure = getFigureAtPosition(LastMoveTo.iRow, LastMoveTo.iColumn);
 
-      if (LstMvFigure->getType() != TypeFigure::PAWN)
+      if (iLstMvFigure != static_cast<int>(TypeFigure::PAWN))
       {
         return false;
       }
@@ -129,7 +130,7 @@ bool FiguresMoveLogic::isMoveValid(Figure* figure, Position present, Position fu
         if ((figure->isWhite() && future.iRow == present.iRow + 1) || (!figure->isWhite() && future.iRow == present.iRow - 1))
         {
           // Only allowed if there is something to be captured in the square
-          if (Constants::EMPTY_SQUARE != getFigureAtPosition(future.iRow, future.iColumn))
+          if (Constants::EMPTY_SQUAREI != getFigureAtPositionI(future.iRow, future.iColumn))
           {
             bValid = true;
             //std::cout << "Pawn captured a piece!\n";
@@ -144,7 +145,7 @@ bool FiguresMoveLogic::isMoveValid(Figure* figure, Position present, Position fu
       if ((figure->isWhite() && future.iRow == present.iRow + 1) || (!figure->isWhite() && future.iRow == present.iRow - 1))
       {
         // Only allowed if there is something to be captured in the square
-        if (Constants::EMPTY_SQUARE != getFigureAtPosition(future.iRow, future.iColumn))
+        if (Constants::EMPTY_SQUAREI != getFigureAtPositionI(future.iRow, future.iColumn))
         {
           bValid = true;
           //std::cout << "Pawn captured a piece!\n";
@@ -377,8 +378,9 @@ bool FiguresMoveLogic::isMoveValid(Figure* figure, Position present, Position fu
   if (isSquareOccupied(future.iRow, future.iColumn))
   {
     //char chAuxPiece = getPieceAtPosition(future.iRow, future.iColumn);
-    Figure* auxFigure = getFigureAtPosition(future.iRow, future.iColumn);
-    int auxColor = (auxFigure->isWhite()) ? static_cast<int>(FigureColor::WHITE_FIGURE) : static_cast<int>(FigureColor::BLACK_FIGURE);
+    int iAuxFigure = getFigureAtPositionI(future.iRow, future.iColumn);
+    //Figure* auxFigure = getFigureAtPosition(future.iRow, future.iColumn);
+    int auxColor = (iAuxFigure > 0) ? static_cast<int>(FigureColor::WHITE_FIGURE) : static_cast<int>(FigureColor::BLACK_FIGURE);
     int figureColor = (figure->isWhite()) ? static_cast<int>(FigureColor::WHITE_FIGURE) : static_cast<int>(FigureColor::BLACK_FIGURE);
     if (figureColor == auxColor)
     {
