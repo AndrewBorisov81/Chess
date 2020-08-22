@@ -30,6 +30,7 @@ namespace Constants
   const int ROWS(8);
   const int COLUMNS(8);
   Figure* EMPTY_SQUARE(nullptr);
+  int EMPTY_SQUAREI(0);
 
   // This represents the pieces on the board.
  // Keep in mind that pieces[0][0] represents A1

@@ -34,6 +34,7 @@ namespace Constants
   extern const int ROWS;
   extern const int COLUMNS;
   extern Figure* EMPTY_SQUARE;
+  extern int EMPTY_SQUAREI;
 
   // This represents the pieces on the board.
   // Keep in mind that pieces[0][0] represents A1
