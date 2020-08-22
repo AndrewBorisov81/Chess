@@ -123,10 +123,23 @@ bool FiguresMoveLogic::isMoveValid(Figure* figure, Position present, Position fu
         S_enPassant->PawnCaptured.iRow = LastMoveTo.iRow;
         S_enPassant->PawnCaptured.iColumn = LastMoveTo.iColumn;
       }
+      // Wants to capture a piece
+      else if (1 == (abs(future.iColumn - present.iColumn)))
+      {
+        if ((figure->isWhite() && future.iRow == present.iRow + 1) || (!figure->isWhite() && future.iRow == present.iRow - 1))
+        {
+          // Only allowed if there is something to be captured in the square
+          if (Constants::EMPTY_SQUARE != getFigureAtPosition(future.iRow, future.iColumn))
+          {
+            bValid = true;
+            //std::cout << "Pawn captured a piece!\n";
+          }
+        }
+      }
     }
 
     // Wants to capture a piece
-    else if (1 == abs(future.iColumn - present.iColumn))
+    else if (1 == (abs(future.iColumn - present.iColumn)))
     {
       if ((figure->isWhite() && future.iRow == present.iRow + 1) || (!figure->isWhite() && future.iRow == present.iRow - 1))
       {
@@ -264,13 +277,13 @@ bool FiguresMoveLogic::isMoveValid(Figure* figure, Position present, Position fu
       // Castling is only allowed in these circunstances:
 
       // 1. King is not in check
-      if (true == playerKingInCheck(nullptr))
+      if (playerKingInCheck(nullptr))
       {
         return false;
       }
 
       // 2. No pieces in between the king and the rook
-      if (false == isPathFree(present, future, static_cast<int>(Direction::HORIZONTAL)))
+      if (!isPathFree(present, future, static_cast<int>(Direction::HORIZONTAL)))
       {
         return false;
       }
@@ -281,7 +294,7 @@ bool FiguresMoveLogic::isMoveValid(Figure* figure, Position present, Position fu
       {
         // if future.iColumn is greather, it means king side
         int figureColor = (figure->isWhite()) ? static_cast<int>(FigureColor::WHITE_FIGURE) : static_cast<int>(FigureColor::BLACK_FIGURE);
-        if (false == castlingAllowed(Side::KING_SIDE, figureColor))
+        if (!castlingAllowed(Side::KING_SIDE, figureColor))
         {
           //createNextMessage("Castling to the king side is not allowed.\n");
           return false;
@@ -289,8 +302,9 @@ bool FiguresMoveLogic::isMoveValid(Figure* figure, Position present, Position fu
         else
         {
           // Check if the square that the king skips is not under attack
-          UnderAttack square_skipped = isUnderAttack(present.iRow, present.iColumn + 1, getCurrentTurn(), nullptr);
-          if (false == square_skipped.bUnderAttack)
+          UnderAttack square_skipped1 = isUnderAttack(present.iRow, present.iColumn + 1, getCurrentTurn(), nullptr);
+          //UnderAttack square_skipped2 = isUnderAttack(future.iRow, future.iColumn, getCurrentTurn(), nullptr);
+          if (!square_skipped1.bUnderAttack)
           {
             // Fill the S_castling structure
             S_castling->bApplied = true;
@@ -311,7 +325,7 @@ bool FiguresMoveLogic::isMoveValid(Figure* figure, Position present, Position fu
       {
         // if present.iColumn is greather, it means queen side
         int figureColor = (figure->isWhite()) ? static_cast<int>(FigureColor::WHITE_FIGURE) : static_cast<int>(FigureColor::BLACK_FIGURE);
-        if (false == castlingAllowed(Side::QUEEN_SIDE, figureColor))
+        if (!castlingAllowed(Side::QUEEN_SIDE, figureColor))
         {
           //createNextMessage("Castling to the queen side is not allowed.\n");
           return false;
@@ -319,8 +333,9 @@ bool FiguresMoveLogic::isMoveValid(Figure* figure, Position present, Position fu
         else
         {
           // Check if the square that the king skips is not attacked
-          UnderAttack square_skipped = isUnderAttack(present.iRow, present.iColumn - 1, getCurrentTurn(), nullptr);
-          if (false == square_skipped.bUnderAttack)
+          UnderAttack square_skipped1 = isUnderAttack(present.iRow, present.iColumn - 1, getCurrentTurn(), nullptr);
+          UnderAttack square_skipped2 = isUnderAttack(future.iRow, future.iColumn, getCurrentTurn(), nullptr);
+          if (!square_skipped1.bUnderAttack && !square_skipped2.bUnderAttack)
           {
             // Fill the S_castling structure
             S_castling->bApplied = true;
@@ -349,7 +364,7 @@ bool FiguresMoveLogic::isMoveValid(Figure* figure, Position present, Position fu
   }
 
   // If it is a move in an invalid direction, do not even bother to check the rest
-  if (false == bValid)
+  if (!bValid)
   {
     //std::cout << "Piece is not allowed to move to that square\n";
     return false;
