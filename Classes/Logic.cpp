@@ -98,18 +98,22 @@ void Logic::moveFigure(Position present, Position future, EnPassant* S_enPassant
   if(Constants::EMPTY_SQUARE != capturedFigure)
   {
     //if (WHITE_PIECE == getPieceColor(chCapturedPiece))
+    int kColor{ 1 };
     if(capturedFigure->isWhite())
     {
       // A white piece was captured
       white_captured.push_back(capturedFigure);
 
-      iwhite_captured.push_back(static_cast<int>(capturedFigure->getType()));
+      kColor = 1;
+      iwhite_captured.push_back(kColor * (static_cast<int>(capturedFigure->getType())));
     }
     else
     {
       // A black piece was captured
       black_captured.push_back(capturedFigure);
-      iwhite_captured.push_back(static_cast<int>(capturedFigure->getType()));
+
+      kColor = -1;
+      iblack_captured.push_back(kColor * (static_cast<int>(capturedFigure->getType())));
     }
 
     // Set Undo structure. If a piece was captured, then no "en passant" move performed
@@ -352,27 +356,28 @@ void Logic::undoLastMove()
     {
       //chCaptured = black_captured.back();
       iCaptured = iblack_captured.back();
+      iblack_captured.pop_back();
 
       capturedFigure = black_captured.back();
       black_captured.pop_back();
-      iblack_captured.pop_back();
     }
     else
     {
       //chCaptured = white_captured.back();
       iCaptured = iwhite_captured.back();
+      iwhite_captured.pop_back();
 
       capturedFigure = white_captured.back();
 
       white_captured.pop_back();
-      iwhite_captured.pop_back();
     }
+
+    bool isWhite = (iCaptured < 0) ? false : true;
+    capturedFigure = m_gameLayer->createFigureFileName(abs(iCaptured), isWhite);
 
     // Move the captured piece back. Was this an "en passant" move?
     if (curUndo.en_passant.bApplied)
     {
-      bool isWhite = (iCaptured < 0) ? false : true;
-      capturedFigure = m_gameLayer->createFigureFileName(abs(iCaptured), isWhite);
       // Move the captured piece back
       //board[m_undo.en_passant.PawnCaptured.iRow][m_undo.en_passant.PawnCaptured.iColumn] = chCaptured;
       m_gameLayer->getDataChess().board[curUndo.en_passant.PawnCaptured.iRow][curUndo.en_passant.PawnCaptured.iColumn] = iCaptured;
@@ -384,14 +389,23 @@ void Logic::undoLastMove()
       // Remove the attacker
       //board[to.iRow][to.iColumn] = EMPTY_SQUARE;
       m_gameLayer->getDataChess().board[to.iRow][to.iColumn] = 0;
+      m_gameLayer->removeFigureBoard(Size(to.iRow, to.iColumn));
     }
     else
     {
       //board[to.iRow][to.iColumn] = chCaptured;
-      m_gameLayer->getDataChess().board[to.iRow][to.iColumn] = iCaptured;
 
-      m_gameLayer->setFigureToNewPos(figure, Size(to.iRow, to.iColumn));
-      m_gameLayer->moveFigureToPos(figure, Size(to.iRow, to.iColumn));
+
+      m_gameLayer->getDataChess().board[to.iRow][to.iColumn] = iCaptured;
+      m_gameLayer->getBoard()->addFigure(capturedFigure, Size(to.iRow, to.iColumn), static_cast<int>(ZOrderGame::FIGURES));
+
+      m_gameLayer->setFigureToNewPos(capturedFigure, Size(to.iRow, to.iColumn));
+
+      m_gameLayer->setFigureToNewPos(figure, Size(from.iRow, from.iColumn));
+      m_gameLayer->moveFigureToPos(figure, Size(from.iRow, from.iColumn));
+
+      /*m_gameLayer->setFigureToNewPos(figure, Size(to.iRow, to.iColumn));
+      m_gameLayer->moveFigureToPos(figure, Size(to.iRow, to.iColumn));*/
     }
   }
   else
@@ -1394,7 +1408,7 @@ UnderAttack Logic::isUnderAttack(int iRow, int iColumn, int iColor, IntendedMove
     }
 
     // Check the diagonal up-left
-    for (int i = iRow + 1, j = iColumn - 1; i < 8 && j > 0; i++, j--)
+    for (int i = iRow + 1, j = iColumn - 1; i < 8 && j >= 0; i++, j--)
     {
       //char chPieceFound = getPiece_considerMove(i, j, pintended_move);
       Figure* chFigureFound = getPiece_considerMove(i, j, pintended_move);
@@ -1494,7 +1508,7 @@ UnderAttack Logic::isUnderAttack(int iRow, int iColumn, int iColor, IntendedMove
     }
 
     // Check the diagonal down-left
-    for (int i = iRow - 1, j = iColumn - 1; i > 0 && j > 0; i--, j--)
+    for (int i = iRow - 1, j = iColumn - 1; i >= 0 && j >= 0; i--, j--)
     {
       //char chPieceFound = getPiece_considerMove(i, j, pintended_move);
       Figure* chFigureFound = getPiece_considerMove(i, j, pintended_move);
