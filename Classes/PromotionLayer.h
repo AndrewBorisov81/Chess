@@ -19,32 +19,32 @@ public:
   void show(bool isWhite);
   void hide();
 
-  void showFigures(bool isWhite);
-  void hideFigures();
+  void showPiece(bool isWhite);
+  void hidePiece();
 
   // a selector callback
-  void figureCallback(cocos2d::Ref* pSender);
+  void pieceCallback(cocos2d::Ref* pSender);
 
-  void callBackClickFigure(const std::function<void(int)>& callBack);
+  void callBackClickPiece(const std::function<void(int)>& callBack);
   void callBackHide(const std::function<void(int)>& callBack);
 
-  void createFigures(bool isWhite, cocos2d::Size tableSize); 
-  cocos2d::Menu* createFigure(int typeFigure, bool isWhite, cocos2d::Rect& figureRect);
+  void createPiece(bool isWhite, cocos2d::Size tableSize); 
+  cocos2d::Menu* createPiece(int typePiece, bool isWhite, cocos2d::Rect& pieceRect);
 
 private:
   bool m_isShow = false;
 
   cocos2d::Sprite* m_table{ nullptr };
   cocos2d::Size m_tableSize;
-  float m_imageFigureScale{ 0 };
+  float m_imagePiececale{ 0 };
 
-  int m_tagFigure{ 1 };
+  int m_tagPiece{ 1 };
 
-  std::vector<cocos2d::Menu*> m_whiteFigures;
-  std::vector<cocos2d::Menu*> m_blackFigures;
+  std::vector<cocos2d::Menu*> m_whitePiece;
+  std::vector<cocos2d::Menu*> m_blackPiece;
 
   bool m_isWhite{ true };
 
-  std::function<void(int)> m_clickFigure{ nullptr };
+  std::function<void(int)> m_clickPiece{ nullptr };
   std::function<void(int)> m_hide{ nullptr };
 };

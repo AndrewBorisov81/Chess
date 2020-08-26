@@ -19,7 +19,7 @@ bool PromotionLayer::init()
     return false;
   }
 
-  m_imageFigureScale = 1.5;
+  m_imagePiececale = 1.5;
 
   // Load the Sprite Sheet
   auto spritecache = SpriteFrameCache::getInstance();
@@ -32,11 +32,11 @@ bool PromotionLayer::init()
   m_tableSize = tableSize;
   this->addChild(tableSprite, 1);
 
-  // Create white figures
-  createFigures(true, tableSize);
+  // Create white piece
+  createPiece(true, tableSize);
 
-  // Create black figures
-  createFigures(false, tableSize);
+  // Create black piece
+  createPiece(false, tableSize);
 
   hide();
 
@@ -50,19 +50,19 @@ cocos2d::Size PromotionLayer::getTableSize()
 
 void PromotionLayer::show(bool isWhite)
 {
-  std::vector<Menu*> itemFigures;
+  std::vector<Menu*> itemPiece;
 
   m_isWhite = isWhite;
 
   if (m_isWhite)
-    itemFigures = m_whiteFigures;
+    itemPiece = m_whitePiece;
   else
-    itemFigures = m_blackFigures;
+    itemPiece = m_blackPiece;
 
-  for (int i = 0; i < itemFigures.size(); i++)
+  for (int i = 0; i < itemPiece.size(); i++)
   {
-    Menu* figures = itemFigures[i];
-    figures->setOpacity(255);
+    Menu* piece = itemPiece[i];
+    piece->setOpacity(255);
   }
 
   m_table->setOpacity(255);
@@ -72,64 +72,64 @@ void PromotionLayer::show(bool isWhite)
 
 void PromotionLayer::hide()
 {
-  hideFigures();
+  hidePiece();
   
   m_table->setOpacity(0);
 
   if (m_hide)
   {
-    int tagFigure = m_tagFigure;
-    m_hide(tagFigure);
+    int tagPiece = m_tagPiece;
+    m_hide(tagPiece);
   }
 
   m_isShow = false;
 }
 
-void PromotionLayer::showFigures(bool isWhite)
+void PromotionLayer::showPiece(bool isWhite)
 {
-  std::vector<Menu*> itemFigures;
+  std::vector<Menu*> itemPiece;
 
   if (m_isWhite)
-    itemFigures = m_whiteFigures;
+    itemPiece = m_whitePiece;
   else
-    itemFigures = m_blackFigures;
+    itemPiece = m_blackPiece;
 
-  for (int i = 0; i < itemFigures.size(); i++)
+  for (int i = 0; i < itemPiece.size(); i++)
   {
-    Menu* figures = itemFigures[i];
-    figures->setOpacity(255);
+    Menu* piece = itemPiece[i];
+    piece->setOpacity(255);
   }
 }
 
-void PromotionLayer::hideFigures()
+void PromotionLayer::hidePiece()
 {
-  for (int i = 0; i < m_whiteFigures.size(); i++)
+  for (int i = 0; i < m_whitePiece.size(); i++)
   {
-    Menu* figures = m_whiteFigures[i];
-    figures->setOpacity(0);
+    Menu* piece = m_whitePiece[i];
+    piece->setOpacity(0);
   }
 
-  for (int i = 0; i < m_blackFigures.size(); i++)
+  for (int i = 0; i < m_blackPiece.size(); i++)
   {
-    Menu* figures = m_blackFigures[i];
-    figures->setOpacity(0);
+    Menu* piece = m_blackPiece[i];
+    piece->setOpacity(0);
   }
 }
 
-void PromotionLayer::figureCallback(cocos2d::Ref * pSender)
+void PromotionLayer::pieceCallback(cocos2d::Ref * pSender)
 {
   if (m_isShow)
   {
     auto menu = static_cast<Menu*>(static_cast<Node*>(pSender)->getParent());
-    int tagFigure = menu->getTag();
-    m_tagFigure = tagFigure;
-    m_clickFigure(tagFigure);
+    int tagPiece = menu->getTag();
+    m_tagPiece = tagPiece;
+    m_clickPiece(tagPiece);
   }
 }
 
-void PromotionLayer::callBackClickFigure(const std::function<void(int)>& callBack)
+void PromotionLayer::callBackClickPiece(const std::function<void(int)>& callBack)
 {
-  m_clickFigure = callBack;
+  m_clickPiece = callBack;
 }
 
 void PromotionLayer::callBackHide(const std::function<void(int)>& callBack)
@@ -137,62 +137,62 @@ void PromotionLayer::callBackHide(const std::function<void(int)>& callBack)
   m_hide = callBack;
 }
 
-void PromotionLayer::createFigures(bool isWhite, Size tableSize)
+void PromotionLayer::createPiece(bool isWhite, Size tableSize)
 {
-  std::vector<Menu*> itemFigures;
-  std::vector<Rect> rectFigures;
+  std::vector<Menu*> itemPiece;
+  std::vector<Rect> rectPiece;
 
-  float sumSizeWidthFigures{ 0 };
+  float sumSizeWidthPiece{ 0 };
 
-  if (isWhite && m_whiteFigures.size() > 0) return;
-  if (!isWhite && m_blackFigures.size() > 0) return;
+  if (isWhite && m_whitePiece.size() > 0) return;
+  if (!isWhite && m_blackPiece.size() > 0) return;
 
   for (int i = 1; i < 5; i++)
   {
     Rect curRect;
 
-    Menu* figure = createFigure(i, isWhite, curRect);
+    Menu* piece = createPiece(i, isWhite, curRect);
     
-    figure->setTag(i);
+    piece->setTag(i);
 
-    sumSizeWidthFigures += curRect.size.width;
+    sumSizeWidthPiece += curRect.size.width;
 
-    rectFigures.push_back(curRect);
+    rectPiece.push_back(curRect);
 
-    itemFigures.push_back(figure);
+    itemPiece.push_back(piece);
   }
 
-  if (isWhite) m_whiteFigures = itemFigures;
-  if (!isWhite) m_blackFigures = itemFigures;
+  if (isWhite) m_whitePiece = itemPiece;
+  if (!isWhite) m_blackPiece = itemPiece;
 
   float deltaShift;
-  Rect figureRect = rectFigures[0];
-  deltaShift = 0.3 * figureRect.size.width;
+  Rect pieceRect = rectPiece[0];
+  deltaShift = 0.3 * pieceRect.size.width;
 
-  float initPosX = (tableSize.width - sumSizeWidthFigures)/2;
-  Menu* f1 = itemFigures[0];
+  float initPosX = (tableSize.width - sumSizeWidthPiece)/2;
+  Menu* f1 = itemPiece[0];
   f1->setPosition(Vec2(initPosX - tableSize.width/2, 0));
 
   // Set position
-  for (int i = 0; i < itemFigures.size() - 1; i++)
+  for (int i = 0; i < itemPiece.size() - 1; i++)
   {
-    Menu* prevFigure = itemFigures[i];
-    Menu* curFigure = itemFigures[i + 1];
+    Menu* prevPiece = itemPiece[i];
+    Menu* curPiece = itemPiece[i + 1];
 
-    Rect rectPrevFigure = rectFigures[i];
+    Rect rectPrevPiece = rectPiece[i];
 
-    Vec2 prevPosFigure = prevFigure->getPosition();
+    Vec2 prevPosPiece = prevPiece->getPosition();
 
-    curFigure->setPosition(prevPosFigure.x + rectPrevFigure.size.width + deltaShift, prevPosFigure.y);
+    curPiece->setPosition(prevPosPiece.x + rectPrevPiece.size.width + deltaShift, prevPosPiece.y);
   }
 }
 
-Menu* PromotionLayer::createFigure(int typeFigure, bool isWhite, Rect& figureRect)
+Menu* PromotionLayer::createPiece(int typePiece, bool isWhite, Rect& pieceRect)
 {
   std::string pngName = (isWhite) ? Constants::WHITE_ROOK_PNG : Constants::BLACK_ROOK_PNG;
 
   // 2 - KNIGHT; 3 - BISHOP; 4 - QWEEN 
-  switch (typeFigure) {
+  switch (typePiece) {
   case 2:
     pngName = (isWhite) ? Constants::WHITE_KNIGHT_PNG : Constants::BLACK_KNIGHT_PNG;
     break;
@@ -206,23 +206,23 @@ Menu* PromotionLayer::createFigure(int typeFigure, bool isWhite, Rect& figureRec
     break;
   }
 
-  auto figure = MenuItemImage::create(
+  auto piece = MenuItemImage::create(
     pngName,
     pngName,
-    CC_CALLBACK_1(PromotionLayer::figureCallback, this));
+    CC_CALLBACK_1(PromotionLayer::pieceCallback, this));
 
-  figure->setNormalSpriteFrame(SpriteFrameCache::getInstance()->getSpriteFrameByName(pngName));
-  figure->setSelectedSpriteFrame(SpriteFrameCache::getInstance()->getSpriteFrameByName(pngName));
-  figure->setScale(m_imageFigureScale);
+  piece->setNormalSpriteFrame(SpriteFrameCache::getInstance()->getSpriteFrameByName(pngName));
+  piece->setSelectedSpriteFrame(SpriteFrameCache::getInstance()->getSpriteFrameByName(pngName));
+  piece->setScale(m_imagePiececale);
 
-  Rect rect = figure->rect();
-  figureRect = rect;
+  Rect rect = piece->rect();
+  pieceRect = rect;
 
   /*closeItem->setPosition(Vec2(origin.x + visibleSize.width - closeItem->getContentSize().width / 2,
     origin.y + closeItem->getContentSize().height / 2));*/
 
     // create menu, it's an autorelease object
-  auto menu = Menu::create(figure, NULL);
+  auto menu = Menu::create(piece, NULL);
   menu->setPosition(Vec2::ZERO);
   this->addChild(menu, 100);
 
