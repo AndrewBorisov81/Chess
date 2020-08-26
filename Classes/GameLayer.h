@@ -22,7 +22,7 @@ enum class ZOrderGame
 {
   BOARD = 101,
   GRID = 202,
-  FIGURES = 303,
+  PIECE = 303,
   TOUCH_AND_DRAG = 404,
   PROMOTION = 505,
   HUD = 606
@@ -35,9 +35,9 @@ enum class ZOrderGame
 
 class Board;
 class Grid;
-class Figure;
+class Piece;
 class TouchAndDragLayer;
-class FiguresMoveLogic;
+class PieceMoveLogic;
 class PromotionLayer;
 class HudLayer;
 
@@ -47,7 +47,7 @@ struct Promotion;
 
 struct DataChess
 {
-  std::vector<std::vector<Figure*>> figures;
+  std::vector<std::vector<Piece*>> pieces;
   std::vector<std::vector<int>> board;
 };
 
@@ -61,24 +61,30 @@ public:
 
   void update(float);
 
-  void updateBoard(int typeFigure, const cocos2d::Size& prevPos, const cocos2d::Size& newPos);
-  void removeFigureBoard(const cocos2d::Size& pos);
-  void setFigureToNewPos(Figure* figure, const cocos2d::Size& newPos);
-  void moveFigureToPos(Figure* figure, const cocos2d::Size& pos);
+  void updateBoard(int typePiece, const cocos2d::Size& presentCell, const cocos2d::Size& futureCell);
+
+  // Represent the piece in the board
+  void removePieceBoard(const cocos2d::Size& presentCell);
+  void movePieceBoard(int typePiece, const cocos2d::Size& presentCell, const cocos2d::Size& futureCell);
+  void addPieceBoard(int typePiece, cocos2d::Size& futureCell);
+
+  void setPieceToNewPos(Piece* piece, const cocos2d::Size& futureCell);
+
+  void movePieceToPos(Piece* piece, const cocos2d::Size& futureCell);
 
   void makeTheMove(const cocos2d::Size& present, const cocos2d::Size& future, EnPassant* S_enPassant, Castling* S_castling, Promotion* S_promotion);
-  void moveFigure(const cocos2d::Size& move_from, const cocos2d::Size& move_to);
+  void movePiece(const cocos2d::Size& move_from, const cocos2d::Size& move_to);
 
-  bool checkFigureMove(Figure* figure, cocos2d::Size prevCellIJ, cocos2d::Size curCellIJ);
+  bool checkPieceMove(Piece* piece, const cocos2d::Size& prevCellIJ, const cocos2d::Size& curCellIJ);
 
   void undoMove();
 
   TouchAndDragLayer* getTouchAndDragLayer();
-  const std::vector<std::vector<Figure*>>& getFigures();
+  const std::vector<std::vector<Piece*>>& getPiece();
   DataChess& getDataChess();
   Board* getBoard();
 
-  Figure* createFigureFileName(int type, bool isWhite);
+  Piece* createPieceFileName(int type, bool isWhite);
 
 private:
   cocos2d::Size m_screenSize{ 0.0f, 0.0f };
@@ -88,14 +94,14 @@ private:
   Board* m_board{ nullptr };
   Grid* m_grid{ nullptr };
 
-  std::vector<std::vector<Figure*>> m_figures;
+  std::vector<std::vector<Piece*>> m_pieces;
   DataChess m_dataChess;
-  int m_figures_board[8][8];
+  int m_piece_board[8][8];
 
   //Promotion
-  int m_lastPromotedFigure;
+  int m_lastPromotedPiece;
 
-  FiguresMoveLogic* m_figuresMoveLogic{ nullptr };
+  PieceMoveLogic* m_pieceMoveLogic{ nullptr };
 
   TouchAndDragLayer* m_touchAndDragLayer{ nullptr };
   PromotionLayer* m_promotionLayer{ nullptr };
@@ -104,20 +110,20 @@ private:
   Grid* createGrid(float cellSize, int rows, int columns);
   Board* createBoard();
 
-  std::vector<std::vector<Figure*>> createFigures(const int figures_board[8][8], int rows, int columns);
-  FiguresMoveLogic* createFiguresMoveLogic(GameLayer* gameField);
+  std::vector<std::vector<Piece*>> createPiece(const int piece_board[8][8], int rows, int columns);
+  PieceMoveLogic* createPieceMoveLogic(GameLayer* gameField);
 
   TouchAndDragLayer* createTouchAndDragLayer(GameLayer* gameLayer, Grid* grid);
   PromotionLayer* createPromotionLayer();
   HudLayer* createHudLayer();
 
-  void setBackFigureToPrevPos(Figure* figure, const cocos2d::Size& prevPos);
+  void setBackPieceToPrevPos(Piece* piece, const cocos2d::Size& prevPos);
 
   // Promotion
-  int applyPromotion(int typeFigure);
-  void movePromotion(cocos2d::Size& present, cocos2d::Size& future, Promotion& promotion, int typePromotionFigure);
+  int applyPromotion(int typePiece);
+  void movePromotion(cocos2d::Size& present, cocos2d::Size& future, Promotion& promotion, int typePromotionPiece);
 
-  void createTestFigures();
+  void createTestPiece();
 
   /*cocos2d::EventListenerMouse* m_mouseListener;
 
@@ -127,5 +133,5 @@ private:
 
   cocos2d::Vec2 m_delta{};
 
-  Figure* m_currentFigure{ nullptr };*/
+  Piece* m_currentPiece{ nullptr };*/
 };

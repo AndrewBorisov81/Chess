@@ -1,8 +1,8 @@
 #include "GameLayer.h"
 #include "Board.h"
 #include "Grid.h"
-#include "Figure.h"
-#include "FiguresMoveLogic.h"
+#include "Piece.h"
+#include "PieceMoveLogic.h"
 #include "TouchAndDragLayer.h"
 #include "PromotionLayer.h"
 #include "HudLayer.h"
@@ -48,8 +48,8 @@ bool GameLayer::init()
   Vec2 origin = Director::getInstance()->getVisibleOrigin();
   m_screenSize = visibleSize;
 
-  // Copy figures_board
-  std::copy(&Constants::INITIAL_FIGURES_BOARD[0][0], &Constants::INITIAL_FIGURES_BOARD[0][0] + Constants::ROWS*Constants::COLUMNS, &m_figures_board[0][0]);
+  // Copy piece_board
+  std::copy(&Constants::INITIAL_PIECE_BOARD[0][0], &Constants::INITIAL_PIECE_BOARD[0][0] + Constants::ROWS*Constants::COLUMNS, &m_piece_board[0][0]);
 
   // Board presentation
   for (int i = 0; i < Constants::ROWS; i++)
@@ -67,7 +67,7 @@ bool GameLayer::init()
   {
     for (int j = 0; j < Constants::COLUMNS; j++)
     {
-      m_dataChess.board[i][j] = Constants::INITIAL_FIGURES_BOARD[i][j];
+      m_dataChess.board[i][j] = Constants::INITIAL_PIECE_BOARD[i][j];
     }
   }
 
@@ -86,16 +86,16 @@ bool GameLayer::init()
   float deltaGridY = -(Constants::CELL_SIZE * Constants::ROWS / 2);
   grid->setPosition(Vec2(-(Constants::CELL_SIZE * Constants::COLUMNS/2), -(Constants::CELL_SIZE * Constants::ROWS/2)));
 
-  // Create Figures
-  m_figures = createFigures(Constants::INITIAL_FIGURES_BOARD, Constants::ROWS, Constants::COLUMNS);
-  m_dataChess.figures = m_figures;
-  // Load Figures
-  board->loadAllFigures(m_figures, static_cast<int>(ZOrderGame::FIGURES));
+  // Create Piece
+  m_pieces = createPiece(Constants::INITIAL_PIECE_BOARD, Constants::ROWS, Constants::COLUMNS);
+  m_dataChess.pieces = m_pieces;
+  // Load piece
+  board->loadAllPiece(m_pieces, static_cast<int>(ZOrderGame::PIECE));
 
-  // Create FiguresMoveLogic
-  FiguresMoveLogic* pFiguresMoveLogic = createFiguresMoveLogic(this);
-  m_figuresMoveLogic = pFiguresMoveLogic;
-  this->addChild(pFiguresMoveLogic, 1);
+  // Create Logic(PieceMoveLogic)
+  PieceMoveLogic* pPieceMoveLogic = createPieceMoveLogic(this);
+  m_pieceMoveLogic = pPieceMoveLogic;
+  this->addChild(pPieceMoveLogic, 1);
 
   // Create Promotion Layer
   PromotionLayer* pPromotionLayer = createPromotionLayer();
@@ -104,12 +104,12 @@ bool GameLayer::init()
   pPromotionLayer->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
 
   // Set callBack
-  auto lfClickFigure = [this](int typeFigure)
+  auto lfClickPiece = [this](int typePiece)
   {
-    this->applyPromotion(typeFigure);
+    this->applyPromotion(typePiece);
   };
 
-  pPromotionLayer->callBackClickFigure(lfClickFigure);
+  pPromotionLayer->callBackClickPiece(lfClickPiece);
 
   // Create TouchAndDragLayer
   TouchAndDragLayer* touchAndDragLayer = createTouchAndDragLayer(this, grid);
@@ -126,29 +126,29 @@ bool GameLayer::init()
   };
   pHudLayer->callBackUndoLastMove(lfUndoMove);
 
-  std::vector<std::vector<Figure*>> &figures = m_dataChess.figures;
+  //std::vector<std::vector<Piece*>> &piece = m_dataChess.pieces;
 
   // Set callBack
-  auto lfUpdateFiguresBoard = [this](Figure* figure, Size& prevPos, Size& newPos)->void
+  auto lfUpdatePieceBoard = [this](Piece* piece, Size& prevPos, Size& newPos)->void
   {
-    //moveFigure(prevPos, newPos);
-    bool isMoveValid = this->checkFigureMove(figure, prevPos, newPos);
+    //movePiece(prevPos, newPos);
+    bool isMoveValid = this->checkPieceMove(piece, prevPos, newPos);
 
     if (isMoveValid)
     {
-      moveFigure(prevPos, newPos);
-      //updateBoardChess(figure, prevPos, newPos);
+      movePiece(prevPos, newPos);
+      //updateBoardChess(piece, prevPos, newPos);
     }
     else
     {
-      setBackFigureToPrevPos(figure, prevPos);
+      setBackPieceToPrevPos(piece, prevPos);
     } 
   };
 
-  touchAndDragLayer->callBackUpdateBoardFigures(lfUpdateFiguresBoard);
+  touchAndDragLayer->callBackUpdateBoardPiece(lfUpdatePieceBoard);
 
-  // Create Test Figures
-  //createTestFigures();
+  // Create Test Piece
+  //createTestPiece();
 
   /*m_mouseListener = EventListenerMouse::create();
   m_mouseListener->onMouseMove = CC_CALLBACK_1(GameLayer::onMouseMove, this);
@@ -167,22 +167,22 @@ bool GameLayer::init()
   // add the sprite as a child to this layer
   this->addChild(sprite, 1000);*/
 
-  /*Figure* testFigure = createFigureFileName(1, true);
-  m_board->addFigure(testFigure, Size(4,5), 1001);
+  /*Piece* testPiece = createPieceFileName(1, true);
+  m_board->addPiece(testPiece, Size(4,5), 1001);
 
-  Figure* cloneFigure = testFigure->cloneFigure();
-  m_board->addFigure(cloneFigure, Size(4, 6), 1001);
+  Piece* clonePiece = testPiece->clonePiece();
+  m_board->addPiece(clonePiece, Size(4, 6), 1001);
 
-  m_board->removeFigure(testFigure);
+  m_board->removePiece(testPiece);
 
-  cloneFigure->setPosition(m_grid->getPointByCell(3, 3));*/
+  clonePiece->setPosition(m_grid->getPointByCell(3, 3));*/
 
   return true;
 }
 
 void GameLayer::update(float delta) {
-  /*if (m_currentFigure) {
-    m_currentFigure->setPosition(m_grid->getLocation());
+  /*if (m_currentPiece) {
+    m_currentPiece->setPosition(m_grid->getLocation());
   }*/
 }
 
@@ -266,37 +266,37 @@ HudLayer* GameLayer::createHudLayer()
   }
 }
 
-FiguresMoveLogic* GameLayer::createFiguresMoveLogic(GameLayer* gameLayer)
+PieceMoveLogic* GameLayer::createPieceMoveLogic(GameLayer* gameLayer)
 {
-  FiguresMoveLogic* pFiguresMoveLogic = new(std::nothrow) FiguresMoveLogic(gameLayer);
-  if (pFiguresMoveLogic && pFiguresMoveLogic->init())
+  PieceMoveLogic* pPieceMoveLogic = new(std::nothrow) PieceMoveLogic(gameLayer);
+  if (pPieceMoveLogic && pPieceMoveLogic->init())
   {
-    pFiguresMoveLogic->autorelease();
-    return pFiguresMoveLogic;
+    pPieceMoveLogic->autorelease();
+    return pPieceMoveLogic;
   }
   else
   {
-    delete pFiguresMoveLogic;
-    pFiguresMoveLogic = nullptr;
+    delete pPieceMoveLogic;
+    pPieceMoveLogic = nullptr;
     return nullptr;
   }
 }
 
-void GameLayer::setBackFigureToPrevPos(Figure* figure, const Size& prevPos)
+void GameLayer::setBackPieceToPrevPos(Piece* piece, const Size& prevPos)
 {
-  Vec2 prevPosFigure = m_grid->getPointByCell(int(prevPos.height), int(prevPos.width));
-  figure->setPosition(prevPosFigure);
+  Vec2 prevPosPiece = m_grid->getPointByCell(int(prevPos.height), int(prevPos.width));
+  piece->setPosition(prevPosPiece);
 }
 
-int GameLayer::applyPromotion(int typeFigure)
+int GameLayer::applyPromotion(int typePiece)
 {
   m_promotionLayer->hide();
-  m_lastPromotedFigure = typeFigure;
+  m_lastPromotedPiece = typePiece;
 
-  return typeFigure;
+  return typePiece;
 }
 
-void GameLayer::movePromotion(Size& present, Size& future, Promotion& promotion, int typePromotionFigure)
+void GameLayer::movePromotion(Size& present, Size& future, Promotion& promotion, int typePromotionPiece)
 {
   std::string to_record;
 
@@ -308,8 +308,8 @@ void GameLayer::movePromotion(Size& present, Size& future, Promotion& promotion,
   pfuture.iRow = future.width;
   pfuture.iColumn = future.height;
 
-  std::string presentStr = m_figuresMoveLogic->parseMoveCellIntToString(ppresent);
-  std::string futureStr = m_figuresMoveLogic->parseMoveCellIntToString(pfuture);
+  std::string presentStr = m_pieceMoveLogic->parseMoveCellIntToString(ppresent);
+  std::string futureStr = m_pieceMoveLogic->parseMoveCellIntToString(pfuture);
 
   to_record += presentStr;
   to_record += futureStr;
@@ -347,45 +347,45 @@ void GameLayer::movePromotion(Size& present, Size& future, Promotion& promotion,
     to_record += toupper(chPromoted); // always log with a capital letter
     */
 
-  Figure* figure = m_figuresMoveLogic->getFigureAtPosition(present.width, present.height);
-  //promotion.figureBefore = figure->cloneFigure();
-  promotion.figureBefore = figure;
-  promotion.typeBefore = static_cast<int>(figure->getType());
+  Piece* piece = m_pieceMoveLogic->getPieceAtPosition(present.width, present.height);
+  //promotion.pieceBefore = piece->clonePiece();
+  promotion.pieceBefore = piece;
+  promotion.typeBefore = static_cast<int>(piece->getType());
 
-  Figure* promotedFigure{ nullptr };
+  Piece* promotedPiece{ nullptr };
 
-  if(static_cast<int>(Player::WHITE_PLAYER) == m_figuresMoveLogic->getCurrentTurn())
+  if(static_cast<int>(Player::WHITE_PLAYER) == m_pieceMoveLogic->getCurrentTurn())
   {
     //S_promotion.chAfter = toupper(chPromoted);
-    promotedFigure = createFigureFileName(typePromotionFigure, true);
-    //promotion.figureAfter = promotedFigure->cloneFigure();
-    promotion.figureAfter = promotedFigure;
-    promotion.typeAfter = static_cast<int>(promotedFigure->getType());
+    promotedPiece = createPieceFileName(typePromotionPiece, true);
+    //promotion.pieceAfter = promotedPiece->clonePiece();
+    promotion.pieceAfter = promotedPiece;
+    promotion.typeAfter = static_cast<int>(promotedPiece->getType());
     promotion.isWhite = true;
   }
   else
   {
     //S_promotion.chAfter = tolower(chPromoted);
-    promotedFigure = createFigureFileName(typePromotionFigure, false);
-    //promotion.figureAfter = promotedFigure->cloneFigure();
-    promotion.figureAfter = promotedFigure;
-    promotion.typeAfter = static_cast<int>(promotedFigure->getType());
+    promotedPiece = createPieceFileName(typePromotionPiece, false);
+    //promotion.PieceAfter = promotedPiece->clonePiece();
+    promotion.pieceAfter = promotedPiece;
+    promotion.typeAfter = static_cast<int>(promotedPiece->getType());
     promotion.isWhite = false;
   }
 
-  /*removeFigureBoard(Size(present.width, present.height));
-  m_board->removeFigure(figure);
+  /*removePieceBoard(Size(present.width, present.height));
+  m_board->removePiece(piece);
 
-  Figure* promotionFigureAfter = createFigureFileName(promotion.typeAfter, promotion.isWhite);
-  //setFigureToNewPos(promotionFigureAfter, Size(present.width, present.height));
-  setFigureToNewPos(promotionFigureAfter, Size(future.width, future.height));
-  m_board->addFigure(promotionFigureAfter, Size(future.width, future.height), static_cast<int>(ZOrderGame::FIGURES));*/
+  Piece* promotionPieceAfter = createPieceFileName(promotion.typeAfter, promotion.isWhite);
+  //setPieceToNewPos(promotionPieceAfter, Size(present.width, present.height));
+  setPieceToNewPos(promotionPieceAfter, Size(future.width, future.height));
+  m_board->addPiece(promotionPieceAfter, Size(future.width, future.height), static_cast<int>(ZOrderGame::PIECE));*/
 
   // ---------------------------------------------------
   // Log the move: do it prior to making the move
   // because we need the getCurrentTurn()
   // ---------------------------------------------------
-  m_figuresMoveLogic->logMove(to_record);
+  m_pieceMoveLogic->logMove(to_record);
 
   // ---------------------------------------------------
   // Make the move
@@ -400,11 +400,11 @@ void GameLayer::movePromotion(Size& present, Size& future, Promotion& promotion,
   // Check if this move we just did put the oponent's king in check
   // Keep in mind that player turn has already changed
   // ---------------------------------------------------------------
-  if (true == m_figuresMoveLogic->playerKingInCheck())
+  if (true == m_pieceMoveLogic->playerKingInCheck())
   {
-    if (true == m_figuresMoveLogic->isCheckMate())
+    if (true == m_pieceMoveLogic->isCheckMate())
     {
-      if (static_cast<int>(Player::WHITE_PLAYER) == m_figuresMoveLogic->getCurrentTurn())
+      if (static_cast<int>(Player::WHITE_PLAYER) == m_pieceMoveLogic->getCurrentTurn())
       {
         //appendToNextMessage("Checkmate! Black wins the game!\n");
       }
@@ -417,7 +417,7 @@ void GameLayer::movePromotion(Size& present, Size& future, Promotion& promotion,
     {
       // Add to the string with '+=' because it's possible that
       // there is already one message (e.g., piece captured)
-      if (static_cast<int>(Player::WHITE_PLAYER) == m_figuresMoveLogic->getCurrentTurn())
+      if (static_cast<int>(Player::WHITE_PLAYER) == m_pieceMoveLogic->getCurrentTurn())
       {
         //appendToNextMessage("White king is in check!\n");
       }
@@ -429,18 +429,18 @@ void GameLayer::movePromotion(Size& present, Size& future, Promotion& promotion,
   }
 }
 
-void GameLayer::moveFigureToPos(Figure* figure, const Size& pos)
+void GameLayer::movePieceToPos(Piece* piece, const Size& futureCell)
 {
-  Vec2 prevPosFigure = m_grid->getPointByCell(int(pos.height), int(pos.width));
-  figure->setPosition(prevPosFigure);
+  Vec2 prevPosPiece = m_grid->getPointByCell(int(futureCell.height), int(futureCell.width));
+  piece->setPosition(prevPosPiece);
 }
 
-void GameLayer::setFigureToNewPos(Figure* figure, const cocos2d::Size& newPos)
+void GameLayer::setPieceToNewPos(Piece* piece, const cocos2d::Size& newPos)
 {
-  m_dataChess.figures[newPos.width][newPos.height] = figure;
+  m_dataChess.pieces[newPos.width][newPos.height] = piece;
 }
 
-void GameLayer::moveFigure(const Size& move_from, const Size& move_to)
+void GameLayer::movePiece(const Size& move_from, const Size& move_to)
 {
   std::string to_record;
 
@@ -460,7 +460,7 @@ void GameLayer::moveFigure(const Size& move_from, const Size& move_to)
   present.iColumn = move_from.height;
   present.iRow = move_from.width;
 
-  std::string presentStr = m_figuresMoveLogic->parseMoveCellIntToString(present);
+  std::string presentStr = m_pieceMoveLogic->parseMoveCellIntToString(present);
 
   //Put in the string to be logged
   to_record += presentStr;
@@ -499,32 +499,32 @@ void GameLayer::moveFigure(const Size& move_from, const Size& move_to)
   present.iRow = present.iRow - '1';*/
 
   //char chPiece = current_game->getPieceAtPosition(present.iRow, present.iColumn);
-  Figure* figure = m_figuresMoveLogic->getFigureAtPosition(present.iRow, present.iColumn);
+  Piece* piece = m_pieceMoveLogic->getPieceAtPosition(present.iRow, present.iColumn);
   //new Code
 
   //cout << "Piece is " << char(chPiece) << "\n";
 
-  if (Constants::EMPTY_SQUARE == figure)
+  if (Constants::EMPTY_SQUARE == piece)
   {
     //createNextMessage("You picked an EMPTY square.\n");
     return;
   }
 
-  if (static_cast<int>(Player::WHITE_PLAYER) == m_figuresMoveLogic->getCurrentTurn())
+  if (static_cast<int>(Player::WHITE_PLAYER) == m_pieceMoveLogic->getCurrentTurn())
   {
-    if (false == figure->isWhite())
+    if (false == piece->isWhite())
     {
       //createNextMessage("It is WHITE's turn and you picked a BLACK piece\n");
-      setBackFigureToPrevPos(figure, move_from);
+      setBackPieceToPrevPos(piece, move_from);
       return;
     }
   }
   else
   {
-    if (false != figure->isWhite())
+    if (false != piece->isWhite())
     {
       //createNextMessage("It is BLACK's turn and you picked a WHITE piece\n");
-      setBackFigureToPrevPos(figure, move_from);
+      setBackPieceToPrevPos(piece, move_from);
       return;
     }
   }
@@ -552,7 +552,7 @@ void GameLayer::moveFigure(const Size& move_from, const Size& move_to)
   future.iColumn = move_to.height;
   future.iRow = move_to.width;
 
-  std::string futureStr = m_figuresMoveLogic->parseMoveCellIntToString(future);
+  std::string futureStr = m_pieceMoveLogic->parseMoveCellIntToString(future);
 
   //Put in the string to be logged
   to_record += futureStr;
@@ -593,10 +593,10 @@ void GameLayer::moveFigure(const Size& move_from, const Size& move_to)
   Castling   S_castling = { 0 };
   Promotion  S_promotion = { 0 };
 
-  if (false == m_figuresMoveLogic->isMoveValid(figure, present, future, &S_enPassant, &S_castling, &S_promotion))
+  if (false == m_pieceMoveLogic->isMoveValid(piece, present, future, &S_enPassant, &S_castling, &S_promotion))
   {
     //createNextMessage("[Invalid] Piece can not move to that square!\n");
-    //setBackFigureToPrevPos(figure, move_from);
+    //setBackPieceToPrevPos(Piece, move_from);
     return;
   }
 
@@ -606,15 +606,15 @@ void GameLayer::moveFigure(const Size& move_from, const Size& move_to)
   // ---------------------------------------------------
   if (S_promotion.bApplied == true)
   {
-    bool isWhite = (static_cast<int>(Player::WHITE_PLAYER) == m_figuresMoveLogic->getCurrentTurn());
+    bool isWhite = (static_cast<int>(Player::WHITE_PLAYER) == m_pieceMoveLogic->getCurrentTurn());
 
     // Set callBack
-    //auto lfHidePromotion = [this, to_record, present, future, &S_promotion](int typeFigure)
-    auto lfHidePromotion = [this, present, future, &S_promotion](int typeFigure)
+    //auto lfHidePromotion = [this, to_record, present, future, &S_promotion](int typePiece)
+    auto lfHidePromotion = [this, present, future, &S_promotion](int typePiece)
     {
       Size sPresent(present.iRow, present.iColumn);
       Size sFuture(future.iRow, future.iColumn);
-      this->movePromotion(sPresent, sFuture, S_promotion, typeFigure);
+      this->movePromotion(sPresent, sFuture, S_promotion, typePiece);
     };
 
     m_promotionLayer->callBackHide(lfHidePromotion);
@@ -622,7 +622,7 @@ void GameLayer::moveFigure(const Size& move_from, const Size& move_to)
     m_promotionLayer->show(isWhite);
 
     return;
-    //movePromotion(to_record, Size(present.iRow, present.iColumn), S_promotion, m_lastPromotedFigure);
+    //movePromotion(to_record, Size(present.iRow, present.iColumn), S_promotion, m_lastPromotedPiece);
 
     /*cout << "Promote to (Q, R, N, B): ";
     std::string piece;
@@ -662,7 +662,7 @@ void GameLayer::moveFigure(const Size& move_from, const Size& move_to)
   // Log the move: do it prior to making the move
   // because we need the getCurrentTurn()
   // ---------------------------------------------------
-  m_figuresMoveLogic->logMove(to_record);
+  m_pieceMoveLogic->logMove(to_record);
 
   // ---------------------------------------------------
   // Make the move
@@ -674,11 +674,11 @@ void GameLayer::moveFigure(const Size& move_from, const Size& move_to)
   // Check if this move we just did put the oponent's king in check
   // Keep in mind that player turn has already changed
   // ---------------------------------------------------------------
-  if (true == m_figuresMoveLogic->playerKingInCheck())
+  if (true == m_pieceMoveLogic->playerKingInCheck())
   {
-    if (true == m_figuresMoveLogic->isCheckMate())
+    if (true == m_pieceMoveLogic->isCheckMate())
     {
-      if (static_cast<int>(Player::WHITE_PLAYER) == m_figuresMoveLogic->getCurrentTurn())
+      if (static_cast<int>(Player::WHITE_PLAYER) == m_pieceMoveLogic->getCurrentTurn())
       {
         //appendToNextMessage("Checkmate! Black wins the game!\n");
       }
@@ -691,7 +691,7 @@ void GameLayer::moveFigure(const Size& move_from, const Size& move_to)
     {
       // Add to the string with '+=' because it's possible that
       // there is already one message (e.g., piece captured)
-      if (static_cast<int>(Player::WHITE_PLAYER) == m_figuresMoveLogic->getCurrentTurn())
+      if (static_cast<int>(Player::WHITE_PLAYER) == m_pieceMoveLogic->getCurrentTurn())
       {
         //appendToNextMessage("White king is in check!\n");
       }
@@ -708,18 +708,18 @@ void GameLayer::moveFigure(const Size& move_from, const Size& move_to)
 void GameLayer::makeTheMove(const Size& present, const Size& future, EnPassant* S_enPassant, Castling* S_castling, Promotion* S_promotion)
 {
   //char chPiece = current_game->getPieceAtPosition(present.iRow, present.iColumn);
-  Figure* figure = m_figuresMoveLogic->getFigureAtPosition(present.width, present.height);
+  Piece* piece = m_pieceMoveLogic->getPieceAtPosition(present.width, present.height);
 
   // -----------------------
   // Captured a piece?
   // -----------------------
-  if (m_figuresMoveLogic->isSquareOccupied(future.width, future.height))
+  if (m_pieceMoveLogic->isSquareOccupied(future.width, future.height))
   {
     //char chAuxPiece = current_game->getPieceAtPosition(future.iRow, future.iColumn);
-    Figure* auxFigures = m_figuresMoveLogic->getFigureAtPosition(future.width, future.height);
+    Piece* auxPiece = m_pieceMoveLogic->getPieceAtPosition(future.width, future.height);
 
     //if (Chess::getPieceColor(chPiece) != Chess::getPieceColor(chAuxPiece))
-    if(figure && figure->isWhite() != auxFigures->isWhite())
+    if(piece && piece->isWhite() != auxPiece->isWhite())
     {
       //createNextMessage(Chess::describePiece(chAuxPiece) + " captured!\n");
     }
@@ -750,7 +750,7 @@ void GameLayer::makeTheMove(const Size& present, const Size& future, EnPassant* 
   pfuture.iRow = future.width;
   pfuture.iColumn = future.height;
 
-  m_figuresMoveLogic->moveFigure(ppresent, pfuture, S_enPassant, S_castling, S_promotion);
+  m_pieceMoveLogic->movePiece(ppresent, pfuture, S_enPassant, S_castling, S_promotion);
 }
 
 DataChess& GameLayer::getDataChess()
@@ -763,18 +763,29 @@ Board* GameLayer::getBoard()
   return m_board;
 }
 
-void GameLayer::updateBoard(int typeFigure, const Size& prevPos, const Size& newPos)
+void GameLayer::updateBoard(int typePiece, const Size& presentCell, const Size& futureCell)
 {
-  /*m_dataChess.figures[newPos.width][newPos.height] = figure;
-  m_dataChess.figures[prevPos.width][prevPos.height] = 0;*/
+  /*m_dataChess.pieces[newPos.width][newPos.height] = piece;
+  m_dataChess.pieces[prevPos.width][prevPos.height] = 0;*/
 
-  m_dataChess.board[newPos.width][newPos.height] = typeFigure;
-  m_dataChess.board[prevPos.width][prevPos.height] = 0;
+  m_dataChess.board[futureCell.width][futureCell.height] = typePiece;
+  m_dataChess.board[presentCell.width][futureCell.height] = 0;
 }
 
-void GameLayer::removeFigureBoard(const Size& pos)
+void GameLayer::removePieceBoard(const Size& presentCell)
 {
-  m_dataChess.figures[pos.width][pos.height] = 0;
+  m_dataChess.pieces[presentCell.width][presentCell.height] = 0;
+}
+
+void GameLayer::movePieceBoard(int typePiece, const cocos2d::Size & presentCell, const cocos2d::Size & futureCell)
+{
+  m_dataChess.board[futureCell.width][futureCell.height] = typePiece;
+  m_dataChess.board[presentCell.width][futureCell.height] = 0;
+}
+
+void GameLayer::addPieceBoard(int typePiece, cocos2d::Size & futureCell)
+{
+  m_dataChess.board[futureCell.width][futureCell.height] = typePiece;
 }
 
 TouchAndDragLayer* GameLayer::getTouchAndDragLayer()
@@ -782,137 +793,137 @@ TouchAndDragLayer* GameLayer::getTouchAndDragLayer()
   return m_touchAndDragLayer;
 }
 
-const std::vector<std::vector<Figure*>>& GameLayer::getFigures()
+const std::vector<std::vector<Piece*>>& GameLayer::getPiece()
 {
-  return m_figures;
+  return m_pieces;
 }
 
-Figure* GameLayer::createFigureFileName(int type, bool isWhite)
+Piece* GameLayer::createPieceFileName(int type, bool isWhite)
 {
   std::string fileName(Constants::WHITE_PAWN_PNG);
-  TypeFigure typeFigure{TypeFigure::PAWN};
+  TypePiece typePiece{TypePiece::PAWN};
 
   switch (type)
   {
     case 1:
-      typeFigure = TypeFigure::ROOK;
+      typePiece = TypePiece::ROOK;
       fileName = (isWhite) ? Constants::WHITE_ROOK_PNG : Constants::BLACK_ROOK_PNG;
       break;
 
     case 2:
-      typeFigure = TypeFigure::KNIGHT;
+      typePiece = TypePiece::KNIGHT;
       fileName = (isWhite) ? Constants::WHITE_KNIGHT_PNG : Constants::BLACK_KNIGHT_PNG;
       break;
 
     case 3:
-      typeFigure = TypeFigure::BISHOP;
+      typePiece = TypePiece::BISHOP;
       fileName = (isWhite) ? Constants::WHITE_BISHOP_PNG : Constants::BLACK_BISHOP_PNG;
       break;
 
     case 4:
-      typeFigure = TypeFigure::QUEEN;
+      typePiece = TypePiece::QUEEN;
       fileName = (isWhite) ? Constants::WHITE_QUEEN_PNG : Constants::BLACK_QUEEN_PNG;
       break;
 
     case 5:
-      typeFigure = TypeFigure::KING;
+      typePiece = TypePiece::KING;
       fileName =(isWhite) ? Constants::WHITE_KING_PNG : Constants::BLACK_KING_PNG;
       break;
 
     case 6:
-      typeFigure = TypeFigure::PAWN;
+      typePiece = TypePiece::PAWN;
       fileName = (isWhite) ? Constants::WHITE_PAWN_PNG : Constants::BLACK_PAWN_PNG;
       break;
  }
 
-  Figure* pFigure = Figure::createFigure(type, isWhite, fileName);
-  pFigure->setType(typeFigure);
+  Piece* pPiece = Piece::createPiece(type, isWhite, fileName);
+  pPiece->setType(typePiece);
 
-  return pFigure;
+  return pPiece;
 }
 
-std::vector<std::vector<Figure*>> GameLayer::createFigures(const int figures_board[8][8], int rows, int columns)
+std::vector<std::vector<Piece*>> GameLayer::createPiece(const int piece_board[8][8], int rows, int columns)
 {
-  std::vector<std::vector<Figure*>> figures;
-  Figure* pFigure{ nullptr };
+  std::vector<std::vector<Piece*>> pieces;
+  Piece* pPiece{ nullptr };
 
   for (int i = 0; i < rows; i++)
   {
-    std::vector<Figure*> row;
+    std::vector<Piece*> row;
     for (int j = 0; j < columns; j++)
     {
-      int figure = figures_board[i][j];
+      int piece = piece_board[i][j];
 
-      int type{ abs(figure) };
-      bool isWhite = (figure < 0) ? false : true;
+      int type{ abs(piece) };
+      bool isWhite = (piece < 0) ? false : true;
 
-      if (figure > 0 || figure < 0)
+      if (piece > 0 || piece < 0)
       {
-        pFigure = createFigureFileName(type, isWhite);
-        row.push_back(pFigure);
+        pPiece = createPieceFileName(type, isWhite);
+        row.push_back(pPiece);
       }
       else
       {
         row.push_back(0);
       }
     }
-    figures.push_back(row);
+    pieces.push_back(row);
   }
-  return figures;
+  return pieces;
 }
 
-void GameLayer::createTestFigures()
+void GameLayer::createTestPiece()
 {
   Grid* grid = m_grid;
 
-  // Create Figure
- /*Figure* figure1 = Figure::createFigure(TypeFigure::ROOK, Constants::BLACK_ROOK_PNG);
- grid->addChild(figure1, static_cast<int>(ZOrderGame::FIGURE));
- figure1->setPosition(grid->getPointByCell(0, 0));
+  // Create piece
+ /*Piece* piece1 = Piece::createPiece(TypePiece::ROOK, Constants::BLACK_ROOK_PNG);
+ grid->addChild(piece1, static_cast<int>(ZOrderGame::Piece));
+ Piece1->setPosition(grid->getPointByCell(0, 0));
  });*/
 
- // Create Figure
-  //Figure* figure2 = Figure::createFigure(TypeFigure::HORSE, ColourFigure::WHITE, Constants::BLACK_HORSE_PNG);
-  Figure* figure2 = Figure::createFigure(2, true, Constants::BLACK_KING_PNG);
-  grid->addChild(figure2, static_cast<int>(ZOrderGame::FIGURES));
-  figure2->setPosition(grid->getPointByCell(1, 0));
-  figure2->setTouchEnabled(true);
-  /*figure2->addClickEventListener([=](Ref*) {
-    //figure2->setRotation(45);
-    //m_currentFigure = figure2;
-    if (m_grid->getCurrentFigure() == nullptr) {
-      m_grid->setCurrentFigure(figure2);
+ // Create piece
+  //Piece* piece2 = Piece::createPiece(TypePiece::HORSE, ColourPiece::WHITE, Constants::BLACK_HORSE_PNG);
+  Piece* piece2 = Piece::createPiece(2, true, Constants::BLACK_KING_PNG);
+  grid->addChild(piece2, static_cast<int>(ZOrderGame::PIECE));
+  piece2->setPosition(grid->getPointByCell(1, 0));
+  piece2->setTouchEnabled(true);
+  /*Piece2->addClickEventListener([=](Ref*) {
+    //Piece2->setRotation(45);
+    //m_currentPiece = Piece2;
+    if (m_grid->getCurrentPiece() == nullptr) {
+      m_grid->setCurrentPiece(Piece2);
     }
   });*/
 
-  // Create Figure
-  /*Figure* figure3 = Figure::createFigure(TypeFigure::OFFICER, Constants::BLACK_OFFICER_PNG);
-  grid->addChild(figure3, static_cast<int>(ZOrderGame::FIGURE));
-  figure3->setPosition(grid->getPointByCell(2, 0));
+  // Create Piece
+  /*Piece* Piece3 = Piece::createPiece(TypePiece::OFFICER, Constants::BLACK_OFFICER_PNG);
+  grid->addChild(Piece3, static_cast<int>(ZOrderGame::Piece));
+  Piece3->setPosition(grid->getPointByCell(2, 0));
 
-  // Create Figure
-  Figure* figure4 = Figure::createFigure(TypeFigure::QUEEN, Constants::BLACK_QUEEN_PNG);
-  grid->addChild(figure4, static_cast<int>(ZOrderGame::FIGURE));
-  figure4->setPosition(grid->getPointByCell(3, 0));
+  // Create Piece
+  Piece* Piece4 = Piece::createPiece(TypePiece::QUEEN, Constants::BLACK_QUEEN_PNG);
+  grid->addChild(Piece4, static_cast<int>(ZOrderGame::Piece));
+  Piece4->setPosition(grid->getPointByCell(3, 0));
 
-  // Create Figure
-  Figure* figure5 = Figure::createFigure(TypeFigure::KING, Constants::BLACK_KING_PNG);
-  grid->addChild(figure5, static_cast<int>(ZOrderGame::FIGURE));
-  figure5->setPosition(grid->getPointByCell(4, 0));
+  // Create Piece
+  Piece* Piece5 = Piece::createPiece(TypePiece::KING, Constants::BLACK_KING_PNG);
+  grid->addChild(Piece5, static_cast<int>(ZOrderGame::Piece));
+  Piece5->setPosition(grid->getPointByCell(4, 0));
 
-  // Create Figure
-  Figure* figure6 = Figure::createFigure(TypeFigure::PAWN, Constants::BLACK_PAWN_PNG);
-  grid->addChild(figure6, static_cast<int>(ZOrderGame::FIGURE));
-  figure6->setPosition(grid->getPointByCell(4, 1));
-  figure6->activateClickEvent();*/
+  // Create Piece
+  Piece* Piece6 = Piece::createPiece(TypePiece::PAWN, Constants::BLACK_PAWN_PNG);
+  grid->addChild(Piece6, static_cast<int>(ZOrderGame::Piece));
+  Piece6->setPosition(grid->getPointByCell(4, 1));
+  Piece6->activateClickEvent();*/
 
   /*DrawNode *drawnode = DrawNode::create();
   drawnode->drawCircle(Vec2(0, 0), 20, 360, 20, true, 1, 1, Color4F::MAGENTA);
-  figure1->addChild(drawnode);*/
+  Piece1->addChild(drawnode);*/
 
 }
 
-bool GameLayer::checkFigureMove(Figure* figure, Size prevCellIJ, Size curCellIJ)
+bool GameLayer::checkPieceMove(Piece* piece, const cocos2d::Size& prevCellIJ, const cocos2d::Size& curCellIJ)
 {
   EnPassant  S_enPassant = { 0 };
   Castling   S_castling = { 0 };
@@ -926,20 +937,20 @@ bool GameLayer::checkFigureMove(Figure* figure, Size prevCellIJ, Size curCellIJ)
   future.iRow = (int)(curCellIJ.width);
   future.iColumn = (int)(curCellIJ.height);
 
-  bool isMoveValid = m_figuresMoveLogic->isMoveValid(figure, present, future, &S_enPassant, &S_castling, &S_promotion);
+  bool isMoveValid = m_pieceMoveLogic->isMoveValid(piece, present, future, &S_enPassant, &S_castling, &S_promotion);
 
   return isMoveValid;
 }
 
 void GameLayer::undoMove(void)
 {
-  if (false == m_figuresMoveLogic->undoIsPossible())
+  if (false == m_pieceMoveLogic->undoIsPossible())
   {
     //createNextMessage("Undo is not possible now!\n");
     return;
   }
 
-  m_figuresMoveLogic->undoLastMove();
+  m_pieceMoveLogic->undoLastMove();
   //createNextMessage("Last move was undone\n");
 }
 
@@ -952,7 +963,7 @@ void GameLayer::onMouseUp(Event* event)
 {
   // to illustrate the event....
   EventMouse* e = (EventMouse*)event;
-  //m_currentFigure = nullptr;
+  //m_currentPiece = nullptr;
   m_delta.x = 0;
   m_delta.y = 0;
 }
@@ -961,11 +972,11 @@ void GameLayer::onMouseMove(Event* event)
 {
   //m_delta = e->getDelta();
 
-  /*if (m_currentFigure)
+  /*if (m_currentPiece)
   {
     EventMouse* e = (EventMouse*)event;
-    Vec2 curFig(m_currentFigure->getPosition());
-    m_currentFigure->setPosition(m_currentFigure->getPosition() + e->getDelta());
+    Vec2 curFig(m_currentPiece->getPosition());
+    m_currentPiece->setPosition(m_currentPiece->getPosition() + e->getDelta());
   }
 }*/
 
