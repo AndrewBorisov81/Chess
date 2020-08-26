@@ -1,7 +1,7 @@
 #include "Board.h"
 #include "Constants.h"
 #include "Grid.h"
-#include "Figure.h"
+#include "Piece.h"
 
 #include "base/CCEventListener.h"
 #include "base/CCEvent.h"
@@ -52,32 +52,32 @@ bool Board::init()
   return true;
 }
 
-void Board::loadAllFigures(std::vector<std::vector<Figure*>>& figures, int zOrder)
+void Board::loadAllPiece(std::vector<std::vector<Piece*>>& pieces, int zOrder)
 {
-  for (int i = 0; i < figures.size(); i++)
+  for (int i = 0; i < pieces.size(); i++)
   {
-    std::vector<Figure*> row = figures[i];
+    std::vector<Piece*> row = pieces[i];
     for (int j = 0; j < row.size(); j++)
     {
       if (row[j] != 0)
       {
-        Figure* pFigure = row[j];
-        m_grid->addChild(pFigure, zOrder);
-        pFigure->setPosition(Vec2(m_grid->getPointByCell(j, i)));
+        Piece* pPiece = row[j];
+        m_grid->addChild(pPiece, zOrder);
+        pPiece->setPosition(Vec2(m_grid->getPointByCell(j, i)));
       }
     }
   }
 }
 
-void Board::addFigure(Figure* figure, Size& cellIJ, int zOrder)
+void Board::addPiece(Piece* piece, Size& cellIJ, int zOrder)
 {
-  figure->setPosition(Vec2(m_grid->getPointByCell(cellIJ.height, cellIJ.width)));
-  m_grid->addChild(figure, zOrder);
+  piece->setPosition(Vec2(m_grid->getPointByCell(cellIJ.height, cellIJ.width)));
+  m_grid->addChild(piece, zOrder);
 }
 
-void Board::removeFigure(Figure* figure)
+void Board::removePiece(Piece* piece)
 {
-  m_grid->removeChild(figure);
+  m_grid->removeChild(piece);
 }
 
 void Board::addGrid(Grid* grid)
@@ -85,12 +85,12 @@ void Board::addGrid(Grid* grid)
   m_grid = grid;
 }
 
-void Board::moveFigureTo(Figure* figure, const cocos2d::Size& newPos)
+void Board::movePieceTo(Piece* piece, const cocos2d::Size& newPos)
 {
   Vector<Node*> allNodes = this->getChildren();
   for (auto& node : allNodes) {
-    if (dynamic_cast<Figure*>(node) == figure) { //It is Sprite 
-      Figure* target = dynamic_cast<Figure*>(node);
+    if (dynamic_cast<Piece*>(node) == piece) { //It is Sprite 
+      Piece* target = dynamic_cast<Piece*>(node);
       target->setPosition(m_grid->getPointByCell(newPos.width, newPos.height));
     }
   }
@@ -126,8 +126,8 @@ void Board::onTouchMoved(Touch* touch, Event* event)
 
 
 
-  /*if (m_currentFigure) {
-    m_currentFigure->setPosition(m_currentFigure->getPosition() + touch->getDelta());
+  /*if (m_currentPiece) {
+    m_currentPiece->setPosition(m_currentPiece->getPosition() + touch->getDelta());
   }*/
 
 
@@ -136,10 +136,10 @@ void Board::onTouchMoved(Touch* touch, Event* event)
   cocos2d::log("touch moved");*/
   //m_labelTouchInfo->setString(std::to_string(int(m_location.x))+ " , " + std::to_string(int(m_location.y)));
   /*m_labelTouchInfo->setString(std::to_string(int(m_delta.x))+ " , " + std::to_string(int(m_delta.y)));
-  if (m_currentFigure) {
-    m_curPosFigure.x = m_prevPosFigure.x + m_delta.x;
-    m_curPosFigure.y = m_prevPosFigure.y + m_delta.y;
-    m_currentFigure->setPosition(m_curPosFigure);
+  if (m_currentPiece) {
+    m_curPosPiece.x = m_prevPosPiece.x + m_delta.x;
+    m_curPosPiece.y = m_prevPosPiece.y + m_delta.y;
+    m_currentPiece->setPosition(m_curPosPiece);
   }*/
 }
 

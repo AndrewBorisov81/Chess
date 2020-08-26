@@ -2,7 +2,9 @@
 
 #include "cocos2d.h"
 
-class Figure;
+#include <vector>
+
+class Piece;
 class Grid;
 
 class Board : public cocos2d::Layer
@@ -17,18 +19,18 @@ public:
   virtual void onTouchEnded(cocos2d::Touch*, cocos2d::Event*);
   virtual void onTouchMoved(cocos2d::Touch*, cocos2d::Event*);
 
-  void loadAllFigures(std::vector<std::vector<Figure*>>& figures, int zOrder);
-  void addFigure(Figure* figure, cocos2d::Size& cellIJ, int zOrder);
-  void removeFigure(Figure* figure);
+  void loadAllPiece(std::vector<std::vector<Piece*>>& piece, int zOrder);
+  void addPiece(Piece* piece, cocos2d::Size& cellIJ, int zOrder);
+  void removePiece(Piece* piece);
   void addGrid(Grid* grid);
 
-  void moveFigureTo(Figure* figure, const cocos2d::Size& newPos);
+  void movePieceTo(Piece* piece, const cocos2d::Size& newPos);
 
   cocos2d::Size m_boardSize;
 
 private:
   Grid* m_grid{ nullptr };
-  std::vector<std::vector<Figure*>> m_figures;
+  std::vector<std::vector<Piece*>> m_pieces;
 
   cocos2d::Label* m_labelTouchInfo;
 };
