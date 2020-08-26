@@ -2,7 +2,7 @@
 
 #include <string>
 
-class Figure;
+class Piece;
 
 namespace Constants
 {
@@ -14,7 +14,7 @@ namespace Constants
   extern const std::string UNDO_BUTTON_NORMAL;
   extern const std::string UNDO_BUTTON_SELECTED;
 
-  // Figures
+  // Piece
   extern const std::string BLACK_PAWN_PNG;
   extern const std::string BLACK_ROOK_PNG;
   extern const std::string BLACK_KNIGHT_PNG;
@@ -33,22 +33,22 @@ namespace Constants
   extern const float CELL_SIZE;
   extern const int ROWS;
   extern const int COLUMNS;
-  extern Figure* EMPTY_SQUARE;
+  extern Piece* EMPTY_SQUARE;
   extern int EMPTY_SQUAREI;
 
   // This represents the pieces on the board.
   // Keep in mind that pieces[0][0] represents A1
   // pieces[1][1] represents B2 and so on.
   // Numbers with a minus sign are white
-  //*extern const int INITIAL_FIGURES_BOARD[8][8];
+  //*extern const int INITIAL_Piece_BOARD[8][8];
 
   // Debug
   // Castling
-  //extern const int INITIAL_FIGURES_BOARD[8][8];
+  //extern const int INITIAL_Piece_BOARD[8][8];
 
   // Checkmate
-  //extern const int INITIAL_FIGURES_BOARD[8][8];
+  //extern const int INITIAL_Piece_BOARD[8][8];
 
   // Debug promotion
-  extern const int INITIAL_FIGURES_BOARD[8][8];
+  extern const int INITIAL_PIECE_BOARD[8][8];
 }
