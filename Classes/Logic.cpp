@@ -1,7 +1,7 @@
 #include "Logic.h"
 #include "GameLayer.h"
 #include "Board.h"
-#include "Figure.h"
+#include "Piece.h"
 #include "Constants.h"
 
 #include <iostream>
@@ -20,15 +20,15 @@ Logic::Logic(GameLayer* gameLayer)
 {
   DataChess& dataChess = m_gameLayer->getDataChess();
 
-  for (int i = 0; i < dataChess.figures.size(); i++)
+  for (int i = 0; i < dataChess.pieces.size(); i++)
   {
-    std::vector<Figure*> figuresRow = dataChess.figures[i];
-    std::vector<Figure*> newRow;
-    for (int j = 0; j < figuresRow.size(); j++)
+    std::vector<Piece*> pieceRow = dataChess.pieces[i];
+    std::vector<Piece*> newRow;
+    for (int j = 0; j < pieceRow.size(); j++)
     {
-      newRow.push_back(dataChess.figures[i][j]);
+      newRow.push_back(dataChess.pieces[i][j]);
     }
-    m_figures.push_back(newRow);
+    m_pieces.push_back(newRow);
   }
 }
 
@@ -47,19 +47,19 @@ bool Logic::init()
    // Game class
    // -------------------------------------------------------------------
    // White player always starts
-  //m_currentTurn = static_cast<int>(Player::WHITE_PLAYER);
-  m_currentTurn = 0;
+  m_currentTurn = static_cast<int>(Player::WHITE_PLAYER);
+  //m_currentTurn = 0;
 
   // Game on!
   m_bGameFinished = false;
 
   // Nothing has happend yet
-  m_undo.bCapturedLastMove = false;
+  /*m_undo.bCapturedLastMove = false;
   m_undo.bCanUndo = false;
   m_undo.bCastlingKingSideAllowed = false;
   m_undo.bCastlingQueenSideAllowed = false;
   m_undo.en_passant.bApplied = false;
-  m_undo.castling.bApplied = false;
+  m_undo.castling.bApplied = false;*/
 
   // Initial board settings
   //memcpy(board, initial_board, sizeof(char) * 8 * 8);
@@ -74,46 +74,59 @@ bool Logic::init()
   return true;
 }
 
+void Logic::initUndo(Undo& undo)
+{
+  // Nothing has happend yet
+  undo.bCapturedLastMove = false;
+  undo.bCanUndo = false;
+  undo.bCastlingKingSideAllowed = false;
+  undo.bCastlingQueenSideAllowed = false;
+  undo.en_passant.bApplied = false;
+  undo.castling.bApplied = false;
+}
+
 //---------------------------------------------------------------------------------------
 // Commands
 // Functions to handle the commands of the program
 // New game, Move, Undo, Save game, Load game, etc
 //---------------------------------------------------------------------------------------
-void Logic::moveFigure(Position present, Position future, EnPassant* S_enPassant, Castling* S_castling, Promotion* S_promotion)
+void Logic::movePiece(Position present, Position future, EnPassant* S_enPassant, Castling* S_castling, Promotion* S_promotion)
 {
   Undo curUndo;
+  initUndo(curUndo);
+
   // Get the piece to be moved
   //char chPiece = getPieceAtPosition(present);
-  int iPiece = getFigureAtPositionI(present.iRow, present.iColumn);
-  Figure* figure = getFigureAtPosition(present.iRow, present.iColumn);
+  int iPiece = getPieceAtPositionI(present.iRow, present.iColumn);
+  Piece* piece = getPieceAtPosition(present.iRow, present.iColumn);
 
   // Is the destination square occupied?
   //char chCapturedPiece = getPieceAtPosition(future);
-  int iCapturedPiece = getFigureAtPositionI(present.iRow, present.iColumn);
+  int iCapturedPiece = getPieceAtPositionI(present.iRow, present.iColumn);
 
-  Figure* capturedFigure = getFigureAtPosition(future.iRow, future.iColumn);
+  Piece* capturedPiece = getPieceAtPosition(future.iRow, future.iColumn);
 
   // So, was a piece captured in this move?
   //if (0x20 != chCapturedPiece)
-  if(Constants::EMPTY_SQUARE != capturedFigure)
+  if(Constants::EMPTY_SQUARE != capturedPiece)
   {
     //if (WHITE_PIECE == getPieceColor(chCapturedPiece))
     int kColor{ 1 };
-    if(capturedFigure->isWhite())
+    if(capturedPiece->isWhite())
     {
       // A white piece was captured
-      white_captured.push_back(capturedFigure);
+      white_captured.push_back(capturedPiece);
 
       kColor = 1;
-      iwhite_captured.push_back(kColor * (static_cast<int>(capturedFigure->getType())));
+      iwhite_captured.push_back(kColor * (static_cast<int>(capturedPiece->getType())));
     }
     else
     {
       // A black piece was captured
-      black_captured.push_back(capturedFigure);
+      black_captured.push_back(capturedPiece);
 
       kColor = -1;
-      iblack_captured.push_back(kColor * (static_cast<int>(capturedFigure->getType())));
+      iblack_captured.push_back(kColor * (static_cast<int>(capturedPiece->getType())));
     }
 
     // Set Undo structure. If a piece was captured, then no "en passant" move performed
@@ -127,22 +140,22 @@ void Logic::moveFigure(Position present, Position future, EnPassant* S_enPassant
   else if (true == S_enPassant->bApplied)
   {
     //char chCapturedEP = getPieceAtPosition(S_enPassant->PawnCaptured.iRow, S_enPassant->PawnCaptured.iColumn);
-    int iCapturedEP = getFigureAtPositionI(S_enPassant->PawnCaptured.iRow, S_enPassant->PawnCaptured.iColumn);
+    int iCapturedEP = getPieceAtPositionI(S_enPassant->PawnCaptured.iRow, S_enPassant->PawnCaptured.iColumn);
 
-    Figure* capturedEPFigure = getFigureAtPosition(S_enPassant->PawnCaptured.iRow, S_enPassant->PawnCaptured.iColumn);
+    Piece* capturedEPPiece = getPieceAtPosition(S_enPassant->PawnCaptured.iRow, S_enPassant->PawnCaptured.iColumn);
 
     //if (WHITE_PIECE == getPieceColor(chCapturedEP))
-    if(capturedEPFigure->isWhite())
+    if(capturedEPPiece->isWhite())
     {
       // A white piece was captured
-      white_captured.push_back(capturedEPFigure);
+      white_captured.push_back(capturedEPPiece);
 
       iwhite_captured.push_back(iCapturedEP);
     }
     else
     {
       // A black piece was captured
-      black_captured.push_back(capturedEPFigure);
+      black_captured.push_back(capturedEPPiece);
 
       iblack_captured.push_back(iCapturedEP);
     }
@@ -151,9 +164,9 @@ void Logic::moveFigure(Position present, Position future, EnPassant* S_enPassant
     //board[S_enPassant->PawnCaptured.iRow][S_enPassant->PawnCaptured.iColumn] = EMPTY_SQUARE;
     m_gameLayer->getDataChess().board[S_enPassant->PawnCaptured.iRow][S_enPassant->PawnCaptured.iColumn] = 0;
 
-    m_gameLayer->removeFigureBoard(Size(S_enPassant->PawnCaptured.iRow, S_enPassant->PawnCaptured.iColumn));
-    m_gameLayer->getBoard()->removeFigure(capturedEPFigure);
-    //m_gameLayer->setFigureToNewPos(S_promotion->figureBefore, Size(future.iRow, future.iColumn));
+    m_gameLayer->removePieceBoard(Size(S_enPassant->PawnCaptured.iRow, S_enPassant->PawnCaptured.iColumn));
+    m_gameLayer->getBoard()->removePiece(capturedEPPiece);
+    //m_gameLayer->setPieceToNewPos(S_promotion->PieceBefore, Size(future.iRow, future.iColumn));
 
     // Set Undo structure as piece was captured and "en passant" move was performed
     //m_undo.bCapturedLastMove = true;
@@ -175,12 +188,12 @@ void Logic::moveFigure(Position present, Position future, EnPassant* S_enPassant
   //board[present.iRow][present.iColumn] = EMPTY_SQUARE;
   m_gameLayer->getDataChess().board[present.iRow][present.iColumn] = 0;
 
-  m_gameLayer->removeFigureBoard(Size(present.iRow, present.iColumn));
-  if (capturedFigure && m_gameLayer)
+  m_gameLayer->removePieceBoard(Size(present.iRow, present.iColumn));
+  if (capturedPiece && m_gameLayer)
   {
     Board* board = m_gameLayer->getBoard();
     if(board)
-      board->removeFigure(capturedFigure);
+      board->removePiece(capturedPiece);
   }
 
   bool testPromotion = S_promotion->bApplied;
@@ -191,19 +204,19 @@ void Logic::moveFigure(Position present, Position future, EnPassant* S_enPassant
     //board[future.iRow][future.iColumn] = S_promotion->chAfter;
     m_gameLayer->getDataChess().board[future.iRow][future.iColumn] = S_promotion->typeAfter;
 
-    //m_gameLayer->setFigureToNewPos(S_promotion->figureBefore, Size(future.iRow, future.iColumn));
+    //m_gameLayer->setPieceToNewPos(S_promotion->PieceBefore, Size(future.iRow, future.iColumn));
 
     // Commited
-    //m_gameLayer->setFigureToNewPos(S_promotion->figureAfter, Size(future.iRow, future.iColumn));
+    //m_gameLayer->setPieceToNewPos(S_promotion->PieceAfter, Size(future.iRow, future.iColumn));
 
 
-  m_gameLayer->removeFigureBoard(Size(present.iRow, present.iColumn));
-  m_gameLayer->getBoard()->removeFigure(figure);
+  m_gameLayer->removePieceBoard(Size(present.iRow, present.iColumn));
+  m_gameLayer->getBoard()->removePiece(piece);
 
-  Figure* promotionFigureAfter = m_gameLayer->createFigureFileName(S_promotion->typeAfter, S_promotion->isWhite);
+  Piece* promotionPieceAfter = m_gameLayer->createPieceFileName(S_promotion->typeAfter, S_promotion->isWhite);
   
-  m_gameLayer->setFigureToNewPos(promotionFigureAfter, Size(future.iRow, future.iColumn));
-  m_gameLayer->getBoard()->addFigure(promotionFigureAfter, Size(future.iRow, future.iColumn), static_cast<int>(ZOrderGame::FIGURES));
+  m_gameLayer->setPieceToNewPos(promotionPieceAfter, Size(future.iRow, future.iColumn));
+  m_gameLayer->getBoard()->addPiece(promotionPieceAfter, Size(future.iRow, future.iColumn), static_cast<int>(ZOrderGame::PIECE));
 
     // Set Undo structure as a promotion occured
     //memcpy(&m_undo.promotion, S_promotion, sizeof(Promotion));
@@ -214,7 +227,7 @@ void Logic::moveFigure(Position present, Position future, EnPassant* S_enPassant
     //board[future.iRow][future.iColumn] = chPiece;
     m_gameLayer->getDataChess().board[future.iRow][future.iColumn] = iPiece;
 
-    m_gameLayer->setFigureToNewPos(figure, Size(future.iRow, future.iColumn));
+    m_gameLayer->setPieceToNewPos(piece, Size(future.iRow, future.iColumn));
 
     // Reset m_undo.promotion
     //memset(&m_undo.promotion, 0, sizeof(Promotion));
@@ -227,22 +240,22 @@ void Logic::moveFigure(Position present, Position future, EnPassant* S_enPassant
     // The king was already move, but we still have to move the rook to 'jump' the king
     //char chPiece = getPieceAtPosition(S_castling->rook_before.iRow, S_castling->rook_before.iColumn);
 
-    int iPiece = getFigureAtPositionI(S_castling->rook_before.iRow, S_castling->rook_before.iColumn);
+    int iPiece = getPieceAtPositionI(S_castling->rook_before.iRow, S_castling->rook_before.iColumn);
 
-    Figure* figure = getFigureAtPosition(S_castling->rook_before.iRow, S_castling->rook_before.iColumn);
+    Piece* piece = getPieceAtPosition(S_castling->rook_before.iRow, S_castling->rook_before.iColumn);
 
     // Remove the rook from present position
     //board[S_castling->rook_before.iRow][S_castling->rook_before.iColumn] = EMPTY_SQUARE;
     m_gameLayer->getDataChess().board[S_castling->rook_before.iRow][S_castling->rook_before.iColumn] = 0;
 
-    m_gameLayer->removeFigureBoard(Size(S_castling->rook_before.iRow, S_castling->rook_before.iColumn));
+    m_gameLayer->removePieceBoard(Size(S_castling->rook_before.iRow, S_castling->rook_before.iColumn));
 
     // 'Jump' into to new position
     //board[S_castling->rook_after.iRow][S_castling->rook_after.iColumn] = chPiece;
     m_gameLayer->getDataChess().board[S_castling->rook_after.iRow][S_castling->rook_after.iColumn] = iPiece;
 
-    m_gameLayer->setFigureToNewPos(figure, Size(S_castling->rook_after.iRow, S_castling->rook_after.iColumn));
-    m_gameLayer->moveFigureToPos(figure, Size(S_castling->rook_after.iRow, S_castling->rook_after.iColumn));
+    m_gameLayer->setPieceToNewPos(piece, Size(S_castling->rook_after.iRow, S_castling->rook_after.iColumn));
+    m_gameLayer->movePieceToPos(piece, Size(S_castling->rook_after.iRow, S_castling->rook_after.iColumn));
 
     // Write this information to the m_undo struct
     //memcpy(&m_undo.castling, S_castling, sizeof(Castling));
@@ -263,14 +276,14 @@ void Logic::moveFigure(Position present, Position future, EnPassant* S_enPassant
 
   // Castling requirements
   //if ('K' == toupper(chPiece))
-  if(TypeFigure::KING == figure->getType())
+  if(TypePiece::KING == piece->getType())
   {
     // After the king has moved once, no more castling allowed
     m_bCastlingKingSideAllowed[getCurrentTurn()] = false;
     m_bCastlingQueenSideAllowed[getCurrentTurn()] = false;
   }
   //else if ('R' == toupper(chPiece))
-  else if (TypeFigure::ROOK == figure->getType())
+  else if (TypePiece::ROOK == piece->getType())
   {
     // If the rook moved from column 'A', no more castling allowed on the queen side
     if (0 == present.iColumn)
@@ -310,33 +323,33 @@ void Logic::undoLastMove()
 
   // Since we want to undo a move, we will be moving the piece from (iToRow, iToColumn) to (iFromRow, iFromColumn)
   //char chPiece = getPieceAtPosition(to.iRow, to.iColumn);
-  int iFigure = getFigureAtPositionI(to.iRow, to.iColumn);
+  int iPiece = getPieceAtPositionI(to.iRow, to.iColumn);
 
-  Figure* figure = getFigureAtPosition(to.iRow, to.iColumn);
+  Piece* piece = getPieceAtPosition(to.iRow, to.iColumn);
 
   // Moving it back
   // If there was a promotion
   if (curUndo.promotion.bApplied)
   {
     //board[from.iRow][from.iColumn] = m_undo.promotion.chBefore;
-    m_gameLayer->getDataChess().board[from.iRow][from.iColumn] = m_undo.promotion.typeBefore;
+    m_gameLayer->getDataChess().board[from.iRow][from.iColumn] = curUndo.promotion.typeBefore;
 
-    Figure* figureBefore = m_gameLayer->createFigureFileName(curUndo.promotion.typeBefore, curUndo.promotion.isWhite);
+    Piece* pieceBefore = m_gameLayer->createPieceFileName(curUndo.promotion.typeBefore, curUndo.promotion.isWhite);
 
-    m_gameLayer->moveFigureToPos(figureBefore, Size(from.iRow, from.iColumn));
-    m_gameLayer->setFigureToNewPos(figureBefore, Size(from.iRow, from.iColumn));
+    m_gameLayer->movePieceToPos(pieceBefore, Size(from.iRow, from.iColumn));
+    m_gameLayer->setPieceToNewPos(pieceBefore, Size(from.iRow, from.iColumn));
 
-    m_gameLayer->getBoard()->removeFigure(figure);
-    //Figure* figureBefore = m_gameLayer->createFigureFileName(curUndo.promotion.typeBefore, curUndo.promotion.isWhite);
-    m_gameLayer->getBoard()->addFigure(figureBefore, Size(from.iRow, from.iColumn), static_cast<int>(ZOrderGame::FIGURES));
+    m_gameLayer->getBoard()->removePiece(piece);
+    //Piece* pieceBefore = m_gameLayer->createPieceFileName(curUndo.promotion.typeBefore, curUndo.promotion.isWhite);
+    m_gameLayer->getBoard()->addPiece(pieceBefore, Size(from.iRow, from.iColumn), static_cast<int>(ZOrderGame::PIECE));
   }
   else
   {
     //board[from.iRow][from.iColumn] = chPiece;
-    m_gameLayer->getDataChess().board[from.iRow][from.iColumn] = iFigure;
+    m_gameLayer->getDataChess().board[from.iRow][from.iColumn] = iPiece;
 
-    m_gameLayer->setFigureToNewPos(figure, Size(from.iRow, from.iColumn));
-    m_gameLayer->moveFigureToPos(figure, Size(from.iRow, from.iColumn));
+    m_gameLayer->setPieceToNewPos(piece, Size(from.iRow, from.iColumn));
+    m_gameLayer->movePieceToPos(piece, Size(from.iRow, from.iColumn));
   }
 
   // Change turns
@@ -349,7 +362,7 @@ void Logic::undoLastMove()
     // Let's retrieve the last captured piece
     //char chCaptured;
     int iCaptured;
-    Figure* capturedFigure;
+    Piece* capturedPiece;
 
     // Since we already changed turns back, it means we should we pop a piece from the oponents vector
     if (static_cast<int>(Player::WHITE_PLAYER) == m_currentTurn)
@@ -358,7 +371,7 @@ void Logic::undoLastMove()
       iCaptured = iblack_captured.back();
       iblack_captured.pop_back();
 
-      capturedFigure = black_captured.back();
+      capturedPiece = black_captured.back();
       black_captured.pop_back();
     }
     else
@@ -367,13 +380,13 @@ void Logic::undoLastMove()
       iCaptured = iwhite_captured.back();
       iwhite_captured.pop_back();
 
-      capturedFigure = white_captured.back();
+      capturedPiece = white_captured.back();
 
       white_captured.pop_back();
     }
 
     bool isWhite = (iCaptured < 0) ? false : true;
-    capturedFigure = m_gameLayer->createFigureFileName(abs(iCaptured), isWhite);
+    capturedPiece = m_gameLayer->createPieceFileName(abs(iCaptured), isWhite);
 
     // Move the captured piece back. Was this an "en passant" move?
     if (curUndo.en_passant.bApplied)
@@ -382,14 +395,14 @@ void Logic::undoLastMove()
       //board[m_undo.en_passant.PawnCaptured.iRow][m_undo.en_passant.PawnCaptured.iColumn] = chCaptured;
       m_gameLayer->getDataChess().board[curUndo.en_passant.PawnCaptured.iRow][curUndo.en_passant.PawnCaptured.iColumn] = iCaptured;
 
-      //m_gameLayer->setFigureToNewPos(capturedFigure, Size(m_undo.en_passant.PawnCaptured.iRow, m_undo.en_passant.PawnCaptured.iColumn));
-      m_gameLayer->setFigureToNewPos(capturedFigure, Size(curUndo.en_passant.PawnCaptured.iRow, curUndo.en_passant.PawnCaptured.iColumn));
-      m_gameLayer->getBoard()->addFigure(capturedFigure, Size(curUndo.en_passant.PawnCaptured.iRow, curUndo.en_passant.PawnCaptured.iColumn), static_cast<int>(ZOrderGame::FIGURES));
+      //m_gameLayer->setPieceToNewPos(capturedPiece, Size(m_undo.en_passant.PawnCaptured.iRow, m_undo.en_passant.PawnCaptured.iColumn));
+      m_gameLayer->setPieceToNewPos(capturedPiece, Size(curUndo.en_passant.PawnCaptured.iRow, curUndo.en_passant.PawnCaptured.iColumn));
+      m_gameLayer->getBoard()->addPiece(capturedPiece, Size(curUndo.en_passant.PawnCaptured.iRow, curUndo.en_passant.PawnCaptured.iColumn), static_cast<int>(ZOrderGame::PIECE));
 
       // Remove the attacker
       //board[to.iRow][to.iColumn] = EMPTY_SQUARE;
       m_gameLayer->getDataChess().board[to.iRow][to.iColumn] = 0;
-      m_gameLayer->removeFigureBoard(Size(to.iRow, to.iColumn));
+      m_gameLayer->removePieceBoard(Size(to.iRow, to.iColumn));
     }
     else
     {
@@ -397,15 +410,15 @@ void Logic::undoLastMove()
 
 
       m_gameLayer->getDataChess().board[to.iRow][to.iColumn] = iCaptured;
-      m_gameLayer->getBoard()->addFigure(capturedFigure, Size(to.iRow, to.iColumn), static_cast<int>(ZOrderGame::FIGURES));
+      m_gameLayer->getBoard()->addPiece(capturedPiece, Size(to.iRow, to.iColumn), static_cast<int>(ZOrderGame::PIECE));
 
-      m_gameLayer->setFigureToNewPos(capturedFigure, Size(to.iRow, to.iColumn));
+      m_gameLayer->setPieceToNewPos(capturedPiece, Size(to.iRow, to.iColumn));
 
-      m_gameLayer->setFigureToNewPos(figure, Size(from.iRow, from.iColumn));
-      m_gameLayer->moveFigureToPos(figure, Size(from.iRow, from.iColumn));
+      m_gameLayer->setPieceToNewPos(piece, Size(from.iRow, from.iColumn));
+      m_gameLayer->movePieceToPos(piece, Size(from.iRow, from.iColumn));
 
-      /*m_gameLayer->setFigureToNewPos(figure, Size(to.iRow, to.iColumn));
-      m_gameLayer->moveFigureToPos(figure, Size(to.iRow, to.iColumn));*/
+      /*m_gameLayer->setPieceToNewPos(piece, Size(to.iRow, to.iColumn));
+      m_gameLayer->movePieceToPos(piece, Size(to.iRow, to.iColumn));*/
     }
   }
   else
@@ -413,29 +426,29 @@ void Logic::undoLastMove()
     //board[to.iRow][to.iColumn] = EMPTY_SQUARE;
     m_gameLayer->getDataChess().board[to.iRow][to.iColumn] = 0;
 
-    m_gameLayer->removeFigureBoard(Size(to.iRow, to.iColumn));
+    m_gameLayer->removePieceBoard(Size(to.iRow, to.iColumn));
   }
 
   // If there was a castling
   if (curUndo.castling.bApplied)
   {
     //char chRook = getPieceAtPosition(m_undo.castling.rook_after.iRow, m_undo.castling.rook_after.iColumn);
-    int iRook = getFigureAtPositionI(curUndo.castling.rook_after.iRow, curUndo.castling.rook_after.iColumn);
+    int iRook = getPieceAtPositionI(curUndo.castling.rook_after.iRow, curUndo.castling.rook_after.iColumn);
 
-    Figure* rookFigure = getFigureAtPosition(curUndo.castling.rook_after.iRow, curUndo.castling.rook_after.iColumn);
+    Piece* rookPiece = getPieceAtPosition(curUndo.castling.rook_after.iRow, curUndo.castling.rook_after.iColumn);
 
     // Remove the rook from present position
     //board[m_undo.castling.rook_after.iRow][m_undo.castling.rook_after.iColumn] = EMPTY_SQUARE;
     m_gameLayer->getDataChess().board[curUndo.castling.rook_after.iRow][curUndo.castling.rook_after.iColumn] = 0;
 
-    m_gameLayer->removeFigureBoard(Size(curUndo.castling.rook_after.iRow, curUndo.castling.rook_after.iColumn));
+    m_gameLayer->removePieceBoard(Size(curUndo.castling.rook_after.iRow, curUndo.castling.rook_after.iColumn));
 
     // 'Jump' into to new position
     //board[m_undo.castling.rook_before.iRow][m_undo.castling.rook_before.iColumn] = chRook;
     m_gameLayer->getDataChess().board[curUndo.castling.rook_before.iRow][curUndo.castling.rook_before.iColumn] = iRook;
     
-    m_gameLayer->setFigureToNewPos(rookFigure, Size(curUndo.castling.rook_before.iRow, curUndo.castling.rook_before.iColumn));
-    m_gameLayer->moveFigureToPos(rookFigure, Size(curUndo.castling.rook_before.iRow, curUndo.castling.rook_before.iColumn));
+    m_gameLayer->setPieceToNewPos(rookPiece, Size(curUndo.castling.rook_before.iRow, curUndo.castling.rook_before.iColumn));
+    m_gameLayer->movePieceToPos(rookPiece, Size(curUndo.castling.rook_before.iRow, curUndo.castling.rook_before.iColumn));
 
     // Restore the values of castling allowed or not
     //m_bCastlingKingSideAllowed[getCurrentTurn()] = m_undo.bCastlingKingSideAllowed;
@@ -492,14 +505,13 @@ bool Logic::castlingAllowed(Side iSide, int iColor)
   }
 }
 
-Figure* Logic::getFigureAtPosition(int i, int j)
+Piece* Logic::getPieceAtPosition(int i, int j)
 {
-  //Figure* figure = m_figures[i][j];
   DataChess& dataChess = m_gameLayer->getDataChess();
-  return dataChess.figures[i][j];
+  return dataChess.pieces[i][j];
 }
 
-int Logic::getFigureAtPositionI(int i, int j)
+int Logic::getPieceAtPositionI(int i, int j)
 {
   DataChess& dataChess = m_gameLayer->getDataChess();
   return dataChess.board[i][j];
@@ -575,19 +587,19 @@ void Logic::parseMoveStringToCell(std::string move, Position* pFrom, Position* p
   pTo->iRow = static_cast<int>(move[3]) - 49;
 }
 
-void Logic::updateFigures(const std::vector<std::vector<Figure*>>& figures)
+void Logic::updatePiece(const std::vector<std::vector<Piece*>>& pieces)
 {
-  //m_figures.clear();
+  //m_pieces.clear();
 
-  for (unsigned int i = 0; i < figures.size(); i++)
+  for (unsigned int i = 0; i < pieces.size(); i++)
   {
-    std::vector<Figure*> figuresRow = figures[i];
-    std::vector<Figure*> newRow;
-    for (unsigned int j = 0; j < figuresRow.size(); j++)
+    std::vector<Piece*> pieceRow = pieces[i];
+    std::vector<Piece*> newRow;
+    for (unsigned int j = 0; j < pieceRow.size(); j++)
     {
-      newRow.push_back(figures[i][j]);
+      newRow.push_back(pieces[i][j]);
     }
-    m_figures.push_back(newRow);
+    m_pieces.push_back(newRow);
   }
 }
 
@@ -778,22 +790,22 @@ bool Logic::isReachable(int iRow, int iColumn, int iColor)
     for (int i = iColumn + 1; i < 8; i++)
     {
       //char chPieceFound = getPieceAtPosition(iRow, i);
-      Figure* figureFound = getFigureAtPosition(iRow, i);
-      if (Constants::EMPTY_SQUARE == figureFound)
+      Piece* pieceFound = getPieceAtPosition(iRow, i);
+      if (Constants::EMPTY_SQUARE == pieceFound)
       {
         // This square is empty, move on
         continue;
       }
 
       //if (iColor == getPieceColor(chPieceFound))
-      int foundFigureColor = (figureFound->isWhite()) ? static_cast<int>(FigureColor::WHITE_FIGURE) : static_cast<int>(FigureColor::BLACK_FIGURE);
-      if (iColor == foundFigureColor)
+      int foundPieceColor = (pieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
+      if (iColor == foundPieceColor)
       {
         // This is a piece of the same color
         break;
       }
-      else if ((figureFound->getType() == TypeFigure::QUEEN) ||
-        (figureFound->getType() == TypeFigure::ROOK))
+      else if ((pieceFound->getType() == TypePiece::QUEEN) ||
+        (pieceFound->getType() == TypePiece::ROOK))
       {
         // There is a queen or a rook to the right, so the square is reachable
         bReachable = true;
@@ -810,21 +822,21 @@ bool Logic::isReachable(int iRow, int iColumn, int iColor)
     for (int i = iColumn - 1; i >= 0; i--)
     {
       //char chPieceFound = getPieceAtPosition(iRow, i);
-      Figure* figureFound = getFigureAtPosition(iRow, i);
-      if (Constants::EMPTY_SQUARE == figureFound)
+      Piece* pieceFound = getPieceAtPosition(iRow, i);
+      if (Constants::EMPTY_SQUARE == pieceFound)
       {
         // This square is empty, move on
         continue;
       }
 
-      int foundFigureColor = (figureFound->isWhite()) ? static_cast<int>(FigureColor::WHITE_FIGURE) : static_cast<int>(FigureColor::BLACK_FIGURE);
-      if (iColor == foundFigureColor)
+      int foundPieceColor = (pieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
+      if (iColor == foundPieceColor)
       {
         // This is a piece of the same color
         break;
       }
-      else if ((figureFound->getType() == TypeFigure::QUEEN) ||
-        (figureFound->getType() == TypeFigure::ROOK))
+      else if ((pieceFound->getType() == TypePiece::QUEEN) ||
+        (pieceFound->getType() == TypePiece::ROOK))
       {
         // There is a queen or a rook to the left, so the square is reachable
         bReachable = true;
@@ -844,29 +856,29 @@ bool Logic::isReachable(int iRow, int iColumn, int iColor)
     for (int i = iRow + 1; i < 8; i++)
     {
       //char chPieceFound = getPieceAtPosition(i, iColumn);
-      Figure* figureFound = getFigureAtPosition(i, iColumn);
-      if (Constants::EMPTY_SQUARE == figureFound)
+      Piece* pieceFound = getPieceAtPosition(i, iColumn);
+      if (Constants::EMPTY_SQUARE == pieceFound)
       {
         // This square is empty, move on
         continue;
       }
 
-      int foundFigureColor = (figureFound->isWhite()) ? static_cast<int>(FigureColor::WHITE_FIGURE) : static_cast<int>(FigureColor::BLACK_FIGURE);
-      if (iColor == foundFigureColor)
+      int foundPieceColor = (pieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
+      if (iColor == foundPieceColor)
       {
         // This is a piece of the same color
         break;
       }
-      else if ((figureFound->getType() == TypeFigure::PAWN) &&
-        (foundFigureColor == static_cast<int>(FigureColor::BLACK_FIGURE)) &&
+      else if ((pieceFound->getType() == TypePiece::PAWN) &&
+        (foundPieceColor == static_cast<int>(PieceColor::BLACK_PIECE)) &&
         (i == iRow + 1))
       {
         // There is a pawn one square up, so the square is reachable
         bReachable = true;
         break;
       }
-      else if ((figureFound->getType() == TypeFigure::QUEEN) ||
-        (figureFound->getType() == TypeFigure::ROOK))
+      else if ((pieceFound->getType() == TypePiece::QUEEN) ||
+        (pieceFound->getType() == TypePiece::ROOK))
       {
         // There is a queen or a rook on the way up, so the square is reachable
         bReachable = true;
@@ -883,29 +895,29 @@ bool Logic::isReachable(int iRow, int iColumn, int iColor)
     for (int i = iRow - 1; i >= 0; i--)
     {
       //char chPieceFound = getPieceAtPosition(i, iColumn);
-      Figure* figureFound = getFigureAtPosition(i, iColumn);
-      if (Constants::EMPTY_SQUARE == figureFound)
+      Piece* pieceFound = getPieceAtPosition(i, iColumn);
+      if (Constants::EMPTY_SQUARE == pieceFound)
       {
         // This square is empty, move on
         continue;
       }
 
-      int foundFigureColor = (figureFound->isWhite()) ? static_cast<int>(FigureColor::WHITE_FIGURE) : static_cast<int>(FigureColor::BLACK_FIGURE);
-      if (iColor == foundFigureColor)
+      int foundPieceColor = (pieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
+      if (iColor == foundPieceColor)
       {
         // This is a piece of the same color
         break;
       }
-      else if ((figureFound->getType() == TypeFigure::PAWN) &&
-        (foundFigureColor == static_cast<int>(FigureColor::WHITE_FIGURE)) &&
+      else if ((pieceFound->getType() == TypePiece::PAWN) &&
+        (foundPieceColor == static_cast<int>(PieceColor::WHITE_PIECE)) &&
         (i == iRow - 1))
       {
         // There is a pawn one square down, so the square is reachable
         bReachable = true;
         break;
       }
-      else if ((figureFound->getType() == TypeFigure::QUEEN) ||
-        (figureFound->getType() == TypeFigure::ROOK))
+      else if ((pieceFound->getType() == TypePiece::QUEEN) ||
+        (pieceFound->getType() == TypePiece::ROOK))
       {
         // There is a queen or a rook on the way down, so the square is reachable
         bReachable = true;
@@ -925,21 +937,21 @@ bool Logic::isReachable(int iRow, int iColumn, int iColor)
     for (int i = iRow + 1, j = iColumn + 1; i < 8 && j < 8; i++, j++)
     {
       //char chPieceFound = getPieceAtPosition(i, j);
-      Figure* figureFound = getFigureAtPosition(i, j);
-      if (Constants::EMPTY_SQUARE == figureFound)
+      Piece* pieceFound = getPieceAtPosition(i, j);
+      if (Constants::EMPTY_SQUARE == pieceFound)
       {
         // This square is empty, move on
         continue;
       }
 
-      int foundFigureColor = (figureFound->isWhite()) ? static_cast<int>(FigureColor::WHITE_FIGURE) : static_cast<int>(FigureColor::BLACK_FIGURE);
-      if (iColor == foundFigureColor)
+      int foundPieceColor = (pieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
+      if (iColor == foundPieceColor)
       {
         // This is a piece of the same color
         break;
       }
-      else if ((figureFound->getType() == TypeFigure::QUEEN) ||
-        (figureFound->getType() == TypeFigure::BISHOP))
+      else if ((pieceFound->getType() == TypePiece::QUEEN) ||
+        (pieceFound->getType() == TypePiece::BISHOP))
       {
         // There is a queen or a bishop in that direction, so the square is reachable
         bReachable = true;
@@ -956,21 +968,21 @@ bool Logic::isReachable(int iRow, int iColumn, int iColor)
     for (int i = iRow + 1, j = iColumn - 1; i < 8 && j > 0; i++, j--)
     {
       //char chPieceFound = getPieceAtPosition(i, j);
-      Figure* figureFound = getFigureAtPosition(i, j);
-      if (Constants::EMPTY_SQUARE == figureFound)
+      Piece* pieceFound = getPieceAtPosition(i, j);
+      if (Constants::EMPTY_SQUARE == pieceFound)
       {
         // This square is empty, move on
         continue;
       }
 
-      int foundFigureColor = (figureFound->isWhite()) ? static_cast<int>(FigureColor::WHITE_FIGURE) : static_cast<int>(FigureColor::BLACK_FIGURE);
-      if (iColor == foundFigureColor)
+      int foundPieceColor = (pieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
+      if (iColor == foundPieceColor)
       {
         // This is a piece of the same color
         break;
       }
-      else if ((figureFound->getType() == TypeFigure::QUEEN) ||
-        (figureFound->getType() == TypeFigure::BISHOP))
+      else if ((pieceFound->getType() == TypePiece::QUEEN) ||
+        (pieceFound->getType() == TypePiece::BISHOP))
       {
         // There is a queen or a bishop in that direction, so the square is reachable
         bReachable = true;
@@ -987,21 +999,21 @@ bool Logic::isReachable(int iRow, int iColumn, int iColor)
     for (int i = iRow - 1, j = iColumn + 1; i > 0 && j < 8; i--, j++)
     {
       //char chPieceFound = getPieceAtPosition(i, j);
-      Figure* figureFound = getFigureAtPosition(i, j);
-      if (Constants::EMPTY_SQUARE == figureFound)
+      Piece* pieceFound = getPieceAtPosition(i, j);
+      if (Constants::EMPTY_SQUARE == pieceFound)
       {
         // This square is empty, move on
         continue;
       }
 
-      int foundFigureColor = (figureFound->isWhite()) ? static_cast<int>(FigureColor::WHITE_FIGURE) : static_cast<int>(FigureColor::BLACK_FIGURE);
-      if (iColor == foundFigureColor)
+      int foundPieceColor = (pieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
+      if (iColor == foundPieceColor)
       {
         // This is a piece of the same color
         break;
       }
-      else if ((figureFound->getType() == TypeFigure::QUEEN) ||
-        (figureFound->getType() == TypeFigure::BISHOP))
+      else if ((pieceFound->getType() == TypePiece::QUEEN) ||
+        (pieceFound->getType() == TypePiece::BISHOP))
       {
         // There is a queen or a bishop in that direction, so the square is reachable
         bReachable = true;
@@ -1018,21 +1030,21 @@ bool Logic::isReachable(int iRow, int iColumn, int iColor)
     for (int i = iRow - 1, j = iColumn - 1; i > 0 && j > 0; i--, j--)
     {
       //char chPieceFound = getPieceAtPosition(i, j);
-      Figure* figureFound = getFigureAtPosition(i, j);
-      if (Constants::EMPTY_SQUARE == figureFound)
+      Piece* pieceFound = getPieceAtPosition(i, j);
+      if (Constants::EMPTY_SQUARE == pieceFound)
       {
         // This square is empty, move on
         continue;
       }
 
-      int foundFigureColor = (figureFound->isWhite()) ? static_cast<int>(FigureColor::WHITE_FIGURE) : static_cast<int>(FigureColor::BLACK_FIGURE);
-      if (iColor == foundFigureColor)
+      int foundPieceColor = (pieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
+      if (iColor == foundPieceColor)
       {
         // This is a piece of the same color
         break;
       }
-      else if ((figureFound->getType() == TypeFigure::QUEEN) ||
-        (figureFound->getType() == TypeFigure::BISHOP))
+      else if ((pieceFound->getType() == TypePiece::QUEEN) ||
+        (pieceFound->getType() == TypePiece::BISHOP))
       {
         // There is a queen or a bishop in that direction, so the square is reachable
         bReachable = true;
@@ -1064,20 +1076,20 @@ bool Logic::isReachable(int iRow, int iColumn, int iColor)
       }
 
       //char chPieceFound = getPieceAtPosition(iRowToTest, iColumnToTest);
-      Figure* figureFound = getFigureAtPosition(iRowToTest, iColumnToTest);
-      if (Constants::EMPTY_SQUARE == figureFound)
+      Piece* pieceFound = getPieceAtPosition(iRowToTest, iColumnToTest);
+      if (Constants::EMPTY_SQUARE == pieceFound)
       {
         // This square is empty, move on
         continue;
       }
 
-      int foundFigureColor = (figureFound->isWhite()) ? static_cast<int>(FigureColor::WHITE_FIGURE) : static_cast<int>(FigureColor::BLACK_FIGURE);
-      if (iColor == foundFigureColor)
+      int foundPieceColor = (pieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
+      if (iColor == foundPieceColor)
       {
         // This is a piece of the same color
         continue;
       }
-      else if (figureFound->getType() == TypeFigure::KNIGHT)
+      else if (pieceFound->getType() == TypePiece::KNIGHT)
       {
         bReachable = true;
         break;
@@ -1093,7 +1105,7 @@ bool Logic::isSquareOccupied(int iRow, int iColumn)
 {
   bool bOccupied = false;
 
-  if (Constants::EMPTY_SQUARE != getFigureAtPosition(iRow, iColumn))
+  if (Constants::EMPTY_SQUARE != getPieceAtPosition(iRow, iColumn))
   {
     bOccupied = true;
   }
@@ -1101,11 +1113,11 @@ bool Logic::isSquareOccupied(int iRow, int iColumn)
   return bOccupied;
 }
 
-bool Logic::wouldKingBeInCheck(Figure* figure, Position present, Position future, EnPassant* S_enPassant)
+bool Logic::wouldKingBeInCheck(Piece* piece, Position present, Position future, EnPassant* S_enPassant)
 {
   IntendedMove intended_move;
 
-  intended_move.figure = figure;
+  intended_move.piece = piece;
   intended_move.from.iRow = present.iRow;
   intended_move.from.iColumn = present.iColumn;
   intended_move.to.iRow = future.iRow;
@@ -1116,15 +1128,15 @@ bool Logic::wouldKingBeInCheck(Figure* figure, Position present, Position future
 
 Position Logic::findKing(int iColor)
 {
-  bool isWhiteKing = (static_cast<int>(FigureColor::WHITE_FIGURE) == iColor) ? true : false;
+  bool isWhiteKing = (static_cast<int>(PieceColor::WHITE_PIECE) == iColor) ? true : false;
   Position king = { 0 };
 
   for (int i = 0; i < 8; i++)
   {
     for (int j = 0; j < 8; j++)
     {
-      Figure* figure = getFigureAtPosition(i, j);
-      if(figure && figure->getType() == TypeFigure::KING && figure->isWhite() == isWhiteKing)
+      Piece* piece = getPieceAtPosition(i, j);
+      if(piece && piece->getType() == TypePiece::KING && piece->isWhite() == isWhiteKing)
       {
         king.iRow = i;
         king.iColumn = j;
@@ -1142,7 +1154,7 @@ bool Logic::isKingInCheck(int iColor, IntendedMove* pintended_move)
   Position king = { 0 };
 
   // Must check if the intended move is to move the king itself
-  if (nullptr != pintended_move && TypeFigure::KING == pintended_move->figure->getType())
+  if (nullptr != pintended_move && TypePiece::KING == pintended_move->piece->getType())
   {
     king.iRow = pintended_move->to.iRow;
     king.iColumn = pintended_move->to.iColumn;
@@ -1168,15 +1180,15 @@ bool Logic::playerKingInCheck(IntendedMove* intended_move)
   return isKingInCheck(static_cast<int>(getCurrentTurn()), intended_move);
 }
 
-Figure* Logic::getPiece_considerMove(int iRow, int iColumn, IntendedMove* intended_move)
+Piece* Logic::getPiece_considerMove(int iRow, int iColumn, IntendedMove* intended_move)
 {
   //char chPiece;
-  Figure* figure;
+  Piece* piece;
 
   // If there is no intended move, just return the current position of the board
   if (nullptr == intended_move)
   {
-    figure = getFigureAtPosition(iRow, iColumn);
+    piece = getPieceAtPosition(iRow, iColumn);
   }
   else
   {
@@ -1184,21 +1196,21 @@ Figure* Logic::getPiece_considerMove(int iRow, int iColumn, IntendedMove* intend
     // so we consider a move that has not been made yet
     if (intended_move->from.iRow == iRow && intended_move->from.iColumn == iColumn)
     {
-      // The figure wants to move from that square, so it would be empty
-      figure = Constants::EMPTY_SQUARE;
+      // The Piece wants to move from that square, so it would be empty
+      piece = Constants::EMPTY_SQUARE;
     }
     else if (intended_move->to.iRow == iRow && intended_move->to.iColumn == iColumn)
     {
       // The piece wants to move to that square, so return the piece
-      figure = intended_move->figure;
+      piece = intended_move->piece;
     }
     else
     {
-      figure = getFigureAtPosition(iRow, iColumn);
+      piece = getPieceAtPosition(iRow, iColumn);
     }
   }
 
-  return figure;
+  return piece;
 }
 
 UnderAttack Logic::isUnderAttack(int iRow, int iColumn, int iColor, IntendedMove* pintended_move)
@@ -1211,21 +1223,21 @@ UnderAttack Logic::isUnderAttack(int iRow, int iColumn, int iColor, IntendedMove
     for (int i = iColumn + 1; i < 8; i++)
     {
       //char chPieceFound = getPiece_considerMove(iRow, i, pintended_move);
-      Figure* chFigureFound = getPiece_considerMove(iRow, i, pintended_move);
-      if (Constants::EMPTY_SQUARE == chFigureFound)
+      Piece* chPieceFound = getPiece_considerMove(iRow, i, pintended_move);
+      if (Constants::EMPTY_SQUARE == chPieceFound)
       {
         // This square is empty, move on
         continue;
       }
 
-      int chFigureColor = (chFigureFound->isWhite()) ? static_cast<int>(FigureColor::WHITE_FIGURE) : static_cast<int>(FigureColor::BLACK_FIGURE);
-      if (iColor == chFigureColor)
+      int chPieceColor = (chPieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
+      if (iColor == chPieceColor)
       {
         // This is a piece of the same color, so no problem
         break;
       }
-      else if ((chFigureFound->getType() == TypeFigure::QUEEN ) ||
-        (chFigureFound->getType() == TypeFigure::ROOK))
+      else if ((chPieceFound->getType() == TypePiece::QUEEN ) ||
+        (chPieceFound->getType() == TypePiece::ROOK))
       {
         // There is a queen or a rook to the right, so the piece is in jeopardy
         attack.bUnderAttack = true;
@@ -1247,21 +1259,21 @@ UnderAttack Logic::isUnderAttack(int iRow, int iColumn, int iColor, IntendedMove
     for (int i = iColumn - 1; i >= 0; i--)
     {
       //char chPieceFound = getPiece_considerMove(iRow, i, pintended_move);
-      Figure* chFigureFound = getPiece_considerMove(iRow, i, pintended_move);
-      if (Constants::EMPTY_SQUARE == chFigureFound)
+      Piece* chPieceFound = getPiece_considerMove(iRow, i, pintended_move);
+      if (Constants::EMPTY_SQUARE == chPieceFound)
       {
         // This square is empty, move on
         continue;
       }
 
-      int chFigureColor = (chFigureFound->isWhite()) ? static_cast<int>(FigureColor::WHITE_FIGURE) : static_cast<int>(FigureColor::BLACK_FIGURE);
-      if (iColor == chFigureColor)
+      int chPieceColor = (chPieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
+      if (iColor == chPieceColor)
       {
         // This is a piece of the same color, so no problem
         break;
       }
-      else if ((chFigureFound->getType() == TypeFigure::QUEEN) ||
-        (chFigureFound->getType() == TypeFigure::ROOK))
+      else if ((chPieceFound->getType() == TypePiece::QUEEN) ||
+        (chPieceFound->getType() == TypePiece::ROOK))
       {
         // There is a queen or a rook to the right, so the piece is in jeopardy
         attack.bUnderAttack = true;
@@ -1286,21 +1298,21 @@ UnderAttack Logic::isUnderAttack(int iRow, int iColumn, int iColor, IntendedMove
     for (int i = iRow + 1; i < 8; i++)
     {
       //char chPieceFound = getPiece_considerMove(i, iColumn, pintended_move);
-      Figure* chFigureFound = getPiece_considerMove(i, iColumn, pintended_move);
-      if (Constants::EMPTY_SQUARE == chFigureFound)
+      Piece* chPieceFound = getPiece_considerMove(i, iColumn, pintended_move);
+      if (Constants::EMPTY_SQUARE == chPieceFound)
       {
         // This square is empty, move on
         continue;
       }
 
-      int chFigureColor = (chFigureFound->isWhite()) ? static_cast<int>(FigureColor::WHITE_FIGURE) : static_cast<int>(FigureColor::BLACK_FIGURE);
-      if (iColor == chFigureColor)
+      int chPieceColor = (chPieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
+      if (iColor == chPieceColor)
       {
         // This is a piece of the same color, so no problem
         break;
       }
-      else if ((chFigureFound->getType() == TypeFigure::QUEEN) ||
-        (chFigureFound->getType() == TypeFigure::ROOK))
+      else if ((chPieceFound->getType() == TypePiece::QUEEN) ||
+        (chPieceFound->getType() == TypePiece::ROOK))
       {
         // There is a queen or a rook to the right, so the piece is in jeopardy
         attack.bUnderAttack = true;
@@ -1322,21 +1334,21 @@ UnderAttack Logic::isUnderAttack(int iRow, int iColumn, int iColor, IntendedMove
     for (int i = iRow - 1; i >= 0; i--)
     {
       //char chPieceFound = getPiece_considerMove(i, iColumn, pintended_move);
-      Figure* chFigureFound = getPiece_considerMove(i, iColumn, pintended_move);
-      if (Constants::EMPTY_SQUARE == chFigureFound)
+      Piece* chPieceFound = getPiece_considerMove(i, iColumn, pintended_move);
+      if (Constants::EMPTY_SQUARE == chPieceFound)
       {
         // This square is empty, move on
         continue;
       }
 
-      int chFigureColor = (chFigureFound->isWhite()) ? static_cast<int>(FigureColor::WHITE_FIGURE) : static_cast<int>(FigureColor::BLACK_FIGURE);
-      if (iColor == chFigureColor)
+      int chPieceColor = (chPieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
+      if (iColor == chPieceColor)
       {
         // This is a piece of the same color, so no problem
         break;
       }
-      else if ((chFigureFound->getType() == TypeFigure::QUEEN) ||
-        (chFigureFound->getType() == TypeFigure::ROOK))
+      else if ((chPieceFound->getType() == TypePiece::QUEEN) ||
+        (chPieceFound->getType() == TypePiece::ROOK))
       {
         // There is a queen or a rook to the right, so the piece is in jeopardy
         attack.bUnderAttack = true;
@@ -1360,24 +1372,24 @@ UnderAttack Logic::isUnderAttack(int iRow, int iColumn, int iColor, IntendedMove
     // Check the diagonal up-right
     for (int i = iRow + 1, j = iColumn + 1; i < 8 && j < 8; i++, j++)
     {
-      Figure* chFigureFound = getPiece_considerMove(i, j, pintended_move);
+      Piece* chPieceFound = getPiece_considerMove(i, j, pintended_move);
       //char chPieceFound = getPiece_considerMove(i, j, pintended_move);
-      if (Constants::EMPTY_SQUARE == chFigureFound)
+      if (Constants::EMPTY_SQUARE == chPieceFound)
       {
         // This square is empty, move on
         continue;
       }
 
-      int chFigureColor = (chFigureFound->isWhite()) ? static_cast<int>(FigureColor::WHITE_FIGURE) : static_cast<int>(FigureColor::BLACK_FIGURE);
-      if (iColor == chFigureColor)
+      int chPieceColor = (chPieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
+      if (iColor == chPieceColor)
       {
         // This is a piece of the same color, so no problem
         break;
       }
-      else if ((chFigureFound->getType() == TypeFigure::PAWN) &&
+      else if ((chPieceFound->getType() == TypePiece::PAWN) &&
         (i == iRow + 1) &&
         (j == iColumn + 1) &&
-        (iColor == static_cast<int>(FigureColor::WHITE_FIGURE)))
+        (iColor == static_cast<int>(PieceColor::WHITE_PIECE)))
       {
         // A pawn only puts another piece in jeopardy if it's (diagonally) right next to it
         attack.bUnderAttack = true;
@@ -1388,8 +1400,8 @@ UnderAttack Logic::isUnderAttack(int iRow, int iColumn, int iColor, IntendedMove
         attack.attacker[attack.iNumAttackers - 1].dir = Direction::DIAGONAL;
         break;
       }
-      else if ((chFigureFound->getType() == TypeFigure::QUEEN) ||
-        (chFigureFound->getType() == TypeFigure::BISHOP))
+      else if ((chPieceFound->getType() == TypePiece::QUEEN) ||
+        (chPieceFound->getType() == TypePiece::BISHOP))
       {
         // There is a queen or a bishop in that direction, so the piece is in jeopardy
         attack.bUnderAttack = true;
@@ -1411,23 +1423,23 @@ UnderAttack Logic::isUnderAttack(int iRow, int iColumn, int iColor, IntendedMove
     for (int i = iRow + 1, j = iColumn - 1; i < 8 && j >= 0; i++, j--)
     {
       //char chPieceFound = getPiece_considerMove(i, j, pintended_move);
-      Figure* chFigureFound = getPiece_considerMove(i, j, pintended_move);
-      if (Constants::EMPTY_SQUARE == chFigureFound)
+      Piece* chPieceFound = getPiece_considerMove(i, j, pintended_move);
+      if (Constants::EMPTY_SQUARE == chPieceFound)
       {
         // This square is empty, move on
         continue;
       }
 
-      int chFigureColor = (chFigureFound->isWhite()) ? static_cast<int>(FigureColor::WHITE_FIGURE) : static_cast<int>(FigureColor::BLACK_FIGURE);
-      if (iColor == chFigureColor)
+      int chPieceColor = (chPieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
+      if (iColor == chPieceColor)
       {
         // This is a piece of the same color, so no problem
         break;
       }
-      else if ((chFigureFound->getType() == TypeFigure::PAWN) &&
+      else if ((chPieceFound->getType() == TypePiece::PAWN) &&
         (i == iRow + 1) &&
         (j == iColumn - 1) &&
-        (iColor == static_cast<int>(FigureColor::WHITE_FIGURE)))
+        (iColor == static_cast<int>(PieceColor::WHITE_PIECE)))
       {
         // A pawn only puts another piece in jeopardy if it's (diagonally) right next to it
         attack.bUnderAttack = true;
@@ -1438,8 +1450,8 @@ UnderAttack Logic::isUnderAttack(int iRow, int iColumn, int iColor, IntendedMove
         attack.attacker[attack.iNumAttackers - 1].dir = Direction::DIAGONAL;
         break;
       }
-      else if ((chFigureFound->getType() == TypeFigure::QUEEN) ||
-        (chFigureFound->getType() == TypeFigure::BISHOP))
+      else if ((chPieceFound->getType() == TypePiece::QUEEN) ||
+        (chPieceFound->getType() == TypePiece::BISHOP))
       {
         // There is a queen or a bishop in that direction, so the piece is in jeopardy
         attack.bUnderAttack = true;
@@ -1461,23 +1473,23 @@ UnderAttack Logic::isUnderAttack(int iRow, int iColumn, int iColor, IntendedMove
     for (int i = iRow - 1, j = iColumn + 1; i > 0 && j < 8; i--, j++)
     {
       //char chPieceFound = getPiece_considerMove(i, j, pintended_move);
-      Figure* chFigureFound = getPiece_considerMove(i, j, pintended_move);
-      if (Constants::EMPTY_SQUARE == chFigureFound)
+      Piece* chPieceFound = getPiece_considerMove(i, j, pintended_move);
+      if (Constants::EMPTY_SQUARE == chPieceFound)
       {
         // This square is empty, move on
         continue;
       }
 
-      int chFigureColor = (chFigureFound->isWhite()) ? static_cast<int>(FigureColor::WHITE_FIGURE) : static_cast<int>(FigureColor::BLACK_FIGURE);
-      if (iColor == chFigureColor)
+      int chPieceColor = (chPieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
+      if (iColor == chPieceColor)
       {
         // This is a piece of the same color, so no problem
         break;
       }
-      else if ((chFigureFound->getType() == TypeFigure::PAWN) &&
+      else if ((chPieceFound->getType() == TypePiece::PAWN) &&
         (i == iRow - 1) &&
         (j == iColumn + 1) &&
-        (iColor == static_cast<int>(FigureColor::BLACK_FIGURE)))
+        (iColor == static_cast<int>(PieceColor::BLACK_PIECE)))
       {
         // A pawn only puts another piece in jeopardy if it's (diagonally) right next to it
         attack.bUnderAttack = true;
@@ -1488,8 +1500,8 @@ UnderAttack Logic::isUnderAttack(int iRow, int iColumn, int iColor, IntendedMove
         attack.attacker[attack.iNumAttackers - 1].dir = Direction::DIAGONAL;
         break;
       }
-      else if ((chFigureFound->getType() == TypeFigure::QUEEN) ||
-        (chFigureFound->getType() == TypeFigure::BISHOP))
+      else if ((chPieceFound->getType() == TypePiece::QUEEN) ||
+        (chPieceFound->getType() == TypePiece::BISHOP))
       {
         // There is a queen or a bishop in that direction, so the piece is in jeopardy
         attack.bUnderAttack = true;
@@ -1511,23 +1523,23 @@ UnderAttack Logic::isUnderAttack(int iRow, int iColumn, int iColor, IntendedMove
     for (int i = iRow - 1, j = iColumn - 1; i >= 0 && j >= 0; i--, j--)
     {
       //char chPieceFound = getPiece_considerMove(i, j, pintended_move);
-      Figure* chFigureFound = getPiece_considerMove(i, j, pintended_move);
-      if (Constants::EMPTY_SQUARE == chFigureFound)
+      Piece* chPieceFound = getPiece_considerMove(i, j, pintended_move);
+      if (Constants::EMPTY_SQUARE == chPieceFound)
       {
         // This square is empty, move on
         continue;
       }
 
-      int chFigureColor = (chFigureFound->isWhite()) ? static_cast<int>(FigureColor::WHITE_FIGURE) : static_cast<int>(FigureColor::BLACK_FIGURE);
-      if (iColor == chFigureColor)
+      int chPieceColor = (chPieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
+      if (iColor == chPieceColor)
       {
         // This is a piece of the same color, so no problem
         break;
       }
-      else if ((chFigureFound->getType() == TypeFigure::PAWN) &&
+      else if ((chPieceFound->getType() == TypePiece::PAWN) &&
         (i == iRow - 1) &&
         (j == iColumn - 1) &&
-        (iColor == static_cast<int>(FigureColor::BLACK_FIGURE)))
+        (iColor == static_cast<int>(PieceColor::BLACK_PIECE)))
       {
         // A pawn only puts another piece in jeopardy if it's (diagonally) right next to it
         attack.bUnderAttack = true;
@@ -1538,8 +1550,8 @@ UnderAttack Logic::isUnderAttack(int iRow, int iColumn, int iColor, IntendedMove
         attack.attacker[attack.iNumAttackers - 1].dir = Direction::DIAGONAL;
         break;
       }
-      else if ((chFigureFound->getType() == TypeFigure::QUEEN) ||
-        ((chFigureFound->getType() == TypeFigure::BISHOP)))
+      else if ((chPieceFound->getType() == TypePiece::QUEEN) ||
+        ((chPieceFound->getType() == TypePiece::BISHOP)))
       {
         // There is a queen or a bishop in that direction, so the piece is in jeopardy
         attack.bUnderAttack = true;
@@ -1576,20 +1588,20 @@ UnderAttack Logic::isUnderAttack(int iRow, int iColumn, int iColor, IntendedMove
       }
 
       //char chPieceFound = getPiece_considerMove(iRowToTest, iColumnToTest, pintended_move);
-      Figure* chFigureFound = getPiece_considerMove(iRowToTest, iColumnToTest, pintended_move);
-      if (Constants::EMPTY_SQUARE == chFigureFound)
+      Piece* chPieceFound = getPiece_considerMove(iRowToTest, iColumnToTest, pintended_move);
+      if (Constants::EMPTY_SQUARE == chPieceFound)
       {
         // This square is empty, move on
         continue;
       }
 
-      int chFigureColor = (chFigureFound->isWhite()) ? static_cast<int>(FigureColor::WHITE_FIGURE) : static_cast<int>(FigureColor::BLACK_FIGURE);
-      if (iColor == chFigureColor)
+      int chPieceColor = (chPieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
+      if (iColor == chPieceColor)
       {
         // This is a piece of the same color, so no problem
         continue;
       }
-      else if ((chFigureFound->getType() == TypeFigure::KNIGHT))
+      else if ((chPieceFound->getType() == TypePiece::KNIGHT))
       {
         attack.bUnderAttack = true;
         attack.iNumAttackers += 1;
@@ -1850,14 +1862,14 @@ bool Logic::isCheckMate()
       continue;
     }
 
-    if (Constants::EMPTY_SQUARE != getFigureAtPosition(iRowToTest, iColumnToTest))
+    if (Constants::EMPTY_SQUARE != getPieceAtPosition(iRowToTest, iColumnToTest))
     {
       // That square is not empty, so no need to test
       continue;
     }
 
     IntendedMove intended_move;
-    intended_move.figure = getFigureAtPosition(king.iRow, king.iColumn);
+    intended_move.piece = getPieceAtPosition(king.iRow, king.iColumn);
     intended_move.from.iRow = king.iRow;
     intended_move.from.iColumn = king.iColumn;
     intended_move.to.iRow = iRowToTest;
@@ -1892,13 +1904,13 @@ bool Logic::isCheckMate()
     {
       // Last resort: can any piece get in between the attacker and the king?
       //char chAttacker = getPieceAtPosition(king_attacked.attacker[0].pos.iRow, king_attacked.attacker[0].pos.iColumn);
-      Figure* figureAttacker = getFigureAtPosition(king_attacked.attacker[0].pos.iRow, king_attacked.attacker[0].pos.iColumn);
+      Piece* pieceAttacker = getPieceAtPosition(king_attacked.attacker[0].pos.iRow, king_attacked.attacker[0].pos.iColumn);
 
-      TypeFigure typeFigure{ TypeFigure::PAWN };
-      switch (typeFigure)
+      TypePiece typePiece{ TypePiece::PAWN };
+      switch (typePiece)
       {
-      case TypeFigure::PAWN:
-      case TypeFigure::KNIGHT:
+      case TypePiece::PAWN:
+      case TypePiece::KNIGHT:
       {
         // If it's a pawn, there's no space in between the attacker and the king
         // If it's a knight, it doesn't matter because the knight can 'jump'
@@ -1907,7 +1919,7 @@ bool Logic::isCheckMate()
       }
       break;
 
-      case TypeFigure::BISHOP:
+      case TypePiece::BISHOP:
       {
         if (false == canBeBlocked(king_attacked.attacker[0].pos, king, static_cast<int>(Direction::DIAGONAL)))
         {
@@ -1917,7 +1929,7 @@ bool Logic::isCheckMate()
       }
       break;
 
-      case TypeFigure::ROOK:
+      case TypePiece::ROOK:
       {
         if (false == canBeBlocked(king_attacked.attacker[0].pos, king, static_cast<int>(king_attacked.attacker[0].dir)))
         {
@@ -1927,7 +1939,7 @@ bool Logic::isCheckMate()
       }
       break;
 
-      case TypeFigure::QUEEN:
+      case TypePiece::QUEEN:
       {
         if (false == canBeBlocked(king_attacked.attacker[0].pos, king, static_cast<int>(king_attacked.attacker[0].dir)))
         {

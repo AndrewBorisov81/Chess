@@ -6,12 +6,12 @@
 #include <stack>
 
 class GameLayer;
-class Figure;
+class Piece;
 
-enum class FigureColor
+enum class PieceColor
 {
-  WHITE_FIGURE = 0,
-  BLACK_FIGURE = 1
+  WHITE_PIECE = 0,
+  BLACK_PIECE = 1
 };
 
 enum class Player
@@ -61,13 +61,13 @@ struct Promotion
   int typeBefore;
   int typeAfter;
   bool isWhite;
-  Figure* figureBefore;
-  Figure* figureAfter;
+  Piece* pieceBefore;
+  Piece* pieceAfter;
 };
 
 struct IntendedMove
 {
-  Figure* figure;
+  Piece* piece;
   Position from;
   Position to;
 };
@@ -85,6 +85,19 @@ struct UnderAttack
   Attacker attacker[9]; //maximum theorical number of attackers
 };
 
+struct Undo
+{
+  bool bCanUndo;
+  bool bCapturedLastMove;
+
+  bool bCastlingKingSideAllowed;
+  bool bCastlingQueenSideAllowed;
+
+  EnPassant en_passant;
+  Castling  castling;
+  Promotion promotion;
+};
+
 class Logic : public cocos2d::Node
 {
 public:
@@ -93,19 +106,21 @@ public:
   ~Logic();
   virtual bool init();
 
-  void moveFigure(Position present, Position future, EnPassant* S_enPassant, Castling* S_castling, Promotion* S_promotion);
+  void movePiece(Position present, Position future, EnPassant* S_enPassant, Castling* S_castling, Promotion* S_promotion);
 
   bool castlingAllowed(Side iSide, int iColor);
 
-  Figure* getFigureAtPosition(int i, int j);
+  Piece* getPieceAtPosition(int i, int j);
 
-  int getFigureAtPositionI(int i, int j);
+  int getPieceAtPositionI(int i, int j);
 
   void logMove(std::string &to_record);
 
   bool undoIsPossible();
 
   void undoLastMove();
+
+  void initUndo(Undo& undo);
 
   std::string getLastMove();
 
@@ -119,11 +134,11 @@ public:
 
   bool Logic::isSquareOccupied(int iRow, int iColumn);
 
-  Figure* getPiece_considerMove(int iRow, int iColumn, IntendedMove* intended_move);
+  Piece* getPiece_considerMove(int iRow, int iColumn, IntendedMove* intended_move);
 
   UnderAttack isUnderAttack(int iRow, int iColumn, int iColor, IntendedMove* pintended_move);
 
-  bool wouldKingBeInCheck(Figure* figure, Position present, Position future, EnPassant* S_enPassant);
+  bool wouldKingBeInCheck(Piece* piece, Position present, Position future, EnPassant* S_enPassant);
 
   int getOpponentColor();
 
@@ -151,8 +166,8 @@ public:
   // Save the captured pieces
   /*std::vector<char> white_captured;
   std::vector<char> black_captured;*/
-  std::vector<Figure*> white_captured;
-  std::vector<Figure*> black_captured;
+  std::vector<Piece*> white_captured;
+  std::vector<Piece*> black_captured;
 
   std::vector<int> iwhite_captured;
   std::vector<int> iblack_captured;
@@ -161,16 +176,16 @@ public:
   std::string parseMoveCellIntToString(const Position& pFrom);
   void parseMoveStringToCell(std::string move, Position* pFrom, Position* pTo);
 
-  void updateFigures(const std::vector<std::vector<Figure*>>& figures);
+  void updatePiece(const std::vector<std::vector<Piece*>>& pieces);
 
 protected:
   GameLayer* m_gameLayer{ nullptr };
   int  m_currentTurn{ 0 };
-  std::vector<std::vector<Figure*>> m_figures;
+  std::vector<std::vector<Piece*>> m_pieces;
   std::vector<std::vector<int>> m_board;
 
   // Undo is possible?
-  struct Undo
+  /*struct Undo
   {
     bool bCanUndo;
     bool bCapturedLastMove;
@@ -181,7 +196,7 @@ protected:
     EnPassant en_passant;
     Castling  castling;
     Promotion promotion;
-  } m_undo;
+  } m_undo;*/
 
   std::stack<Undo> m_undos;
   Undo m_currentUndo;
