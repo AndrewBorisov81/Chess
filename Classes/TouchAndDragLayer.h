@@ -11,7 +11,7 @@ typedef enum tagTouchAndDragState
 } TouchAndDragState;
 
 class GameLayer;
-class Figure;
+class Piece;
 class Grid;
 struct DataChess;
 
@@ -25,7 +25,7 @@ public:
 
   virtual bool init();
 
-  Figure* getFigure();
+  Piece* getPiece();
 
   cocos2d::EventListenerMouse* m_mouseListener;
 
@@ -33,20 +33,20 @@ public:
  void onMouseUp(cocos2d::Event* event);
  void onMouseMove(cocos2d::Event* event);
 
- void callBackUpdateBoardFigures(const std::function<void(Figure* figure, cocos2d::Size& oldPos, cocos2d::Size& newPos)>& callBack);
+ void callBackUpdateBoardPiece(const std::function<void(Piece* piece, cocos2d::Size& oldPos, cocos2d::Size& newPos)>& callBack);
 
 private:
   GameLayer* m_gameLayer{ nullptr };
   Grid* m_grid;
 
-  Figure* m_currentDragFigure{ nullptr };
-  cocos2d::Size m_currentFigureSize;
-  //std::vector<std::vector<Figure*>> m_figures;
+  Piece* m_currentDragPiece{ nullptr };
+  cocos2d::Size m_currentPiecesize;
+  //std::vector<std::vector<Piece*>> m_pieces;
 
-  cocos2d::Size m_prevCellIJFigure;
-  cocos2d::Size m_curCellIJFigure;
+  cocos2d::Size m_prevCellIJPiece;
+  cocos2d::Size m_curCellIJPiece;
 
-  std::function<void(Figure* figure, cocos2d::Size& oldPos, cocos2d::Size& newPos)> m_updateBoardFigures{ nullptr };
+  std::function<void(Piece* piece, cocos2d::Size& oldPos, cocos2d::Size& newPos)> m_updateBoardPiece{ nullptr };
 
   //cocos2d::Label* labelTouchInfo;
 };

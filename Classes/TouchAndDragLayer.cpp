@@ -1,6 +1,6 @@
 #include "TouchAndDragLayer.h"
 #include "GameLayer.h"
-#include "Figure.h"
+#include "Piece.h"
 #include "Constants.h"
 #include "Grid.h"
 
@@ -49,9 +49,9 @@ bool TouchAndDragLayer::init()
   return true;
 }
 
-Figure* TouchAndDragLayer::getFigure()
+Piece* TouchAndDragLayer::getPiece()
 {
-  return  m_currentDragFigure;
+  return  m_currentDragPiece;
 }
 
 
@@ -76,14 +76,14 @@ void TouchAndDragLayer::onMouseDown(Event* event)
     if (cellI >= 0 && cellJ >= 0 && cellI < Constants::COLUMNS && cellJ < Constants::ROWS)
     {
       DataChess& dataChess = m_gameLayer->getDataChess();
-      Figure* pClickFigure = dataChess.figures[cellI][cellJ];
-      if (pClickFigure)
+      Piece* pClickPiece = dataChess.pieces[cellI][cellJ];
+      if (pClickPiece)
       {
-        m_currentDragFigure = pClickFigure;
-        m_currentFigureSize = m_currentDragFigure->getContentSize();
+        m_currentDragPiece = pClickPiece;
+        m_currentPiecesize = m_currentDragPiece->getContentSize();
 
-        m_prevCellIJFigure.width = cellI;
-        m_prevCellIJFigure.height = cellJ;
+        m_prevCellIJPiece.width = cellI;
+        m_prevCellIJPiece.height = cellJ;
 
         _state = kGrabbed;
       }
@@ -99,28 +99,28 @@ void TouchAndDragLayer::onMouseUp(Event* event)
   {
     _state = kUngrabbed;
 
-    if (m_currentDragFigure)
+    if (m_currentDragPiece)
     {
-      Size curFigureCellIJ;
-      Vec2 curFigurePoint = m_currentDragFigure->getPosition();
+      Size curPieceCellIJ;
+      Vec2 curPiecePoint = m_currentDragPiece->getPosition();
 
-      m_grid->calculateCellByPoint(curFigurePoint, Constants::CELL_SIZE, curFigureCellIJ);
+      m_grid->calculateCellByPoint(curPiecePoint, Constants::CELL_SIZE, curPieceCellIJ);
 
-      int cellI = curFigureCellIJ.height;
-      int cellJ = curFigureCellIJ.width;
+      int cellI = curPieceCellIJ.height;
+      int cellJ = curPieceCellIJ.width;
 
-      m_currentDragFigure->setPosition(m_grid->getPointByCell(curFigureCellIJ.width, curFigureCellIJ.height));
+      m_currentDragPiece->setPosition(m_grid->getPointByCell(curPieceCellIJ.width, curPieceCellIJ.height));
 
-      m_curCellIJFigure.width = cellI;
-      m_curCellIJFigure.height = cellJ;
+      m_curCellIJPiece.width = cellI;
+      m_curCellIJPiece.height = cellJ;
 
-      Size prev(m_prevCellIJFigure.width, m_prevCellIJFigure.height);
-      Size cur(m_curCellIJFigure.width, m_curCellIJFigure.height);
+      Size prev(m_prevCellIJPiece.width, m_prevCellIJPiece.height);
+      Size cur(m_curCellIJPiece.width, m_curCellIJPiece.height);
 
-      m_updateBoardFigures(m_currentDragFigure, prev, cur);
+      m_updateBoardPiece(m_currentDragPiece, prev, cur);
 
-      m_currentDragFigure = nullptr;
-      m_currentFigureSize = Size::ZERO;
+      m_currentDragPiece = nullptr;
+      m_currentPiecesize = Size::ZERO;
     }
   }
 }
@@ -134,15 +134,15 @@ void TouchAndDragLayer::onMouseMove(Event* event)
     int x = event->getCurrentTarget()->convertToNodeSpace(Vec2(e->getCursorX(), e->getCursorY())).x;
     int y = event->getCurrentTarget()->convertToNodeSpace(Vec2(e->getCursorX(), e->getCursorY())).y;
 
-    if (m_currentDragFigure)
+    if (m_currentDragPiece)
     {
       if(x >= 0 && y >= 0 && y < Constants::ROWS * Constants::CELL_SIZE && x < Constants::ROWS * Constants::CELL_SIZE)
-        m_currentDragFigure->setPosition(Vec2(x, y));
+        m_currentDragPiece->setPosition(Vec2(x, y));
     }
   }
 }
 
-void TouchAndDragLayer::callBackUpdateBoardFigures(const std::function<void(Figure* figure, Size& oldPos, Size& newPos)>& callBack)
+void TouchAndDragLayer::callBackUpdateBoardPiece(const std::function<void(Piece* piece, Size& oldPos, Size& newPos)>& callBack)
 {
-  m_updateBoardFigures = callBack;
+  m_updateBoardPiece = callBack;
 }
