@@ -32,13 +32,19 @@ public:
   void setType(TypePiece type);
   void setIsWhite(bool isWhite);
 
+  void setCell(const cocos2d::Size& cellRowColumn);
+  cocos2d::Size getCell();
+
   cocos2d::Rect getRect();
 
   Piece* clonePiece();
 
 private:
   TypePiece m_type{ TypePiece::PAWN };
+
   bool m_isWhite{ true };
 
   std::string m_fileName;
+
+  cocos2d::Size m_cell;
 };

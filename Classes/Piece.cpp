@@ -50,7 +50,6 @@ Piece::Piece(const Piece& Piece)
 
 Piece* Piece::createPiece(int type, bool isWhite, std::string fileName)
 {
-  //Piece* pPiece = new(std::nothrow) Piece(type, isWhite);
   Piece* pPiece = new(std::nothrow) Piece(type, isWhite, fileName);
 
   if (pPiece && pPiece->init(fileName, cocos2d::ui::ImageView::TextureResType::PLIST))
@@ -80,6 +79,16 @@ void Piece::setType(TypePiece type)
 void Piece::setIsWhite(bool isWhite)
 {
   m_isWhite = isWhite;
+}
+
+void Piece::setCell(const Size& cellRowColumn)
+{
+  m_cell = cellRowColumn;
+}
+
+Size Piece::getCell()
+{
+  return m_cell;
 }
 
 cocos2d::Rect Piece::getRect()
