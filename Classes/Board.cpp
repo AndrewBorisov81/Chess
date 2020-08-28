@@ -12,6 +12,11 @@ Board::Board()
 {
 }
 
+Board::Board(float cellSize, int rows, int columns)
+  : Grid(cellSize, rows, columns)
+{
+}
+
 Board::~Board()
 {
 
@@ -19,6 +24,8 @@ Board::~Board()
 
 bool Board::init()
 {
+  Grid::init();
+
   if (!CCLayer::init()) {
 
     return false;
@@ -29,6 +36,10 @@ bool Board::init()
   Size boardSize = boardSprite->getContentSize();
   m_boardSize = boardSize;
   this->addChild(boardSprite, 1);
+
+  float deltaGridX = -(Constants::CELL_SIZE * Constants::COLUMNS / 2);
+  float deltaGridY = -(Constants::CELL_SIZE * Constants::ROWS / 2);
+  boardSprite->setPosition(Vec2((Constants::CELL_SIZE * Constants::COLUMNS / 2), (Constants::CELL_SIZE * Constants::ROWS / 2)));
 
   /*DrawNode *drawnode = DrawNode::create();
   drawnode->drawCircle(Vec2(0, 0), 50, 360, 20, true, 1, 1, Color4F::RED);
@@ -52,7 +63,7 @@ bool Board::init()
   return true;
 }
 
-void Board::loadAllPiece(std::vector<std::vector<Piece*>>& pieces, int zOrder)
+void Board::loadAllPieces(std::vector<std::vector<Piece*>>& pieces, int zOrder)
 {
   for (int i = 0; i < pieces.size(); i++)
   {
@@ -62,8 +73,17 @@ void Board::loadAllPiece(std::vector<std::vector<Piece*>>& pieces, int zOrder)
       if (row[j] != 0)
       {
         Piece* pPiece = row[j];
-        m_grid->addChild(pPiece, zOrder);
-        pPiece->setPosition(Vec2(m_grid->getPointByCell(j, i)));
+
+        pPiece->setCell(Size(i, j));
+
+        this->addChild(pPiece, zOrder);
+
+        pPiece->setPosition(Vec2(getPointByCell(j, i)));
+
+        if (pPiece->isWhite())
+          m_whitePieces.push_back(pPiece);
+        else
+          m_blackPieces.push_back(pPiece);
       }
     }
   }
@@ -71,13 +91,16 @@ void Board::loadAllPiece(std::vector<std::vector<Piece*>>& pieces, int zOrder)
 
 void Board::addPiece(Piece* piece, Size& cellIJ, int zOrder)
 {
-  piece->setPosition(Vec2(m_grid->getPointByCell(cellIJ.height, cellIJ.width)));
-  m_grid->addChild(piece, zOrder);
+  //piece->setPosition(Vec2(m_grid->getPointByCell(cellIJ.height, cellIJ.width)));
+  piece->setPosition(Vec2(this->getPointByCell(cellIJ.height, cellIJ.width)));
+  //m_grid->addChild(piece, zOrder);
+  this->addChild(piece, zOrder);
 }
 
 void Board::removePiece(Piece* piece)
 {
-  m_grid->removeChild(piece);
+  //m_grid->removeChild(piece);
+  this->removeChild(piece);
 }
 
 void Board::addGrid(Grid* grid)
@@ -91,9 +114,43 @@ void Board::movePieceTo(Piece* piece, const cocos2d::Size& newPos)
   for (auto& node : allNodes) {
     if (dynamic_cast<Piece*>(node) == piece) { //It is Sprite 
       Piece* target = dynamic_cast<Piece*>(node);
-      target->setPosition(m_grid->getPointByCell(newPos.width, newPos.height));
+      //target->setPosition(m_grid->getPointByCell(newPos.width, newPos.height));
+      target->setPosition(this->getPointByCell(newPos.width, newPos.height));
     }
   }
+}
+
+void Board::addPieceN(int type, bool isWhite, const cocos2d::Size & cell, int zOrder)
+{
+  //piece->setPosition(Vec2(getPointByCell(cellIJ.height, cellIJ.width)));
+  //this->addChild(piece, zOrder);
+}
+
+void Board::removePieceN(int type, bool isWhite, const cocos2d::Size & cell)
+{
+}
+
+void Board::movePieceFromToN(const cocos2d::Size & presentCell, const cocos2d::Size & futureCell)
+{
+}
+
+Piece* Board::getPieceFromCell(int row, int column)
+{
+  for (auto el : m_blackPieces)
+  {
+    Size cellPiece = el->getCell();
+    if (cellPiece.width == row && cellPiece.height == column)
+      return el;
+  }
+
+  for (auto el : m_whitePieces)
+  {
+    Size cellPiece = el->getCell();
+    if (cellPiece.width == row && cellPiece.height == column)
+      return el;
+  }
+
+  return nullptr;
 }
 
 bool Board::onTouchBegan(Touch* touch, Event* event)
