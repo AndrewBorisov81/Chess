@@ -109,7 +109,7 @@ bool PieceMoveLogic::isMoveValid(Piece* piece, Position present, Position future
       int iLstMvPiece = getPieceAtPositionI(LastMoveTo.iRow, LastMoveTo.iColumn);
       //Piece* LstMvPiece = getPieceAtPosition(LastMoveTo.iRow, LastMoveTo.iColumn);
 
-      if (iLstMvPiece != static_cast<int>(TypePiece::PAWN))
+      if (abs(iLstMvPiece) != static_cast<int>(TypePiece::PAWN))
       {
         return false;
       }
