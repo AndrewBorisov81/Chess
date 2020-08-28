@@ -8,9 +8,8 @@
 
 USING_NS_CC;
 
-TouchAndDragLayer::TouchAndDragLayer(GameLayer* gameLayer, Grid* grid)
-  : m_gameLayer(gameLayer),
-    m_grid(grid)
+TouchAndDragLayer::TouchAndDragLayer(Grid* grid)
+  : m_grid(grid)
 {
 
 }
@@ -42,9 +41,9 @@ bool TouchAndDragLayer::init()
 
   _eventDispatcher->addEventListenerWithSceneGraphPriority(m_mouseListener, this);
 
-  /*DrawNode *drawnode = DrawNode::create();
+  DrawNode *drawnode = DrawNode::create();
   drawnode->drawCircle(Vec2(0, 0), 35, 360, 20, true, 1, 1, Color4F::MAGENTA);
-  this->addChild(drawnode);*/
+  this->addChild(drawnode);
 
   return true;
 }
@@ -75,8 +74,11 @@ void TouchAndDragLayer::onMouseDown(Event* event)
 
     if (cellI >= 0 && cellJ >= 0 && cellI < Constants::COLUMNS && cellJ < Constants::ROWS)
     {
-      DataChess& dataChess = m_gameLayer->getDataChess();
-      Piece* pClickPiece = dataChess.pieces[cellI][cellJ];
+      Piece* pClickPiece{ nullptr };
+
+      if(m_getPieceFromCell)
+        pClickPiece = m_getPieceFromCell(Size(cellI, cellJ));
+
       if (pClickPiece)
       {
         m_currentDragPiece = pClickPiece;
@@ -145,4 +147,9 @@ void TouchAndDragLayer::onMouseMove(Event* event)
 void TouchAndDragLayer::callBackUpdateBoardPiece(const std::function<void(Piece* piece, Size& oldPos, Size& newPos)>& callBack)
 {
   m_updateBoardPiece = callBack;
+}
+
+void TouchAndDragLayer::callBackGetPieceFromCell(const std::function<Piece*(cocos2d::Size& clickCell)>& callBack)
+{
+  m_getPieceFromCell = callBack;
 }

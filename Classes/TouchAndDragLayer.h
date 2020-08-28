@@ -20,7 +20,7 @@ class TouchAndDragLayer : public cocos2d::Layer
   TouchAndDragState _state{ kUngrabbed };
 
 public:
-  TouchAndDragLayer(GameLayer* gameLayer, Grid* grid);
+  TouchAndDragLayer(Grid* grid);
   virtual ~TouchAndDragLayer();
 
   virtual bool init();
@@ -34,19 +34,19 @@ public:
  void onMouseMove(cocos2d::Event* event);
 
  void callBackUpdateBoardPiece(const std::function<void(Piece* piece, cocos2d::Size& oldPos, cocos2d::Size& newPos)>& callBack);
+ void callBackGetPieceFromCell(const std::function<Piece*(cocos2d::Size& clickCell)>& callBack);
 
 private:
-  GameLayer* m_gameLayer{ nullptr };
   Grid* m_grid;
 
   Piece* m_currentDragPiece{ nullptr };
   cocos2d::Size m_currentPiecesize;
-  //std::vector<std::vector<Piece*>> m_pieces;
 
   cocos2d::Size m_prevCellIJPiece;
   cocos2d::Size m_curCellIJPiece;
 
   std::function<void(Piece* piece, cocos2d::Size& oldPos, cocos2d::Size& newPos)> m_updateBoardPiece{ nullptr };
+  std::function<Piece*(cocos2d::Size& clickCell)> m_getPieceFromCell{ nullptr };
 
   //cocos2d::Label* labelTouchInfo;
 };
