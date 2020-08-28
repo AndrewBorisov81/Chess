@@ -335,6 +335,7 @@ void Logic::undoLastMove()
     m_gameLayer->getDataChess().board[from.iRow][from.iColumn] = curUndo.promotion.typeBefore;
 
     Piece* pieceBefore = m_gameLayer->createPieceFileName(curUndo.promotion.typeBefore, curUndo.promotion.isWhite);
+    pieceBefore->setCell(Size(from.iRow, from.iColumn));
 
     m_gameLayer->movePieceToPos(pieceBefore, Size(from.iRow, from.iColumn));
     m_gameLayer->setPieceToNewPos(pieceBefore, Size(from.iRow, from.iColumn));
@@ -350,6 +351,7 @@ void Logic::undoLastMove()
 
     m_gameLayer->setPieceToNewPos(piece, Size(from.iRow, from.iColumn));
     m_gameLayer->movePieceToPos(piece, Size(from.iRow, from.iColumn));
+    piece->setCell(Size(from.iRow, from.iColumn));
   }
 
   // Change turns
@@ -397,6 +399,7 @@ void Logic::undoLastMove()
 
       //m_gameLayer->setPieceToNewPos(capturedPiece, Size(m_undo.en_passant.PawnCaptured.iRow, m_undo.en_passant.PawnCaptured.iColumn));
       m_gameLayer->setPieceToNewPos(capturedPiece, Size(curUndo.en_passant.PawnCaptured.iRow, curUndo.en_passant.PawnCaptured.iColumn));
+      capturedPiece->setCell(Size(curUndo.en_passant.PawnCaptured.iRow, curUndo.en_passant.PawnCaptured.iColumn));
       m_gameLayer->getBoard()->addPiece(capturedPiece, Size(curUndo.en_passant.PawnCaptured.iRow, curUndo.en_passant.PawnCaptured.iColumn), static_cast<int>(ZOrderGame::PIECE));
 
       // Remove the attacker
@@ -413,9 +416,11 @@ void Logic::undoLastMove()
       m_gameLayer->getBoard()->addPiece(capturedPiece, Size(to.iRow, to.iColumn), static_cast<int>(ZOrderGame::PIECE));
 
       m_gameLayer->setPieceToNewPos(capturedPiece, Size(to.iRow, to.iColumn));
+      capturedPiece->setCell(Size(to.iRow, to.iColumn));
 
       m_gameLayer->setPieceToNewPos(piece, Size(from.iRow, from.iColumn));
       m_gameLayer->movePieceToPos(piece, Size(from.iRow, from.iColumn));
+      piece->setCell(Size(from.iRow, from.iColumn));
 
       /*m_gameLayer->setPieceToNewPos(piece, Size(to.iRow, to.iColumn));
       m_gameLayer->movePieceToPos(piece, Size(to.iRow, to.iColumn));*/
@@ -449,6 +454,7 @@ void Logic::undoLastMove()
     
     m_gameLayer->setPieceToNewPos(rookPiece, Size(curUndo.castling.rook_before.iRow, curUndo.castling.rook_before.iColumn));
     m_gameLayer->movePieceToPos(rookPiece, Size(curUndo.castling.rook_before.iRow, curUndo.castling.rook_before.iColumn));
+    rookPiece->setCell(Size(curUndo.castling.rook_before.iRow, curUndo.castling.rook_before.iColumn));
 
     // Restore the values of castling allowed or not
     //m_bCastlingKingSideAllowed[getCurrentTurn()] = m_undo.bCastlingKingSideAllowed;
