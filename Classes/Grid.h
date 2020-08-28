@@ -2,7 +2,7 @@
 
 #include "cocos2d.h"
 
-class Figure;
+class Piece;
 
 class Grid : public cocos2d::Layer
 {
@@ -23,9 +23,9 @@ public:
 
   cocos2d::Vec2 getDelta();
   cocos2d::Vec2 getLocation();
-  Figure* getCurrentFigure();
-  void setCurrentFigure(Figure* figure);
-  void resetCurrentFigure();
+  Piece* getCurrentPiece();
+  void setCurrentPiece(Piece* piece);
+  void resetCurrentPiece();
 
 private:
   float m_cellSize{};
@@ -33,11 +33,11 @@ private:
   int m_columns{};
 
   cocos2d::Size m_currentClickCell{};
-  Figure* m_currentFigure{ nullptr };
+  Piece* m_currentPiece{ nullptr };
 
   cocos2d::Vec2 m_delta{};
   cocos2d::Vec2 m_location{};
 
-  cocos2d::Vec2 m_prevPosFigure{};
-  cocos2d::Vec2 m_curPosFigure{};
+  cocos2d::Vec2 m_prevPosPiece{};
+  cocos2d::Vec2 m_curPosPiece{};
 };

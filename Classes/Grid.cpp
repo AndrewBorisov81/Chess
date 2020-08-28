@@ -1,5 +1,5 @@
 #include "Grid.h"
-#include "Figure.h"
+#include "Piece.h"
 
 #include "base/CCEventListener.h"
 #include "base/CCEvent.h"
@@ -16,7 +16,7 @@ Grid::Grid()
 Grid::Grid(float cellSize, int rows, int columns)
   :m_cellSize(cellSize), m_rows(rows), m_columns(columns)
 {
-
+  
 }
 
 Grid::~Grid()
@@ -31,12 +31,12 @@ bool Grid::init()
     return false;
   }
 
-  /*DrawNode *drawnode = DrawNode::create();
+  DrawNode *drawnode = DrawNode::create();
   drawnode->drawCircle(Vec2(0, 0), 40, 360, 20, true, 1, 1, Color4F::GREEN);
-  this->addChild(drawnode);*/
+  this->addChild(drawnode, 1000);
 
   //Draw grid
-  //drawGrid(m_cellSize, m_rows, m_columns);
+  drawGrid(m_cellSize, m_rows, m_columns);
 
   /*auto touchListener = EventListenerTouchOneByOne::create();
 
@@ -68,7 +68,7 @@ void Grid::drawGrid(float cellSize, int rows, int columns)
     drawNode->drawLine(Vec2(j * cellSize, 0), Vec2(j * cellSize, rows * cellSize), Color4F::GREEN);
   }
 
-  this->addChild(drawNode, 1);
+  this->addChild(drawNode, 1000);
 }
 
 void Grid::showGrid()
@@ -108,17 +108,17 @@ cocos2d::Vec2 Grid::getLocation()
   return m_location;
 }
 
-Figure* Grid::getCurrentFigure()
+Piece* Grid::getCurrentPiece()
 {
-  return m_currentFigure;
+  return m_currentPiece;
 }
 
-void Grid::setCurrentFigure(Figure* figure)
+void Grid::setCurrentPiece(Piece* piece)
 {
-  m_currentFigure = figure;
+  m_currentPiece = piece;
 }
 
-void Grid::resetCurrentFigure()
+void Grid::resetCurrentPiece()
 {
-  m_currentFigure = nullptr;
+  m_currentPiece = nullptr;
 }
