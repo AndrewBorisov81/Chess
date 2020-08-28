@@ -93,6 +93,7 @@ void Board::addPiece(Piece* piece, Size& cellIJ, int zOrder)
 {
   //piece->setPosition(Vec2(m_grid->getPointByCell(cellIJ.height, cellIJ.width)));
   piece->setPosition(Vec2(this->getPointByCell(cellIJ.height, cellIJ.width)));
+  piece->setCell(cellIJ);
   //m_grid->addChild(piece, zOrder);
   this->addChild(piece, zOrder);
 }
@@ -116,6 +117,7 @@ void Board::movePieceTo(Piece* piece, const cocos2d::Size& newPos)
       Piece* target = dynamic_cast<Piece*>(node);
       //target->setPosition(m_grid->getPointByCell(newPos.width, newPos.height));
       target->setPosition(this->getPointByCell(newPos.width, newPos.height));
+      target->setCell(newPos);
     }
   }
 }
