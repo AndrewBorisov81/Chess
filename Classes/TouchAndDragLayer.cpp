@@ -119,6 +119,9 @@ void TouchAndDragLayer::onMouseUp(Event* event)
       Size prev(m_prevCellIJPiece.width, m_prevCellIJPiece.height);
       Size cur(m_curCellIJPiece.width, m_curCellIJPiece.height);
 
+      Piece* pClickPiece = m_getPieceFromCell(Size(m_prevCellIJPiece.width, m_prevCellIJPiece.height));
+      pClickPiece->setCell(Size(m_curCellIJPiece.width, m_curCellIJPiece.height));
+
       m_updateBoardPiece(m_currentDragPiece, prev, cur);
 
       m_currentDragPiece = nullptr;
