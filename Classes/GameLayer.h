@@ -108,12 +108,12 @@ private:
   HudLayer* m_hudLayer{ nullptr };
 
   Grid* createGrid(float cellSize, int rows, int columns);
-  Board* createBoard();
+  Board* createBoard(float cellSize, int rows, int columns);
 
   std::vector<std::vector<Piece*>> createPiece(const int piece_board[8][8], int rows, int columns);
   PieceMoveLogic* createPieceMoveLogic(GameLayer* gameField);
 
-  TouchAndDragLayer* createTouchAndDragLayer(GameLayer* gameLayer, Grid* grid);
+  TouchAndDragLayer* createTouchAndDragLayer(Grid* grid);
   PromotionLayer* createPromotionLayer();
   HudLayer* createHudLayer();
 

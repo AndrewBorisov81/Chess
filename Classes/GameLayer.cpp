@@ -72,25 +72,28 @@ bool GameLayer::init()
   }
 
   // Create Board
-  Board* board = createBoard();
+  Board* board = createBoard(Constants::CELL_SIZE, Constants::ROWS, Constants::COLUMNS);
   this->addChild(board, static_cast<int>(ZOrderGame::BOARD));
   m_board = board;
-  board->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
+  //board->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
+  float deltaBoardX = (Constants::CELL_SIZE * Constants::COLUMNS / 2);
+  float deltaBoardY = (Constants::CELL_SIZE * Constants::ROWS / 2);
+  board->setPosition(Vec2((visibleSize.width / 2 + origin.x) - deltaBoardX, (visibleSize.height / 2 + origin.y) - deltaBoardY));
 
   // Create Grid
-  Grid* grid = createGrid(Constants::CELL_SIZE, Constants::ROWS, Constants::COLUMNS);
+  /*Grid* grid = createGrid(Constants::CELL_SIZE, Constants::ROWS, Constants::COLUMNS);
   board->addChild(grid, static_cast<int>(ZOrderGame::GRID));
   m_grid = grid;
   board->addGrid(m_grid);
   float deltaGridX = -(Constants::CELL_SIZE * Constants::COLUMNS / 2);
   float deltaGridY = -(Constants::CELL_SIZE * Constants::ROWS / 2);
-  grid->setPosition(Vec2(-(Constants::CELL_SIZE * Constants::COLUMNS/2), -(Constants::CELL_SIZE * Constants::ROWS/2)));
+  grid->setPosition(Vec2(-(Constants::CELL_SIZE * Constants::COLUMNS/2), -(Constants::CELL_SIZE * Constants::ROWS/2)));*/
 
   // Create Piece
   m_pieces = createPiece(Constants::INITIAL_PIECE_BOARD, Constants::ROWS, Constants::COLUMNS);
   m_dataChess.pieces = m_pieces;
   // Load piece
-  board->loadAllPiece(m_pieces, static_cast<int>(ZOrderGame::PIECE));
+  board->loadAllPieces(m_pieces, static_cast<int>(ZOrderGame::PIECE));
 
   // Create Logic(PieceMoveLogic)
   PieceMoveLogic* pPieceMoveLogic = createPieceMoveLogic(this);
@@ -112,23 +115,12 @@ bool GameLayer::init()
   pPromotionLayer->callBackClickPiece(lfClickPiece);
 
   // Create TouchAndDragLayer
-  TouchAndDragLayer* touchAndDragLayer = createTouchAndDragLayer(this, grid);
-  board->addChild(touchAndDragLayer, static_cast<int>(ZOrderGame::TOUCH_AND_DRAG));
+  TouchAndDragLayer* touchAndDragLayer = createTouchAndDragLayer(board);
+  this->addChild(touchAndDragLayer, static_cast<int>(ZOrderGame::TOUCH_AND_DRAG));
   m_touchAndDragLayer = touchAndDragLayer;
-  touchAndDragLayer->setPosition(grid->getPosition());
+  touchAndDragLayer->setPosition(board->getPosition());
 
-  // Create HudLayer
-  HudLayer* pHudLayer = createHudLayer();
-  this->addChild(pHudLayer, static_cast<int>(ZOrderGame::HUD));
-  m_hudLayer = pHudLayer;
-  auto lfUndoMove = [this]() {
-    this->undoMove();
-  };
-  pHudLayer->callBackUndoLastMove(lfUndoMove);
-
-  //std::vector<std::vector<Piece*>> &piece = m_dataChess.pieces;
-
-  // Set callBack
+  // Set callBacks to touchAndDragLayer;
   auto lfUpdatePieceBoard = [this](Piece* piece, Size& prevPos, Size& newPos)->void
   {
     //movePiece(prevPos, newPos);
@@ -144,8 +136,23 @@ bool GameLayer::init()
       setBackPieceToPrevPos(piece, prevPos);
     } 
   };
-
   touchAndDragLayer->callBackUpdateBoardPiece(lfUpdatePieceBoard);
+
+  auto lfGetPieceFromCell = [this](Size& cellIJ)->Piece*
+  {
+    Piece* pieceIJ = m_board->getPieceFromCell(cellIJ.width, cellIJ.height);
+    return pieceIJ;
+  };
+  touchAndDragLayer->callBackGetPieceFromCell(lfGetPieceFromCell);
+
+  // Create HudLayer
+  HudLayer* pHudLayer = createHudLayer();
+  this->addChild(pHudLayer, static_cast<int>(ZOrderGame::HUD));
+  m_hudLayer = pHudLayer;
+  auto lfUndoMove = [this]() {
+    this->undoMove();
+  };
+  pHudLayer->callBackUndoLastMove(lfUndoMove);
 
   // Create Test Piece
   //createTestPiece();
@@ -186,9 +193,9 @@ void GameLayer::update(float delta) {
   }*/
 }
 
-Board* GameLayer::createBoard()
+Board* GameLayer::createBoard(float cellSize, int rows, int columns)
 {
-  Board* pBoard = new(std::nothrow) Board();
+  Board* pBoard = new(std::nothrow) Board(cellSize, rows, columns);
   if (pBoard && pBoard->init())
   {
     pBoard->autorelease();
@@ -218,9 +225,9 @@ Grid* GameLayer::createGrid(float cellSize, int rows, int columns)
   }
 }
 
-TouchAndDragLayer* GameLayer::createTouchAndDragLayer(GameLayer* gameLayer, Grid* grid)
+TouchAndDragLayer* GameLayer::createTouchAndDragLayer(Grid* grid)
 {
-  TouchAndDragLayer* pTouchAndDrag = new(std::nothrow) TouchAndDragLayer(gameLayer, grid);
+  TouchAndDragLayer* pTouchAndDrag = new(std::nothrow) TouchAndDragLayer(grid);
   if (pTouchAndDrag && pTouchAndDrag->init())
   {
     pTouchAndDrag->autorelease();
@@ -284,7 +291,8 @@ PieceMoveLogic* GameLayer::createPieceMoveLogic(GameLayer* gameLayer)
 
 void GameLayer::setBackPieceToPrevPos(Piece* piece, const Size& prevPos)
 {
-  Vec2 prevPosPiece = m_grid->getPointByCell(int(prevPos.height), int(prevPos.width));
+  //Vec2 prevPosPiece = m_grid->getPointByCell(int(prevPos.height), int(prevPos.width));
+  Vec2 prevPosPiece = m_board->getPointByCell(int(prevPos.height), int(prevPos.width));
   piece->setPosition(prevPosPiece);
 }
 
@@ -431,7 +439,8 @@ void GameLayer::movePromotion(Size& present, Size& future, Promotion& promotion,
 
 void GameLayer::movePieceToPos(Piece* piece, const Size& futureCell)
 {
-  Vec2 prevPosPiece = m_grid->getPointByCell(int(futureCell.height), int(futureCell.width));
+  //Vec2 prevPosPiece = m_grid->getPointByCell(int(futureCell.height), int(futureCell.width));
+  Vec2 prevPosPiece = m_board->getPointByCell(int(futureCell.height), int(futureCell.width));
   piece->setPosition(prevPosPiece);
 }
 
