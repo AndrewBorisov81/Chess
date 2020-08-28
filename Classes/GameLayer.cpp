@@ -291,9 +291,17 @@ PieceMoveLogic* GameLayer::createPieceMoveLogic(GameLayer* gameLayer)
 
 void GameLayer::setBackPieceToPrevPos(Piece* piece, const Size& prevPos)
 {
-  //Vec2 prevPosPiece = m_grid->getPointByCell(int(prevPos.height), int(prevPos.width));
+  /*Piece* boardPiece = m_board->getPieceFromCell(prevPos.width, prevPos.height);
+  if(boardPiece)
+    boardPiece->setCell(prevPos);*/
+
   Vec2 prevPosPiece = m_board->getPointByCell(int(prevPos.height), int(prevPos.width));
-  piece->setPosition(prevPosPiece);
+  if (piece)
+  {
+    piece->setPosition(prevPosPiece);
+    piece->setCell(prevPos);
+  }
+    
 }
 
 int GameLayer::applyPromotion(int typePiece)
