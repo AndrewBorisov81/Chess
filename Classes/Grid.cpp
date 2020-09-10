@@ -31,12 +31,12 @@ bool Grid::init()
     return false;
   }
 
-  DrawNode *drawnode = DrawNode::create();
+  /*DrawNode *drawnode = DrawNode::create();
   drawnode->drawCircle(Vec2(0, 0), 40, 360, 20, true, 1, 1, Color4F::GREEN);
-  this->addChild(drawnode, 1000);
+  this->addChild(drawnode, 1000);*/
 
   //Draw grid
-  drawGrid(m_cellSize, m_rows, m_columns);
+  //drawGrid(m_cellSize, m_rows, m_columns);
 
   /*auto touchListener = EventListenerTouchOneByOne::create();
 
