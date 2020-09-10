@@ -41,9 +41,9 @@ bool TouchAndDragLayer::init()
 
   _eventDispatcher->addEventListenerWithSceneGraphPriority(m_mouseListener, this);
 
-  DrawNode *drawnode = DrawNode::create();
+  /*DrawNode *drawnode = DrawNode::create();
   drawnode->drawCircle(Vec2(0, 0), 35, 360, 20, true, 1, 1, Color4F::MAGENTA);
-  this->addChild(drawnode);
+  this->addChild(drawnode);*/
 
   return true;
 }
