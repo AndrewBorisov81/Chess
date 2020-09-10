@@ -75,22 +75,12 @@ bool GameLayer::init()
   Board* board = createBoard(Constants::CELL_SIZE, Constants::ROWS, Constants::COLUMNS);
   this->addChild(board, static_cast<int>(ZOrderGame::BOARD));
   m_board = board;
-  //board->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
   float deltaBoardX = (Constants::CELL_SIZE * Constants::COLUMNS / 2);
   float deltaBoardY = (Constants::CELL_SIZE * Constants::ROWS / 2);
   board->setPosition(Vec2((visibleSize.width / 2 + origin.x) - deltaBoardX, (visibleSize.height / 2 + origin.y) - deltaBoardY));
 
-  // Create Grid
-  /*Grid* grid = createGrid(Constants::CELL_SIZE, Constants::ROWS, Constants::COLUMNS);
-  board->addChild(grid, static_cast<int>(ZOrderGame::GRID));
-  m_grid = grid;
-  board->addGrid(m_grid);
-  float deltaGridX = -(Constants::CELL_SIZE * Constants::COLUMNS / 2);
-  float deltaGridY = -(Constants::CELL_SIZE * Constants::ROWS / 2);
-  grid->setPosition(Vec2(-(Constants::CELL_SIZE * Constants::COLUMNS/2), -(Constants::CELL_SIZE * Constants::ROWS/2)));*/
-
   // Create Piece
-  m_pieces = createPiece(Constants::INITIAL_PIECE_BOARD, Constants::ROWS, Constants::COLUMNS);
+  m_pieces = createPieces(Constants::INITIAL_PIECE_BOARD, Constants::ROWS, Constants::COLUMNS);
   m_dataChess.pieces = m_pieces;
   // Load piece
   board->loadAllPieces(m_pieces, static_cast<int>(ZOrderGame::PIECE));
@@ -99,6 +89,12 @@ bool GameLayer::init()
   PieceMoveLogic* pPieceMoveLogic = createPieceMoveLogic(this);
   m_pieceMoveLogic = pPieceMoveLogic;
   this->addChild(pPieceMoveLogic, 1);
+  pPieceMoveLogic->loadBoard(Constants::INITIAL_PIECE_BOARD);
+
+  pPieceMoveLogic->callBackAddPiece([this](int type, bool isWhite, const Size& futureCell) { this->m_board->addPieceN(type, isWhite, futureCell, static_cast<int>(ZOrderGame::PIECE));});
+  pPieceMoveLogic->callBackDeletePiece ([this](const Size& presentCell) { this->m_board->removePieceN(presentCell);});
+  pPieceMoveLogic->callBackMovePiece([this](const Size& presentCell, const Size& futureCell) {this->m_board->movePieceFromToN(presentCell, futureCell);});
+  pPieceMoveLogic->callBackUpdatePieceCell([this](const Size& presentCell, const Size& futureCell) {this->m_board->updatePieceCellN(presentCell, futureCell); });
 
   // Create Promotion Layer
   PromotionLayer* pPromotionLayer = createPromotionLayer();
@@ -129,6 +125,7 @@ bool GameLayer::init()
     if (isMoveValid)
     {
       movePiece(prevPos, newPos);
+      //piece->setCell(newPos);
       //updateBoardChess(piece, prevPos, newPos);
     }
     else
@@ -188,9 +185,7 @@ bool GameLayer::init()
 }
 
 void GameLayer::update(float delta) {
-  /*if (m_currentPiece) {
-    m_currentPiece->setPosition(m_grid->getLocation());
-  }*/
+  
 }
 
 Board* GameLayer::createBoard(float cellSize, int rows, int columns)
@@ -300,8 +295,7 @@ void GameLayer::setBackPieceToPrevPos(Piece* piece, const Size& prevPos)
   {
     piece->setPosition(prevPosPiece);
     piece->setCell(prevPos);
-  }
-    
+  }  
 }
 
 int GameLayer::applyPromotion(int typePiece)
@@ -363,39 +357,32 @@ void GameLayer::movePromotion(Size& present, Size& future, Promotion& promotion,
     to_record += toupper(chPromoted); // always log with a capital letter
     */
 
-  Piece* piece = m_pieceMoveLogic->getPieceAtPosition(present.width, present.height);
-  //promotion.pieceBefore = piece->clonePiece();
-  promotion.pieceBefore = piece;
-  promotion.typeBefore = static_cast<int>(piece->getType());
+  //Piece* piece = m_pieceMoveLogic->getPieceAtPosition(present.width, present.height);
+  int iPiece = m_pieceMoveLogic->getPieceAtPositionI(present.width, present.height);
+  //promotion.pieceBefore = piece;
+  //promotion.typeBefore = iPiece;
 
-  Piece* promotedPiece{ nullptr };
+  //Piece* promotedPiece{ nullptr };
 
+  int kColor{ 1 };
   if(static_cast<int>(Player::WHITE_PLAYER) == m_pieceMoveLogic->getCurrentTurn())
   {
-    //S_promotion.chAfter = toupper(chPromoted);
-    promotedPiece = createPieceFileName(typePromotionPiece, true);
-    //promotion.pieceAfter = promotedPiece->clonePiece();
-    promotion.pieceAfter = promotedPiece;
-    promotion.typeAfter = static_cast<int>(promotedPiece->getType());
+    // to delete
+    //promotion.pieceAfter = promotedPiece;
+    kColor = 1;
+    promotion.typeAfter = kColor * typePromotionPiece;
+    // to delete
     promotion.isWhite = true;
   }
   else
   {
-    //S_promotion.chAfter = tolower(chPromoted);
-    promotedPiece = createPieceFileName(typePromotionPiece, false);
-    //promotion.PieceAfter = promotedPiece->clonePiece();
-    promotion.pieceAfter = promotedPiece;
-    promotion.typeAfter = static_cast<int>(promotedPiece->getType());
+    // to delete
+    //promotion.pieceAfter = promotedPiece;
+    kColor = -1;
+    promotion.typeAfter = kColor * typePromotionPiece;
+    // to delete
     promotion.isWhite = false;
   }
-
-  /*removePieceBoard(Size(present.width, present.height));
-  m_board->removePiece(piece);
-
-  Piece* promotionPieceAfter = createPieceFileName(promotion.typeAfter, promotion.isWhite);
-  //setPieceToNewPos(promotionPieceAfter, Size(present.width, present.height));
-  setPieceToNewPos(promotionPieceAfter, Size(future.width, future.height));
-  m_board->addPiece(promotionPieceAfter, Size(future.width, future.height), static_cast<int>(ZOrderGame::PIECE));*/
 
   // ---------------------------------------------------
   // Log the move: do it prior to making the move
@@ -455,6 +442,7 @@ void GameLayer::movePieceToPos(Piece* piece, const Size& futureCell)
 void GameLayer::setPieceToNewPos(Piece* piece, const cocos2d::Size& newPos)
 {
   m_dataChess.pieces[newPos.width][newPos.height] = piece;
+  piece->setCell(Size(newPos.width,newPos.height));
 }
 
 void GameLayer::movePiece(const Size& move_from, const Size& move_to)
@@ -517,11 +505,12 @@ void GameLayer::movePiece(const Size& move_from, const Size& move_to)
 
   //char chPiece = current_game->getPieceAtPosition(present.iRow, present.iColumn);
   Piece* piece = m_pieceMoveLogic->getPieceAtPosition(present.iRow, present.iColumn);
+  int iPiece = m_pieceMoveLogic->getPieceAtPositionI(present.iRow, present.iColumn);
   //new Code
 
   //cout << "Piece is " << char(chPiece) << "\n";
 
-  if (Constants::EMPTY_SQUARE == piece)
+  if (Constants::EMPTY_SQUAREI == iPiece)
   {
     //createNextMessage("You picked an EMPTY square.\n");
     return;
@@ -529,7 +518,7 @@ void GameLayer::movePiece(const Size& move_from, const Size& move_to)
 
   if (static_cast<int>(Player::WHITE_PLAYER) == m_pieceMoveLogic->getCurrentTurn())
   {
-    if (false == piece->isWhite())
+    if (Piece::isBlack(iPiece))
     {
       //createNextMessage("It is WHITE's turn and you picked a BLACK piece\n");
       setBackPieceToPrevPos(piece, move_from);
@@ -538,7 +527,7 @@ void GameLayer::movePiece(const Size& move_from, const Size& move_to)
   }
   else
   {
-    if (false != piece->isWhite())
+    if (Piece::isWhite(iPiece))
     {
       //createNextMessage("It is BLACK's turn and you picked a WHITE piece\n");
       setBackPieceToPrevPos(piece, move_from);
@@ -631,6 +620,10 @@ void GameLayer::movePiece(const Size& move_from, const Size& move_to)
     {
       Size sPresent(present.iRow, present.iColumn);
       Size sFuture(future.iRow, future.iColumn);
+
+      m_board->removePieceN(sFuture);
+      m_board->addPieceN(typePiece, m_pieceMoveLogic->getOppositCurrentTurn(), sFuture, static_cast<int>(ZOrderGame::PIECE));
+
       this->movePromotion(sPresent, sFuture, S_promotion, typePiece);
     };
 
@@ -726,6 +719,7 @@ void GameLayer::makeTheMove(const Size& present, const Size& future, EnPassant* 
 {
   //char chPiece = current_game->getPieceAtPosition(present.iRow, present.iColumn);
   Piece* piece = m_pieceMoveLogic->getPieceAtPosition(present.width, present.height);
+  int iPiece = m_pieceMoveLogic->getPieceAtPositionI(present.width, present.height);
 
   // -----------------------
   // Captured a piece?
@@ -733,10 +727,13 @@ void GameLayer::makeTheMove(const Size& present, const Size& future, EnPassant* 
   if (m_pieceMoveLogic->isSquareOccupied(future.width, future.height))
   {
     //char chAuxPiece = current_game->getPieceAtPosition(future.iRow, future.iColumn);
-    Piece* auxPiece = m_pieceMoveLogic->getPieceAtPosition(future.width, future.height);
+    int iAuxPiece = m_pieceMoveLogic->getPieceAtPositionI(future.width, future.height);
+
+    //Piece* auxPiece = m_pieceMoveLogic->getPieceAtPosition(future.width, future.height);
 
     //if (Chess::getPieceColor(chPiece) != Chess::getPieceColor(chAuxPiece))
-    if(piece && piece->isWhite() != auxPiece->isWhite())
+    //if(piece && piece->isWhite() != auxPiece->isWhite())
+    if(Piece::getColor(iPiece) != Piece::getColor(iAuxPiece))
     {
       //createNextMessage(Chess::describePiece(chAuxPiece) + " captured!\n");
     }
@@ -748,13 +745,11 @@ void GameLayer::makeTheMove(const Size& present, const Size& future, EnPassant* 
   }
   else if (true == S_enPassant->bApplied)
   {
-    bool stop = true;
     //createNextMessage("Pawn captured by \"en passant\" move!\n");
   }
 
   if ((true == S_castling->bApplied))
   {
-    bool stop = true;
     //createNextMessage("Castling applied!\n");
   }
 
@@ -782,9 +777,6 @@ Board* GameLayer::getBoard()
 
 void GameLayer::updateBoard(int typePiece, const Size& presentCell, const Size& futureCell)
 {
-  /*m_dataChess.pieces[newPos.width][newPos.height] = piece;
-  m_dataChess.pieces[prevPos.width][prevPos.height] = 0;*/
-
   m_dataChess.board[futureCell.width][futureCell.height] = typePiece;
   m_dataChess.board[presentCell.width][futureCell.height] = 0;
 }
@@ -859,7 +851,7 @@ Piece* GameLayer::createPieceFileName(int type, bool isWhite)
   return pPiece;
 }
 
-std::vector<std::vector<Piece*>> GameLayer::createPiece(const int piece_board[8][8], int rows, int columns)
+std::vector<std::vector<Piece*>> GameLayer::createPieces(const int piece_board[8][8], int rows, int columns)
 {
   std::vector<std::vector<Piece*>> pieces;
   Piece* pPiece{ nullptr };

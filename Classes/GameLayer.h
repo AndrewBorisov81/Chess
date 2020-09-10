@@ -110,7 +110,7 @@ private:
   Grid* createGrid(float cellSize, int rows, int columns);
   Board* createBoard(float cellSize, int rows, int columns);
 
-  std::vector<std::vector<Piece*>> createPiece(const int piece_board[8][8], int rows, int columns);
+  std::vector<std::vector<Piece*>> createPieces(const int piece_board[8][8], int rows, int columns);
   PieceMoveLogic* createPieceMoveLogic(GameLayer* gameField);
 
   TouchAndDragLayer* createTouchAndDragLayer(Grid* grid);
