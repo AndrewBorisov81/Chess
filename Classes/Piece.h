@@ -3,6 +3,12 @@
 #include "cocos2d.h"
 #include "ui/UIImageView.h"
 
+enum class PieceColor
+{
+  WHITE_PIECE = 0,
+  BLACK_PIECE = 1
+};
+
 enum class TypePiece
 {
   ROOK = 1,
@@ -23,6 +29,14 @@ public:
 
   // Copy constructor
   Piece(const Piece& Piece);
+
+  static bool isWhite(int iPiece);
+
+  static bool isBlack(int iPiece);
+
+  static PieceColor getColor(int iPiece);
+
+  static TypePiece getTypeP(int iPiece);
 
   static Piece* createPiece(int type, bool isWhite, std::string fileName);
 
