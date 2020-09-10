@@ -76,10 +76,10 @@ void PromotionLayer::hide()
   
   m_table->setOpacity(0);
 
-  if (m_hide)
+  if (m_hideCallBack)
   {
     int tagPiece = m_tagPiece;
-    m_hide(tagPiece);
+    m_hideCallBack(tagPiece);
   }
 
   m_isShow = false;
@@ -123,18 +123,19 @@ void PromotionLayer::pieceCallback(cocos2d::Ref * pSender)
     auto menu = static_cast<Menu*>(static_cast<Node*>(pSender)->getParent());
     int tagPiece = menu->getTag();
     m_tagPiece = tagPiece;
-    m_clickPiece(tagPiece);
+    if(m_clickPieceCallBack)
+      m_clickPieceCallBack(tagPiece);
   }
 }
 
 void PromotionLayer::callBackClickPiece(const std::function<void(int)>& callBack)
 {
-  m_clickPiece = callBack;
+  m_clickPieceCallBack = callBack;
 }
 
 void PromotionLayer::callBackHide(const std::function<void(int)>& callBack)
 {
-  m_hide = callBack;
+  m_hideCallBack = callBack;
 }
 
 void PromotionLayer::createPiece(bool isWhite, Size tableSize)

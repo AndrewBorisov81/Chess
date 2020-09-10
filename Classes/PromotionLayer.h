@@ -45,6 +45,6 @@ private:
 
   bool m_isWhite{ true };
 
-  std::function<void(int)> m_clickPiece{ nullptr };
-  std::function<void(int)> m_hide{ nullptr };
+  std::function<void(int)> m_clickPieceCallBack{ nullptr };
+  std::function<void(int)> m_hideCallBack{ nullptr };
 };
