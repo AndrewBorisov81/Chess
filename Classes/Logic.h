@@ -4,15 +4,12 @@
 
 #include <deque>
 #include <stack>
+#include <array>
+
+#include <functional>
 
 class GameLayer;
 class Piece;
-
-enum class PieceColor
-{
-  WHITE_PIECE = 0,
-  BLACK_PIECE = 1
-};
 
 enum class Player
 {
@@ -68,6 +65,7 @@ struct Promotion
 struct IntendedMove
 {
   Piece* piece;
+  int iPiece;
   Position from;
   Position to;
 };
@@ -128,17 +126,19 @@ public:
 
   int getCurrentTurn();
 
+  int getOppositCurrentTurn();
+
   bool isPathFree(Position startingPos, Position finishingPos, int iDirection);
 
   bool isReachable(int iRow, int iColumn, int iColor);
 
   bool Logic::isSquareOccupied(int iRow, int iColumn);
 
-  Piece* getPiece_considerMove(int iRow, int iColumn, IntendedMove* intended_move);
+  int getPiece_considerMove(int iRow, int iColumn, IntendedMove* intended_move);
 
   UnderAttack isUnderAttack(int iRow, int iColumn, int iColor, IntendedMove* pintended_move);
 
-  bool wouldKingBeInCheck(Piece* piece, Position present, Position future, EnPassant* S_enPassant);
+  bool wouldKingBeInCheck(int iPiece, Position present, Position future, EnPassant* S_enPassant);
 
   int getOpponentColor();
 
@@ -164,8 +164,6 @@ public:
   std::deque<Round> rounds;
 
   // Save the captured pieces
-  /*std::vector<char> white_captured;
-  std::vector<char> black_captured;*/
   std::vector<Piece*> white_captured;
   std::vector<Piece*> black_captured;
 
@@ -178,25 +176,22 @@ public:
 
   void updatePiece(const std::vector<std::vector<Piece*>>& pieces);
 
+  std::array<std::array<int, 8>, 8>& getBoardA();
+  void loadBoard(const int piece_board[8][8]);
+
+  //Callbacks
+  void callBackAddPiece(const std::function<void(int type, bool isWhite, const cocos2d::Size& futureCell)> addPiece);
+  void callBackDeletePiece(const std::function<void(const cocos2d::Size& presentCell)> deletePiece);
+  void callBackMovePiece(const std::function<void(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> movePiece);
+  void callBackUpdatePieceCell(const std::function<void(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> updatePieceCell);
+
 protected:
   GameLayer* m_gameLayer{ nullptr };
-  int  m_currentTurn{ 0 };
+  //int  m_currentTurn{ 0 };
   std::vector<std::vector<Piece*>> m_pieces;
   std::vector<std::vector<int>> m_board;
-
-  // Undo is possible?
-  /*struct Undo
-  {
-    bool bCanUndo;
-    bool bCapturedLastMove;
-
-    bool bCastlingKingSideAllowed;
-    bool bCastlingQueenSideAllowed;
-
-    EnPassant en_passant;
-    Castling  castling;
-    Promotion promotion;
-  } m_undo;*/
+  
+  std::array<std::array<int, 8>, 8> m_boardA;
 
   std::stack<Undo> m_undos;
   Undo m_currentUndo;
@@ -206,6 +201,12 @@ protected:
   bool m_bCastlingQueenSideAllowed[2];
 
   //Holds the current turn
-  //int  m_currentTurn{ static_cast<int>(Player::WHITE_PLAYER) };
+  int  m_currentTurn{ static_cast<int>(Player::WHITE_PLAYER) };
   bool m_bGameFinished{ false };
+
+  //Callbacks
+  std::function<void(const cocos2d::Size& presentCell)> m_deletePiece{ nullptr };
+  std::function<void(int type, bool isWhite, const cocos2d::Size& futureCell)> m_addPiece{ nullptr };
+  std::function<void(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> m_movePiece{ nullptr };
+  std::function<void(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> m_updatePieceCell{ nullptr };
 };
