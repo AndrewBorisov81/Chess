@@ -29,14 +29,17 @@ public:
   void movePieceTo(Piece* piece, const cocos2d::Size& newPos);
 
   void addPieceN(int type, bool isWhite, const cocos2d::Size& cell, int zOrder);
-  void removePieceN(int type, bool isWhite, const cocos2d::Size& cell);
+  void removePieceN(const cocos2d::Size& cell);
   void movePieceFromToN(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell);
+  void updatePieceCellN(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell);
 
   Piece* getPieceFromCell(int row, int column);
 
   void addGrid(Grid* grid);
 
   cocos2d::Size m_boardSize;
+
+  Piece* createPieceFileName(int type, bool isWhite);
 
 private:
   Grid* m_grid{ nullptr };

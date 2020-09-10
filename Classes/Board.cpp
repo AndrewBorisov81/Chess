@@ -126,14 +126,41 @@ void Board::addPieceN(int type, bool isWhite, const cocos2d::Size & cell, int zO
 {
   //piece->setPosition(Vec2(getPointByCell(cellIJ.height, cellIJ.width)));
   //this->addChild(piece, zOrder);
+  Piece* piece = createPieceFileName(type, isWhite);
+  piece->setPosition(getPointByCell(cell.width, cell.height));
+  piece->setCell(cell);
+  this->addChild(piece, zOrder);
+  if (isWhite)
+  {
+    m_whitePieces.push_back(piece);
+  }
+  else
+  {
+    m_blackPieces.push_back(piece);
+  }
 }
 
-void Board::removePieceN(int type, bool isWhite, const cocos2d::Size & cell)
+void Board::removePieceN(const cocos2d::Size& cell)
 {
+  Piece* piece = getPieceFromCell(cell.width, cell.height);
+  this->removeChild(piece);
 }
 
-void Board::movePieceFromToN(const cocos2d::Size & presentCell, const cocos2d::Size & futureCell)
+void Board::movePieceFromToN(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)
 {
+  Piece* piece = getPieceFromCell(presentCell.width, presentCell.height);
+  if (piece)
+  {
+    piece->setPosition(getPointByCell(futureCell.height, futureCell.width));
+    piece->setCell(futureCell);
+  }
+}
+
+void Board::updatePieceCellN(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)
+{
+  Piece* piece = getPieceFromCell(presentCell.width, presentCell.height);
+  if(piece)
+    piece->setCell(futureCell);
 }
 
 Piece* Board::getPieceFromCell(int row, int column)
@@ -200,5 +227,49 @@ void Board::onTouchMoved(Touch* touch, Event* event)
     m_curPosPiece.y = m_prevPosPiece.y + m_delta.y;
     m_currentPiece->setPosition(m_curPosPiece);
   }*/
+}
+
+Piece* Board::createPieceFileName(int type, bool isWhite)
+{
+  std::string fileName(Constants::WHITE_PAWN_PNG);
+  TypePiece typePiece{ TypePiece::PAWN };
+
+  switch (type)
+  {
+  case 1:
+    typePiece = TypePiece::ROOK;
+    fileName = (isWhite) ? Constants::WHITE_ROOK_PNG : Constants::BLACK_ROOK_PNG;
+    break;
+
+  case 2:
+    typePiece = TypePiece::KNIGHT;
+    fileName = (isWhite) ? Constants::WHITE_KNIGHT_PNG : Constants::BLACK_KNIGHT_PNG;
+    break;
+
+  case 3:
+    typePiece = TypePiece::BISHOP;
+    fileName = (isWhite) ? Constants::WHITE_BISHOP_PNG : Constants::BLACK_BISHOP_PNG;
+    break;
+
+  case 4:
+    typePiece = TypePiece::QUEEN;
+    fileName = (isWhite) ? Constants::WHITE_QUEEN_PNG : Constants::BLACK_QUEEN_PNG;
+    break;
+
+  case 5:
+    typePiece = TypePiece::KING;
+    fileName = (isWhite) ? Constants::WHITE_KING_PNG : Constants::BLACK_KING_PNG;
+    break;
+
+  case 6:
+    typePiece = TypePiece::PAWN;
+    fileName = (isWhite) ? Constants::WHITE_PAWN_PNG : Constants::BLACK_PAWN_PNG;
+    break;
+  }
+
+  Piece* pPiece = Piece::createPiece(type, isWhite, fileName);
+  pPiece->setType(typePiece);
+
+  return pPiece;
 }
 
