@@ -35,10 +35,14 @@ bool PieceMoveLogic::init()
 
 bool PieceMoveLogic::isMoveValid(Piece* piece, Position present, Position future, EnPassant* S_enPassant, Castling* S_castling, Promotion* S_promotion)
 {
-  if (!piece) return false;
   bool bValid = false;
 
-  TypePiece typePiece = piece->getType();
+  int iPiece = getPieceAtPositionI(present.iRow, present.iColumn);
+
+  if (getCurrentTurn() != static_cast<int>(Piece::getColor(iPiece)))
+    return false;
+
+  TypePiece typePiece = static_cast<TypePiece>(abs(iPiece));
 
   // ----------------------------------------------------
   // 1. Is the piece  allowed to move in that direction?
@@ -51,8 +55,8 @@ bool PieceMoveLogic::isMoveValid(Piece* piece, Position present, Position future
     if (future.iColumn == present.iColumn)
     {
       // Simple move forward
-      if ((piece->isWhite() && future.iRow == present.iRow + 1) ||
-        (!piece->isWhite() && future.iRow == present.iRow - 1))
+      if ((Piece::isWhite(iPiece) && future.iRow == present.iRow + 1) ||
+        (Piece::isBlack(iPiece) && future.iRow == present.iRow - 1))
       {
         if (Constants::EMPTY_SQUAREI == getPieceAtPositionI(future.iRow, future.iColumn))
         {
@@ -61,11 +65,11 @@ bool PieceMoveLogic::isMoveValid(Piece* piece, Position present, Position future
       }
 
       // Double move forward
-      else if ((piece->isWhite() && future.iRow == present.iRow + 2) ||
-        (!piece->isWhite() && future.iRow == present.iRow - 2))
+      else if ((Piece::isWhite(iPiece) && future.iRow == present.iRow + 2) ||
+        (Piece::isBlack(iPiece) && future.iRow == present.iRow - 2))
       {
         // This is only allowed if the pawn is in its original place
-        if (piece->isWhite())
+        if (Piece::isWhite(iPiece))
         {
           if (Constants::EMPTY_SQUAREI == getPieceAtPositionI(future.iRow - 1, future.iColumn) &&
             Constants::EMPTY_SQUAREI == getPieceAtPositionI(future.iRow, future.iColumn) &&
@@ -92,8 +96,8 @@ bool PieceMoveLogic::isMoveValid(Piece* piece, Position present, Position future
     }
 
     // The "en passant" move
-    else if ((piece->isWhite() && 4 == present.iRow && 5 == future.iRow && 1 == abs(future.iColumn - present.iColumn)) ||
-      (!piece->isWhite() && 3 == present.iRow && 2 == future.iRow && 1 == abs(future.iColumn - present.iColumn)))
+    else if ((Piece::isWhite(iPiece) && 4 == present.iRow && 5 == future.iRow && 1 == abs(future.iColumn - present.iColumn)) ||
+      (Piece::isBlack(iPiece) && 3 == present.iRow && 2 == future.iRow && 1 == abs(future.iColumn - present.iColumn)))
     {
       // It is only valid if last move of the opponent was a double move forward by a pawn on a adjacent column
       std::string last_move = getLastMove();
@@ -107,7 +111,6 @@ bool PieceMoveLogic::isMoveValid(Piece* piece, Position present, Position future
 
       // First of all, was it a pawn?
       int iLstMvPiece = getPieceAtPositionI(LastMoveTo.iRow, LastMoveTo.iColumn);
-      //Piece* LstMvPiece = getPieceAtPosition(LastMoveTo.iRow, LastMoveTo.iColumn);
 
       if (abs(iLstMvPiece) != static_cast<int>(TypePiece::PAWN))
       {
@@ -127,7 +130,7 @@ bool PieceMoveLogic::isMoveValid(Piece* piece, Position present, Position future
       // Wants to capture a piece
       else if (1 == (abs(future.iColumn - present.iColumn)))
       {
-        if ((piece->isWhite() && future.iRow == present.iRow + 1) || (!piece->isWhite() && future.iRow == present.iRow - 1))
+        if ((Piece::isWhite(iPiece) && future.iRow == present.iRow + 1) || (Piece::isBlack(iPiece) && future.iRow == present.iRow - 1))
         {
           // Only allowed if there is something to be captured in the square
           if (Constants::EMPTY_SQUAREI != getPieceAtPositionI(future.iRow, future.iColumn))
@@ -142,7 +145,7 @@ bool PieceMoveLogic::isMoveValid(Piece* piece, Position present, Position future
     // Wants to capture a piece
     else if (1 == (abs(future.iColumn - present.iColumn)))
     {
-      if ((piece->isWhite() && future.iRow == present.iRow + 1) || (!piece->isWhite() && future.iRow == present.iRow - 1))
+      if ((Piece::isWhite(iPiece) && future.iRow == present.iRow + 1) || (Piece::isBlack(iPiece) && future.iRow == present.iRow - 1))
       {
         // Only allowed if there is something to be captured in the square
         if (Constants::EMPTY_SQUAREI != getPieceAtPositionI(future.iRow, future.iColumn))
@@ -159,8 +162,8 @@ bool PieceMoveLogic::isMoveValid(Piece* piece, Position present, Position future
     }
 
     // If a pawn reaches its eight rank, it must be promoted to another piece
-    if ((piece->isWhite() && 7 == future.iRow) ||
-      (!piece->isWhite() && 0 == future.iRow))
+    if ((Piece::isWhite(iPiece) && 7 == future.iRow) ||
+      (Piece::isBlack(iPiece) && 0 == future.iRow))
     {
       //std::cout << "Pawn must be promoted!\n";
       S_promotion->bApplied = true;
@@ -294,8 +297,9 @@ bool PieceMoveLogic::isMoveValid(Piece* piece, Position present, Position future
       if (future.iColumn > present.iColumn)
       {
         // if future.iColumn is greather, it means king side
-        int pieceColor = (piece->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
-        if (!castlingAllowed(Side::KING_SIDE, pieceColor))
+        //int pieceColor = (piece->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
+        //if (!castlingAllowed(Side::KING_SIDE, pieceColor))
+        if (!castlingAllowed(Side::KING_SIDE, static_cast<int>(Piece::getColor(iPiece))))
         {
           //createNextMessage("Castling to the king side is not allowed.\n");
           return false;
@@ -325,8 +329,7 @@ bool PieceMoveLogic::isMoveValid(Piece* piece, Position present, Position future
       else //if (future.iColumn < present.iColumn)
       {
         // if present.iColumn is greather, it means queen side
-        int pieceColor = (piece->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
-        if (!castlingAllowed(Side::QUEEN_SIDE, pieceColor))
+        if (!castlingAllowed(Side::QUEEN_SIDE, static_cast<int>(Piece::getColor(iPiece))))
         {
           //createNextMessage("Castling to the queen side is not allowed.\n");
           return false;
@@ -380,9 +383,7 @@ bool PieceMoveLogic::isMoveValid(Piece* piece, Position present, Position future
     //char chAuxPiece = getPieceAtPosition(future.iRow, future.iColumn);
     int iAuxPiece = getPieceAtPositionI(future.iRow, future.iColumn);
     //Piece* auxPiece = getPieceAtPosition(future.iRow, future.iColumn);
-    int auxColor = (iAuxPiece > 0) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
-    int pieceColor = (piece->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
-    if (pieceColor == auxColor)
+    if (Piece::getColor(iPiece) == Piece::getColor(iAuxPiece))
     {
       //std::cout << "Position is already taken by a piece of the same color\n";
       return false;
@@ -392,7 +393,7 @@ bool PieceMoveLogic::isMoveValid(Piece* piece, Position present, Position future
   // ----------------------------------------------
   // 3. Would the king be in check after the move?
   // ----------------------------------------------
-  if (true == wouldKingBeInCheck(piece, present, future, S_enPassant))
+  if (true == wouldKingBeInCheck(iPiece, present, future, S_enPassant))
   {
     //std::cout << "Move would put player's king in check\n";
     return false;
