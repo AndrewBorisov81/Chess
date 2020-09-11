@@ -36,7 +36,7 @@ namespace Constants
  // Keep in mind that pieces[0][0] represents A1
  // pieces[1][1] represents B2 and so on.
  // Numbers with a minus sign are white
- const int INITIAL_PIECE_BOARD[8][8] =
+ /*const int INITIAL_PIECE_BOARD[8][8] =
                { 1, 2, 3, 4, 5, 3, 2, 1,
                  6, 6, 6, 6, 6, 6, 6, 6,
                  0, 0, 0, 0, 0, 0, 0, 0,
@@ -45,7 +45,7 @@ namespace Constants
                  0, 0, 0, 0, 0, 0, 0, 0,
                 -6,-6,-6,-6,-6,-6,-6,-6,
                 -1,-2,-3,-4,-5,-3,-2,-1
-               };
+               };*/
 
                // Debug
                // Castling
@@ -130,4 +130,28 @@ namespace Constants
     0,-6,-6,-6,-6,-6,-6,-6,
    -1,-2,-3,-4,-5,-3,-2,-1
   };*/
+
+  // Debug king attack
+  /*const int INITIAL_PIECE_BOARD[8][8] =
+  { 0, 0, 0, 0, 5, 3, 2, 1,
+    0, 0, 0, 6, 6, 6, 6, 6,
+   -6, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0,-3,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0,-6,-6,-6,-6,-6,-6,-6,
+   -1,-2,-3,-4,-5, 0,-2,-1
+  };*/
+
+  // Debug king under attack
+const int INITIAL_PIECE_BOARD[8][8] =
+{ 0, 0, 0, 0, 5, 3, 2, 1,
+  0, 0, 0, 6, 6, 6, 6, 6,
+ -6, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,
+ -3, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0,
+  0,-6,-6,-6,-6,-6,-6,-6,
+ -1,-2,-3,-4,-5,-3,-2,-1
+};
 }
