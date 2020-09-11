@@ -6,6 +6,9 @@
 #include "base/CCEventListener.h"
 #include "base/CCEvent.h"
 
+#include <algorithm>
+#include <iterator>
+
 USING_NS_CC;
 
 Board::Board()
@@ -68,6 +71,7 @@ void Board::loadAllPieces(std::vector<std::vector<Piece*>>& pieces, int zOrder)
   for (int i = 0; i < pieces.size(); i++)
   {
     std::vector<Piece*> row = pieces[i];
+
     for (int j = 0; j < row.size(); j++)
     {
       if (row[j] != 0)
@@ -85,42 +89,6 @@ void Board::loadAllPieces(std::vector<std::vector<Piece*>>& pieces, int zOrder)
         else
           m_blackPieces.push_back(pPiece);
       }
-    }
-  }
-}
-
-void Board::addPiece(Piece* piece, Size& cellIJ, int zOrder)
-{
-  //piece->setPosition(Vec2(m_grid->getPointByCell(cellIJ.height, cellIJ.width)));
-  piece->setPosition(Vec2(this->getPointByCell(cellIJ.height, cellIJ.width)));
-  piece->setCell(cellIJ);
-  //m_grid->addChild(piece, zOrder);
-  this->addChild(piece, zOrder);
-}
-
-void Board::removePiece(Piece* piece)
-{
-  //m_grid->removeChild(piece);
-  this->removeChild(piece);
-}
-
-void Board::addGrid(Grid* grid)
-{
-  m_grid = grid;
-}
-
-void Board::movePieceTo(Piece* piece, const cocos2d::Size& newPos)
-{
-  Vector<Node*> allNodes = this->getChildren();
-
-  for (auto& node : allNodes) {
-    if (dynamic_cast<Piece*>(node) == piece) { //It is Sprite 
-
-      Piece* target = dynamic_cast<Piece*>(node);
-
-      target->setPosition(this->getPointByCell(newPos.width, newPos.height));
-
-      target->setCell(newPos);
     }
   }
 }
@@ -176,6 +144,7 @@ Piece* Board::getPieceFromCell(int row, int column)
   for (auto el : m_blackPieces)
   {
     Size cellPiece = el->getCell();
+
     if (cellPiece.width == row && cellPiece.height == column)
       return el;
   }
@@ -183,6 +152,7 @@ Piece* Board::getPieceFromCell(int row, int column)
   for (auto el : m_whitePieces)
   {
     Size cellPiece = el->getCell();
+
     if (cellPiece.width == row && cellPiece.height == column)
       return el;
   }
@@ -192,49 +162,17 @@ Piece* Board::getPieceFromCell(int row, int column)
 
 bool Board::onTouchBegan(Touch* touch, Event* event)
 {
-  bool stop = true;
-  /*float x = event->getCurrentTarget()->convertToNodeSpace(touch->getLocation()).x;
-  float y = event->getCurrentTarget()->convertToNodeSpace(touch->getLocation()).y;
-  m_labelTouchInfo->setPosition(Vec2(x, y));*/
-
-
-  /*Size cellIJ{};
-  float cellSize{ m_cellSize };*/
-
-  //calculateCellByPoint(Vec2(x, y), cellSize, cellIJ);
-
-  //m_labelTouchInfo->setString("You Touched Here" + std::to_string(int(cellIJ.width)) + std::to_string(int(cellIJ.height)));
-
   return true;
 }
 
 void Board::onTouchEnded(Touch* touch, Event* event)
 {
-  cocos2d::log("touch ended");
+  //cocos2d::log("touch ended");
 }
 
 void Board::onTouchMoved(Touch* touch, Event* event)
 {
-  bool stop = true;
 
-
-
-
-  /*if (m_currentPiece) {
-    m_currentPiece->setPosition(m_currentPiece->getPosition() + touch->getDelta());
-  }*/
-
-
-  /*m_delta.x = event->getCurrentTarget()->convertToNodeSpace(touch->getLocation()).x;
-  m_delta.y = event->getCurrentTarget()->convertToNodeSpace(touch->getLocation()).y;
-  cocos2d::log("touch moved");*/
-  //m_labelTouchInfo->setString(std::to_string(int(m_location.x))+ " , " + std::to_string(int(m_location.y)));
-  /*m_labelTouchInfo->setString(std::to_string(int(m_delta.x))+ " , " + std::to_string(int(m_delta.y)));
-  if (m_currentPiece) {
-    m_curPosPiece.x = m_prevPosPiece.x + m_delta.x;
-    m_curPosPiece.y = m_prevPosPiece.y + m_delta.y;
-    m_currentPiece->setPosition(m_curPosPiece);
-  }*/
 }
 
 Piece* Board::createPieceFileName(int type, bool isWhite)

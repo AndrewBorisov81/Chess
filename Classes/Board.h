@@ -24,10 +24,6 @@ public:
 
   void loadAllPieces(std::vector<std::vector<Piece*>>& piece, int zOrder);
 
-  void addPiece(Piece* piece, cocos2d::Size& cellIJ, int zOrder);
-  void removePiece(Piece* piece);
-  void movePieceTo(Piece* piece, const cocos2d::Size& newPos);
-
   void addPieceN(int type, bool isWhite, const cocos2d::Size& cell, int zOrder);
   void removePieceN(const cocos2d::Size& cell);
   void movePieceFromToN(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell);
@@ -35,14 +31,13 @@ public:
 
   Piece* getPieceFromCell(int row, int column);
 
-  void addGrid(Grid* grid);
-
   cocos2d::Size m_boardSize;
 
   Piece* createPieceFileName(int type, bool isWhite);
 
 private:
   Grid* m_grid{ nullptr };
+
   std::vector<std::vector<Piece*>> m_pieces;
 
   std::vector<Piece*> m_whitePieces;
