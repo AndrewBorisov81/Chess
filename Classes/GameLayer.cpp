@@ -48,9 +48,6 @@ bool GameLayer::init()
   Vec2 origin = Director::getInstance()->getVisibleOrigin();
   m_screenSize = visibleSize;
 
-  // Copy piece_board
-  std::copy(&Constants::INITIAL_PIECE_BOARD[0][0], &Constants::INITIAL_PIECE_BOARD[0][0] + Constants::ROWS*Constants::COLUMNS, &m_piece_board[0][0]);
-
   // Board presentation
   for (int i = 0; i < Constants::ROWS; i++)
   {
@@ -105,13 +102,13 @@ bool GameLayer::init()
   // Set callBack
   auto lfClickPiece = [this](int typePiece)
   {
-    this->applyPromotion(typePiece);
+    this->applyPromotion();
   };
 
   pPromotionLayer->callBackClickPiece(lfClickPiece);
 
   // Create TouchAndDragLayer
-  TouchAndDragLayer* touchAndDragLayer = createTouchAndDragLayer(board);
+  TouchAndDragLayer* touchAndDragLayer = createTouchAndDragLayer(Constants::CELL_SIZE, Constants::ROWS, Constants::COLUMNS);
   this->addChild(touchAndDragLayer, static_cast<int>(ZOrderGame::TOUCH_AND_DRAG));
   m_touchAndDragLayer = touchAndDragLayer;
   touchAndDragLayer->setPosition(board->getPosition());
@@ -119,7 +116,7 @@ bool GameLayer::init()
   // Set callBacks to touchAndDragLayer;
   auto lfUpdatePieceBoard = [this](Piece* piece, Size& prevPos, Size& newPos)->void
   {
-    bool isMoveValid = this->checkPieceMove(piece, prevPos, newPos);
+    bool isMoveValid = this->checkPieceMove(prevPos, newPos);
 
     if (isMoveValid)
     {
@@ -127,10 +124,14 @@ bool GameLayer::init()
     }
     else
     {
-      setBackPieceToPrevPos(piece, prevPos);
+      piece->setCell(newPos);
+
+      // Move back Piece
+      m_board->movePieceFromToN(newPos, prevPos);
     } 
   };
-  touchAndDragLayer->callBackUpdateBoardPiece(lfUpdatePieceBoard);
+  
+  touchAndDragLayer->callBackHaveMovedPiece(lfUpdatePieceBoard);
 
   auto lfGetPieceFromCell = [this](Size& cellIJ)->Piece*
   {
@@ -148,36 +149,12 @@ bool GameLayer::init()
   };
   pHudLayer->callBackUndoLastMove(lfUndoMove);
 
-  // Create Test Piece
-  //createTestPiece();
-
   /*m_mouseListener = EventListenerMouse::create();
   m_mouseListener->onMouseMove = CC_CALLBACK_1(GameLayer::onMouseMove, this);
   m_mouseListener->onMouseUp = CC_CALLBACK_1(GameLayer::onMouseUp, this);
   m_mouseListener->onMouseDown = CC_CALLBACK_1(GameLayer::onMouseDown, this);
 
   _eventDispatcher->addEventListenerWithSceneGraphPriority(m_mouseListener, this);*/
-
-  // test
-   // add "HelloWorld" splash screen"
-  /*auto sprite = Sprite::createWithSpriteFrameName(Constants::WHITE_ROOK_PNG);
- 
-  // position the sprite on the center of the screen
-  sprite->setPosition(Vec2(visibleSize.width / 2 + origin.x + 150, visibleSize.height / 2 + origin.y));
-
-  // add the sprite as a child to this layer
-  this->addChild(sprite, 1000);*/
-
-  /*Piece* testPiece = createPieceFileName(1, true);
-  m_board->addPiece(testPiece, Size(4,5), 1001);
-
-  Piece* clonePiece = testPiece->clonePiece();
-  m_board->addPiece(clonePiece, Size(4, 6), 1001);
-
-  m_board->removePiece(testPiece);
-
-  clonePiece->setPosition(m_grid->getPointByCell(3, 3));*/
-
   return true;
 }
 
@@ -217,9 +194,9 @@ Grid* GameLayer::createGrid(float cellSize, int rows, int columns)
   }
 }
 
-TouchAndDragLayer* GameLayer::createTouchAndDragLayer(Grid* grid)
+TouchAndDragLayer* GameLayer::createTouchAndDragLayer(float cellSize, int rows, int columns)
 {
-  TouchAndDragLayer* pTouchAndDrag = new(std::nothrow) TouchAndDragLayer(grid);
+  TouchAndDragLayer* pTouchAndDrag = new(std::nothrow) TouchAndDragLayer(cellSize, rows, columns);
   if (pTouchAndDrag && pTouchAndDrag->init())
   {
     pTouchAndDrag->autorelease();
@@ -281,26 +258,9 @@ PieceMoveLogic* GameLayer::createPieceMoveLogic(GameLayer* gameLayer)
   }
 }
 
-void GameLayer::setBackPieceToPrevPos(Piece* piece, const Size& prevPos)
-{
-  /*Piece* boardPiece = m_board->getPieceFromCell(prevPos.width, prevPos.height);
-  if(boardPiece)
-    boardPiece->setCell(prevPos);*/
-
-  Vec2 prevPosPiece = m_board->getPointByCell(int(prevPos.height), int(prevPos.width));
-  if (piece)
-  {
-    piece->setPosition(prevPosPiece);
-    piece->setCell(prevPos);
-  }  
-}
-
-int GameLayer::applyPromotion(int typePiece)
+void GameLayer::applyPromotion()
 {
   m_promotionLayer->hide();
-  m_lastPromotedPiece = typePiece;
-
-  return typePiece;
 }
 
 void GameLayer::movePromotion(Size& present, Size& future, Promotion& promotion, int typePromotionPiece)
@@ -383,18 +343,6 @@ void GameLayer::movePromotion(Size& present, Size& future, Promotion& promotion,
   }
 }
 
-void GameLayer::movePieceToPos(Piece* piece, const Size& futureCell)
-{
-  Vec2 prevPosPiece = m_board->getPointByCell(int(futureCell.height), int(futureCell.width));
-  piece->setPosition(prevPosPiece);
-}
-
-void GameLayer::setPieceToNewPos(Piece* piece, const cocos2d::Size& newPos)
-{
-  m_dataChess.pieces[newPos.width][newPos.height] = piece;
-  piece->setCell(Size(newPos.width,newPos.height));
-}
-
 void GameLayer::movePiece(const Size& move_from, const Size& move_to)
 {
   std::string to_record;
@@ -407,9 +355,6 @@ void GameLayer::movePiece(const Size& move_from, const Size& move_to)
 
   //Put in the string to be logged
   to_record += presentStr;
-  //to_record += "-";
-
-  Piece* piece = m_pieceMoveLogic->getPieceAtPosition(present.iRow, present.iColumn);
 
   int iPiece = m_pieceMoveLogic->getPieceAtPositionI(present.iRow, present.iColumn);
 
@@ -419,25 +364,6 @@ void GameLayer::movePiece(const Size& move_from, const Size& move_to)
   {
     //createNextMessage("You picked an EMPTY square.\n");
     return;
-  }
-
-  if (static_cast<int>(Player::WHITE_PLAYER) == m_pieceMoveLogic->getCurrentTurn())
-  {
-    if (Piece::isBlack(iPiece))
-    {
-      //createNextMessage("It is WHITE's turn and you picked a BLACK piece\n");
-      setBackPieceToPrevPos(piece, move_from);
-      return;
-    }
-  }
-  else
-  {
-    if (Piece::isWhite(iPiece))
-    {
-      //createNextMessage("It is BLACK's turn and you picked a WHITE piece\n");
-      setBackPieceToPrevPos(piece, move_from);
-      return;
-    }
   }
 
   // ---------------------------------------------------
@@ -467,7 +393,7 @@ void GameLayer::movePiece(const Size& move_from, const Size& move_to)
   Castling   S_castling = { 0 };
   Promotion  S_promotion = { 0 };
 
-  if (false == m_pieceMoveLogic->isMoveValid(piece, present, future, &S_enPassant, &S_castling, &S_promotion))
+  if (false == m_pieceMoveLogic->isMoveValid(present, future, &S_enPassant, &S_castling, &S_promotion))
   {
     //createNextMessage("[Invalid] Piece can not move to that square!\n");
     //setBackPieceToPrevPos(Piece, move_from);
@@ -590,36 +516,10 @@ void GameLayer::makeTheMove(const Size& present, const Size& future, EnPassant* 
   m_pieceMoveLogic->movePiece(ppresent, pfuture, S_enPassant, S_castling, S_promotion);
 }
 
-DataChess& GameLayer::getDataChess()
-{
-  return m_dataChess;
-}
 
 Board* GameLayer::getBoard()
 {
   return m_board;
-}
-
-void GameLayer::updateBoard(int typePiece, const Size& presentCell, const Size& futureCell)
-{
-  m_dataChess.board[futureCell.width][futureCell.height] = typePiece;
-  m_dataChess.board[presentCell.width][futureCell.height] = 0;
-}
-
-void GameLayer::removePieceBoard(const Size& presentCell)
-{
-  m_dataChess.pieces[presentCell.width][presentCell.height] = 0;
-}
-
-void GameLayer::movePieceBoard(int typePiece, const cocos2d::Size & presentCell, const cocos2d::Size & futureCell)
-{
-  m_dataChess.board[futureCell.width][futureCell.height] = typePiece;
-  m_dataChess.board[presentCell.width][futureCell.height] = 0;
-}
-
-void GameLayer::addPieceBoard(int typePiece, cocos2d::Size & futureCell)
-{
-  m_dataChess.board[futureCell.width][futureCell.height] = typePiece;
 }
 
 TouchAndDragLayer* GameLayer::getTouchAndDragLayer()
@@ -706,58 +606,7 @@ std::vector<std::vector<Piece*>> GameLayer::createPieces(const int piece_board[8
   return pieces;
 }
 
-void GameLayer::createTestPiece()
-{
-  Grid* grid = m_grid;
-
-  // Create piece
- /*Piece* piece1 = Piece::createPiece(TypePiece::ROOK, Constants::BLACK_ROOK_PNG);
- grid->addChild(piece1, static_cast<int>(ZOrderGame::Piece));
- Piece1->setPosition(grid->getPointByCell(0, 0));
- });*/
-
- // Create piece
-  //Piece* piece2 = Piece::createPiece(TypePiece::HORSE, ColourPiece::WHITE, Constants::BLACK_HORSE_PNG);
-  Piece* piece2 = Piece::createPiece(2, true, Constants::BLACK_KING_PNG);
-  grid->addChild(piece2, static_cast<int>(ZOrderGame::PIECE));
-  piece2->setPosition(grid->getPointByCell(1, 0));
-  piece2->setTouchEnabled(true);
-  /*Piece2->addClickEventListener([=](Ref*) {
-    //Piece2->setRotation(45);
-    //m_currentPiece = Piece2;
-    if (m_grid->getCurrentPiece() == nullptr) {
-      m_grid->setCurrentPiece(Piece2);
-    }
-  });*/
-
-  // Create Piece
-  /*Piece* Piece3 = Piece::createPiece(TypePiece::OFFICER, Constants::BLACK_OFFICER_PNG);
-  grid->addChild(Piece3, static_cast<int>(ZOrderGame::Piece));
-  Piece3->setPosition(grid->getPointByCell(2, 0));
-
-  // Create Piece
-  Piece* Piece4 = Piece::createPiece(TypePiece::QUEEN, Constants::BLACK_QUEEN_PNG);
-  grid->addChild(Piece4, static_cast<int>(ZOrderGame::Piece));
-  Piece4->setPosition(grid->getPointByCell(3, 0));
-
-  // Create Piece
-  Piece* Piece5 = Piece::createPiece(TypePiece::KING, Constants::BLACK_KING_PNG);
-  grid->addChild(Piece5, static_cast<int>(ZOrderGame::Piece));
-  Piece5->setPosition(grid->getPointByCell(4, 0));
-
-  // Create Piece
-  Piece* Piece6 = Piece::createPiece(TypePiece::PAWN, Constants::BLACK_PAWN_PNG);
-  grid->addChild(Piece6, static_cast<int>(ZOrderGame::Piece));
-  Piece6->setPosition(grid->getPointByCell(4, 1));
-  Piece6->activateClickEvent();*/
-
-  /*DrawNode *drawnode = DrawNode::create();
-  drawnode->drawCircle(Vec2(0, 0), 20, 360, 20, true, 1, 1, Color4F::MAGENTA);
-  Piece1->addChild(drawnode);*/
-
-}
-
-bool GameLayer::checkPieceMove(Piece* piece, const cocos2d::Size& prevCellIJ, const cocos2d::Size& curCellIJ)
+bool GameLayer::checkPieceMove(const cocos2d::Size& prevCellIJ, const cocos2d::Size& curCellIJ)
 {
   EnPassant  S_enPassant = { 0 };
   Castling   S_castling = { 0 };
@@ -771,7 +620,7 @@ bool GameLayer::checkPieceMove(Piece* piece, const cocos2d::Size& prevCellIJ, co
   future.iRow = (int)(curCellIJ.width);
   future.iColumn = (int)(curCellIJ.height);
 
-  bool isMoveValid = m_pieceMoveLogic->isMoveValid(piece, present, future, &S_enPassant, &S_castling, &S_promotion);
+  bool isMoveValid = m_pieceMoveLogic->isMoveValid(present, future, &S_enPassant, &S_castling, &S_promotion);
 
   return isMoveValid;
 }

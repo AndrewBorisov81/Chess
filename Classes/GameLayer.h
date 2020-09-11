@@ -61,27 +61,18 @@ public:
 
   void update(float);
 
-  void updateBoard(int typePiece, const cocos2d::Size& presentCell, const cocos2d::Size& futureCell);
-
-  // Represent the piece in the board
-  void removePieceBoard(const cocos2d::Size& presentCell);
-  void movePieceBoard(int typePiece, const cocos2d::Size& presentCell, const cocos2d::Size& futureCell);
-  void addPieceBoard(int typePiece, cocos2d::Size& futureCell);
-
-  void setPieceToNewPos(Piece* piece, const cocos2d::Size& futureCell);
-
-  void movePieceToPos(Piece* piece, const cocos2d::Size& futureCell);
-
   void makeTheMove(const cocos2d::Size& present, const cocos2d::Size& future, EnPassant* S_enPassant, Castling* S_castling, Promotion* S_promotion);
+
   void movePiece(const cocos2d::Size& move_from, const cocos2d::Size& move_to);
 
-  bool checkPieceMove(Piece* piece, const cocos2d::Size& prevCellIJ, const cocos2d::Size& curCellIJ);
+  bool checkPieceMove(const cocos2d::Size& prevCellIJ, const cocos2d::Size& curCellIJ);
 
   void undoMove();
 
   TouchAndDragLayer* getTouchAndDragLayer();
+
   const std::vector<std::vector<Piece*>>& getPiece();
-  DataChess& getDataChess();
+
   Board* getBoard();
 
   Piece* createPieceFileName(int type, bool isWhite);
@@ -95,11 +86,8 @@ private:
   Grid* m_grid{ nullptr };
 
   std::vector<std::vector<Piece*>> m_pieces;
-  DataChess m_dataChess;
-  int m_piece_board[8][8];
 
-  //Promotion
-  int m_lastPromotedPiece;
+  DataChess m_dataChess;
 
   PieceMoveLogic* m_pieceMoveLogic{ nullptr };
 
@@ -111,27 +99,21 @@ private:
   Board* createBoard(float cellSize, int rows, int columns);
 
   std::vector<std::vector<Piece*>> createPieces(const int piece_board[8][8], int rows, int columns);
+
   PieceMoveLogic* createPieceMoveLogic(GameLayer* gameField);
 
-  TouchAndDragLayer* createTouchAndDragLayer(Grid* grid);
+  TouchAndDragLayer* createTouchAndDragLayer(float cellSize, int rows, int columns);
   PromotionLayer* createPromotionLayer();
   HudLayer* createHudLayer();
 
-  void setBackPieceToPrevPos(Piece* piece, const cocos2d::Size& prevPos);
-
   // Promotion
-  int applyPromotion(int typePiece);
+  void applyPromotion();
   void movePromotion(cocos2d::Size& present, cocos2d::Size& future, Promotion& promotion, int typePromotionPiece);
-
-  void createTestPiece();
 
   /*cocos2d::EventListenerMouse* m_mouseListener;
 
   void onMouseDown(cocos2d::Event* event);
   void onMouseUp(cocos2d::Event* event);
-  void onMouseMove(cocos2d::Event* event);
+  void onMouseMove(cocos2d::Event* event);*/
 
-  cocos2d::Vec2 m_delta{};
-
-  Piece* m_currentPiece{ nullptr };*/
 };
