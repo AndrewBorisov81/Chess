@@ -19,7 +19,7 @@ Logic::Logic()
 Logic::Logic(GameLayer* gameLayer) 
   : m_gameLayer(gameLayer)
 {
-  DataChess& dataChess = m_gameLayer->getDataChess();
+  /*DataChess& dataChess = m_gameLayer->getDataChess();
 
   for (int i = 0; i < dataChess.pieces.size(); i++)
   {
@@ -30,7 +30,7 @@ Logic::Logic(GameLayer* gameLayer)
       newRow.push_back(dataChess.pieces[i][j]);
     }
     m_pieces.push_back(newRow);
-  }
+  }*/
 
   // Board presentation
   for (int i = 0; i < Constants::ROWS; i++)
@@ -114,7 +114,6 @@ void Logic::movePiece(Position present, Position future, EnPassant* S_enPassant,
   // So, was a piece captured in this move?
   if (Constants::EMPTY_SQUAREI != iCapturedPiece)
   {
-    int kColor{ 1 };
     if (Piece::isWhite(iCapturedPiece))
     {
       // A white piece was captured
@@ -392,12 +391,6 @@ bool Logic::castlingAllowed(Side iSide, int iColor)
   {
     return m_bCastlingKingSideAllowed[iColor];
   }
-}
-
-Piece* Logic::getPieceAtPosition(int i, int j)
-{
-  DataChess& dataChess = m_gameLayer->getDataChess();
-  return dataChess.pieces[i][j];
 }
 
 int Logic::getPieceAtPositionI(int i, int j)
@@ -930,7 +923,7 @@ bool Logic::isReachable(int iRow, int iColumn, int iColor)
     for (int i = iRow - 1, j = iColumn - 1; i > 0 && j > 0; i--, j--)
     {
       int iPieceFound = getPieceAtPositionI(i, j);
-      Piece* pieceFound = getPieceAtPosition(i, j);
+      //Piece* pieceFound = getPieceAtPosition(i, j);
       if (Constants::EMPTY_SQUAREI == iPieceFound)
       {
         // This square is empty, move on
@@ -1786,7 +1779,7 @@ bool Logic::isCheckMate()
     }
 
     IntendedMove intended_move;
-    intended_move.piece = getPieceAtPosition(king.iRow, king.iColumn);
+    //intended_move.piece = getPieceAtPosition(king.iRow, king.iColumn);
     intended_move.iPiece = getPieceAtPositionI(king.iRow, king.iColumn);
     intended_move.from.iRow = king.iRow;
     intended_move.from.iColumn = king.iColumn;

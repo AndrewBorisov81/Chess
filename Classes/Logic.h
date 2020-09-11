@@ -55,18 +55,10 @@ struct Promotion
   bool bApplied;
   int typeBefore;
   int typeAfter;
-
-  // to delete
-  bool isWhite;
-  Piece* pieceBefore;
-  Piece* pieceAfter;
 };
 
 struct IntendedMove
 {
-  // to delete
-  Piece* piece;
-
   int iPiece;
   Position from;
   Position to;
@@ -109,8 +101,6 @@ public:
   void movePiece(Position present, Position future, EnPassant* S_enPassant, Castling* S_castling, Promotion* S_promotion);
 
   bool castlingAllowed(Side iSide, int iColor);
-
-  Piece* getPieceAtPosition(int i, int j);
 
   int getPieceAtPositionI(int i, int j);
 
@@ -189,9 +179,8 @@ public:
 
 protected:
   GameLayer* m_gameLayer{ nullptr };
-  //int  m_currentTurn{ 0 };
+  
   std::vector<std::vector<Piece*>> m_pieces;
-  std::vector<std::vector<int>> m_board;
   
   std::array<std::array<int, 8>, 8> m_boardA;
 
