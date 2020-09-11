@@ -2,6 +2,8 @@
 
 #include "cocos2d.h"
 
+#include "Grid.h"
+
 #include <functional>
 
 typedef enum tagTouchAndDragState
@@ -12,15 +14,15 @@ typedef enum tagTouchAndDragState
 
 class GameLayer;
 class Piece;
-class Grid;
 struct DataChess;
 
-class TouchAndDragLayer : public cocos2d::Layer
+class TouchAndDragLayer : public Grid
 {
   TouchAndDragState _state{ kUngrabbed };
 
 public:
-  TouchAndDragLayer(Grid* grid);
+  TouchAndDragLayer(float cellSize, int rows, int columns);
+
   virtual ~TouchAndDragLayer();
 
   virtual bool init();
@@ -33,20 +35,19 @@ public:
  void onMouseUp(cocos2d::Event* event);
  void onMouseMove(cocos2d::Event* event);
 
- void callBackUpdateBoardPiece(const std::function<void(Piece* piece, cocos2d::Size& oldPos, cocos2d::Size& newPos)>& callBack);
+ void callBackHaveMovedPiece(const std::function<void(Piece* piece, cocos2d::Size& oldPos, cocos2d::Size& newPos)>& callBack);
  void callBackGetPieceFromCell(const std::function<Piece*(cocos2d::Size& clickCell)>& callBack);
 
 private:
-  Grid* m_grid;
-
   Piece* m_currentDragPiece{ nullptr };
+
   cocos2d::Size m_currentPiecesize;
 
   cocos2d::Size m_prevCellIJPiece;
   cocos2d::Size m_curCellIJPiece;
 
-  std::function<void(Piece* piece, cocos2d::Size& oldPos, cocos2d::Size& newPos)> m_updateBoardPiece{ nullptr };
-  std::function<Piece*(cocos2d::Size& clickCell)> m_getPieceFromCell{ nullptr };
+  std::function<void(Piece* piece, cocos2d::Size& oldPos, cocos2d::Size& newPos)> m_haveMovedPieceCallBack{ nullptr };
+  std::function<Piece*(cocos2d::Size& clickCell)> m_getPieceFromCellCallBack{ nullptr };
 
   //cocos2d::Label* labelTouchInfo;
 };

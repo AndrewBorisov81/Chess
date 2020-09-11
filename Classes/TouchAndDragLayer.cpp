@@ -2,16 +2,14 @@
 #include "GameLayer.h"
 #include "Piece.h"
 #include "Constants.h"
-#include "Grid.h"
 
 #include <vector>
 
 USING_NS_CC;
 
-TouchAndDragLayer::TouchAndDragLayer(Grid* grid)
-  : m_grid(grid)
+TouchAndDragLayer::TouchAndDragLayer(float cellSize, int rows, int columns)
+  : Grid(cellSize, rows, columns)
 {
-
 }
 
 TouchAndDragLayer::~TouchAndDragLayer()
@@ -67,7 +65,7 @@ void TouchAndDragLayer::onMouseDown(Event* event)
     Size calculateClickCell;
     Vec2 clickPoint(x, y);
 
-    m_grid->calculateCellByPoint(clickPoint, Constants::CELL_SIZE, calculateClickCell);
+    calculateCellByPoint(clickPoint, Constants::CELL_SIZE, calculateClickCell);
 
     int cellI = calculateClickCell.height;
     int cellJ = calculateClickCell.width;
@@ -76,8 +74,8 @@ void TouchAndDragLayer::onMouseDown(Event* event)
     {
       Piece* pClickPiece{ nullptr };
 
-      if(m_getPieceFromCell)
-        pClickPiece = m_getPieceFromCell(Size(cellI, cellJ));
+      if(m_getPieceFromCellCallBack)
+        pClickPiece = m_getPieceFromCellCallBack(Size(cellI, cellJ));
 
       if (pClickPiece)
       {
@@ -106,12 +104,12 @@ void TouchAndDragLayer::onMouseUp(Event* event)
       Size curPieceCellIJ;
       Vec2 curPiecePoint = m_currentDragPiece->getPosition();
 
-      m_grid->calculateCellByPoint(curPiecePoint, Constants::CELL_SIZE, curPieceCellIJ);
+      calculateCellByPoint(curPiecePoint, Constants::CELL_SIZE, curPieceCellIJ);
 
       int cellI = curPieceCellIJ.height;
       int cellJ = curPieceCellIJ.width;
 
-      m_currentDragPiece->setPosition(m_grid->getPointByCell(curPieceCellIJ.width, curPieceCellIJ.height));
+      m_currentDragPiece->setPosition(getPointByCell(curPieceCellIJ.width, curPieceCellIJ.height));
 
       m_curCellIJPiece.width = cellI;
       m_curCellIJPiece.height = cellJ;
@@ -119,10 +117,9 @@ void TouchAndDragLayer::onMouseUp(Event* event)
       Size prev(m_prevCellIJPiece.width, m_prevCellIJPiece.height);
       Size cur(m_curCellIJPiece.width, m_curCellIJPiece.height);
 
-      Piece* pClickPiece = m_getPieceFromCell(Size(m_prevCellIJPiece.width, m_prevCellIJPiece.height));
-      //pClickPiece->setCell(Size(m_curCellIJPiece.width, m_curCellIJPiece.height));
+      Piece* pClickPiece = m_getPieceFromCellCallBack(Size(m_prevCellIJPiece.width, m_prevCellIJPiece.height));
 
-      m_updateBoardPiece(m_currentDragPiece, prev, cur);
+      m_haveMovedPieceCallBack(m_currentDragPiece, prev, cur);
 
       m_currentDragPiece = nullptr;
       m_currentPiecesize = Size::ZERO;
@@ -147,12 +144,12 @@ void TouchAndDragLayer::onMouseMove(Event* event)
   }
 }
 
-void TouchAndDragLayer::callBackUpdateBoardPiece(const std::function<void(Piece* piece, Size& oldPos, Size& newPos)>& callBack)
+void TouchAndDragLayer::callBackHaveMovedPiece(const std::function<void(Piece*piece, cocos2d::Size&oldPos, cocos2d::Size&newPos)>& callBack)
 {
-  m_updateBoardPiece = callBack;
+  m_haveMovedPieceCallBack = callBack;
 }
 
 void TouchAndDragLayer::callBackGetPieceFromCell(const std::function<Piece*(cocos2d::Size& clickCell)>& callBack)
 {
-  m_getPieceFromCell = callBack;
+  m_getPieceFromCellCallBack = callBack;
 }
