@@ -32,21 +32,6 @@ Piece::~Piece()
 {
 }
 
-/*Piece::Piece(const Piece& Piece)
-{
-  this->init(Piece._textureFile, cocos2d::ui::ImageView::TextureResType::PLIST);
-  this->m_type = Piece.m_type;
-  this->m_isWhite = Piece.m_isWhite;
-  this->autorelease();
-}*/
-
-Piece::Piece(const Piece& Piece)
-{
-  this->init(Piece.m_fileName, cocos2d::ui::ImageView::TextureResType::PLIST);
-  this->m_type = Piece.m_type;
-  this->m_isWhite = Piece.m_isWhite;
-  //this->autorelease();
-}
 
 bool Piece::isWhite(int iPiece)
 {
@@ -147,11 +132,6 @@ cocos2d::Rect Piece::getRect()
 {
   auto s = this->getContentSize();
   return Rect(-s.width / 2, -s.height / 2, s.width, s.height);
-}
-
-Piece* Piece::clonePiece()
-{
-  return new Piece(*this);
 }
 
 TypePiece Piece::getType()

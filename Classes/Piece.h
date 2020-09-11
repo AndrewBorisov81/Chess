@@ -27,9 +27,6 @@ public:
   Piece(int type, bool isWhite, const std::string& fileName);
   ~Piece();
 
-  // Copy constructor
-  Piece(const Piece& Piece);
-
   static bool isWhite(int iPiece);
 
   static bool isBlack(int iPiece);
