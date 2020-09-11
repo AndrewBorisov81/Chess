@@ -112,24 +112,29 @@ void Board::addGrid(Grid* grid)
 void Board::movePieceTo(Piece* piece, const cocos2d::Size& newPos)
 {
   Vector<Node*> allNodes = this->getChildren();
+
   for (auto& node : allNodes) {
     if (dynamic_cast<Piece*>(node) == piece) { //It is Sprite 
+
       Piece* target = dynamic_cast<Piece*>(node);
-      //target->setPosition(m_grid->getPointByCell(newPos.width, newPos.height));
+
       target->setPosition(this->getPointByCell(newPos.width, newPos.height));
+
       target->setCell(newPos);
     }
   }
 }
 
-void Board::addPieceN(int type, bool isWhite, const cocos2d::Size & cell, int zOrder)
+void Board::addPieceN(int type, bool isWhite, const cocos2d::Size& cell, int zOrder)
 {
-  //piece->setPosition(Vec2(getPointByCell(cellIJ.height, cellIJ.width)));
-  //this->addChild(piece, zOrder);
   Piece* piece = createPieceFileName(type, isWhite);
-  piece->setPosition(getPointByCell(cell.width, cell.height));
+
+  piece->setPosition(getPointByCell(cell.height, cell.width));
+
   piece->setCell(cell);
+
   this->addChild(piece, zOrder);
+
   if (isWhite)
   {
     m_whitePieces.push_back(piece);
@@ -143,15 +148,18 @@ void Board::addPieceN(int type, bool isWhite, const cocos2d::Size & cell, int zO
 void Board::removePieceN(const cocos2d::Size& cell)
 {
   Piece* piece = getPieceFromCell(cell.width, cell.height);
+
   this->removeChild(piece);
 }
 
 void Board::movePieceFromToN(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)
 {
   Piece* piece = getPieceFromCell(presentCell.width, presentCell.height);
+
   if (piece)
   {
     piece->setPosition(getPointByCell(futureCell.height, futureCell.width));
+
     piece->setCell(futureCell);
   }
 }
