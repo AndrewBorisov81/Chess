@@ -53,10 +53,10 @@ struct Castling
 struct Promotion
 {
   bool bApplied;
-  char chBefore;
-  char chAfter;
   int typeBefore;
   int typeAfter;
+
+  // to delete
   bool isWhite;
   Piece* pieceBefore;
   Piece* pieceAfter;
@@ -64,7 +64,9 @@ struct Promotion
 
 struct IntendedMove
 {
+  // to delete
   Piece* piece;
+
   int iPiece;
   Position from;
   Position to;

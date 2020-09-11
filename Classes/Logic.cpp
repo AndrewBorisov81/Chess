@@ -112,8 +112,7 @@ void Logic::movePiece(Position present, Position future, EnPassant* S_enPassant,
   int iCapturedPiece = getPieceAtPositionI(future.iRow, future.iColumn);
 
   // So, was a piece captured in this move?
-  //if (0x20 != chCapturedPiece)
-  if(Constants::EMPTY_SQUAREI != iCapturedPiece)
+  if (Constants::EMPTY_SQUAREI != iCapturedPiece)
   {
     int kColor{ 1 };
     if (Piece::isWhite(iCapturedPiece))
@@ -131,7 +130,6 @@ void Logic::movePiece(Position present, Position future, EnPassant* S_enPassant,
     curUndo.bCapturedLastMove = true;
 
     // Reset m_undo.castling
-    //memset(&m_undo.en_passant, 0, sizeof(EnPassant));
     memset(&curUndo.en_passant, 0, sizeof(EnPassant));
   }
   else if (true == S_enPassant->bApplied)
@@ -166,8 +164,12 @@ void Logic::movePiece(Position present, Position future, EnPassant* S_enPassant,
   // Remove piece from present position
   m_boardA[present.iRow][present.iColumn] = Constants::EMPTY_SQUAREI;
 
-  if(iCapturedPiece != Constants::EMPTY_SQUAREI)
+  // Remove piece from future position on board
+  if(Constants::EMPTY_SQUAREI != iCapturedPiece)
     m_deletePiece(Size(future.iRow, future.iColumn));
+
+  // Update pieceCell
+  m_updatePieceCell(Size(present.iRow, present.iColumn), Size(future.iRow, future.iColumn));
 
   // Move piece to new position
   if (S_promotion->bApplied)
@@ -179,12 +181,9 @@ void Logic::movePiece(Position present, Position future, EnPassant* S_enPassant,
   }
   else
   {
-    //board[future.iRow][future.iColumn] = chPiece;
     m_boardA[future.iRow][future.iColumn] = iPiece;
-    m_updatePieceCell(Size(present.iRow, present.iColumn), Size(future.iRow, future.iColumn));
 
     // Reset m_undo.promotion
-    //memset(&m_undo.promotion, 0, sizeof(Promotion));
     memset(&curUndo.promotion, 0, sizeof(Promotion));
   }
 
@@ -214,14 +213,12 @@ void Logic::movePiece(Position present, Position future, EnPassant* S_enPassant,
   }
 
   // Castling requirements
-  //if ('K' == toupper(chPiece))
   if(TypePiece::KING == Piece::getTypeP(abs(iPiece)))
   {
     // After the king has moved once, no more castling allowed
     m_bCastlingKingSideAllowed[getCurrentTurn()] = false;
     m_bCastlingQueenSideAllowed[getCurrentTurn()] = false;
   }
-  //else if ('R' == toupper(chPiece))
   else if (TypePiece::ROOK == Piece::getTypeP(abs(iPiece)))
   {
     // If the rook moved from column 'A', no more castling allowed on the queen side
@@ -257,171 +254,95 @@ void Logic::undoLastMove()
   // Parse the line
   Position from;
   Position to;
-  //parseMove(last_move, &from, &to);
+
   parseMoveStringToCell(last_move, &from, &to);
 
   // Since we want to undo a move, we will be moving the piece from (iToRow, iToColumn) to (iFromRow, iFromColumn)
-  //char chPiece = getPieceAtPosition(to.iRow, to.iColumn);
   int iPiece = getPieceAtPositionI(to.iRow, to.iColumn);
-
-  Piece* piece = getPieceAtPosition(to.iRow, to.iColumn);
 
   // Moving it back
   // If there was a promotion
   if (curUndo.promotion.bApplied)
   {
-    //board[from.iRow][from.iColumn] = m_undo.promotion.chBefore;
-    m_gameLayer->getDataChess().board[from.iRow][from.iColumn] = curUndo.promotion.typeBefore;
+    // Delete piece from board
+    m_deletePiece(Size(to.iRow, to.iColumn));
+
+    // Add piece to the board
+    m_addPiece(abs(curUndo.promotion.typeBefore), Piece::isWhite(curUndo.promotion.typeBefore) , Size(to.iRow, to.iColumn));
+
     m_boardA[from.iRow][from.iColumn] = curUndo.promotion.typeBefore;
-
-    Piece* pieceBefore = m_gameLayer->createPieceFileName(curUndo.promotion.typeBefore, curUndo.promotion.isWhite);
-    pieceBefore->setCell(Size(from.iRow, from.iColumn));
-    m_addPiece(curUndo.promotion.typeBefore, curUndo.promotion.isWhite, Size(from.iRow, from.iColumn));
-
-    m_gameLayer->movePieceToPos(pieceBefore, Size(from.iRow, from.iColumn));
-    //?????????????????????????????????????
-    m_gameLayer->setPieceToNewPos(pieceBefore, Size(from.iRow, from.iColumn));
-    //????????????????????????????????
-    m_movePiece(Size(from.iRow, from.iColumn), Size(from.iRow, from.iColumn));
-
-    m_gameLayer->getBoard()->removePiece(piece);
-    m_deletePiece(Size(from.iRow, from.iColumn));
-    //Piece* pieceBefore = m_gameLayer->createPieceFileName(curUndo.promotion.typeBefore, curUndo.promotion.isWhite);
-    //?????????????????????????????????????????????????
-    m_gameLayer->getBoard()->addPiece(pieceBefore, Size(from.iRow, from.iColumn), static_cast<int>(ZOrderGame::PIECE));
-    //m_addPiece(curUndo.promotion.typeBefore, curUndo.promotion.isWhite, Size(from.iRow, from.iColumn));
   }
   else
   {
-    //board[from.iRow][from.iColumn] = chPiece;
-    m_gameLayer->getDataChess().board[from.iRow][from.iColumn] = iPiece;
     m_boardA[from.iRow][from.iColumn] = iPiece;
-
-    m_gameLayer->setPieceToNewPos(piece, Size(from.iRow, from.iColumn));
-    m_gameLayer->movePieceToPos(piece, Size(from.iRow, from.iColumn));
-    m_movePiece(Size(to.iRow, to.iColumn), Size(from.iRow, from.iColumn));
-    piece->setCell(Size(from.iRow, from.iColumn));
   }
+
+  m_movePiece(Size(to.iRow, to.iColumn), Size(from.iRow, from.iColumn));
 
   // Change turns
   changeTurns();
 
   // If a piece was captured, move it back to the board
-  //if (m_undo.bCapturedLastMove)
   if (curUndo.bCapturedLastMove)
   {
     // Let's retrieve the last captured piece
-    //char chCaptured;
     int iCaptured;
-    Piece* capturedPiece;
 
     // Since we already changed turns back, it means we should we pop a piece from the oponents vector
     if (static_cast<int>(Player::WHITE_PLAYER) == m_currentTurn)
     {
-      //chCaptured = black_captured.back();
       iCaptured = iblack_captured.back();
       iblack_captured.pop_back();
-
-      capturedPiece = black_captured.back();
-      black_captured.pop_back();
     }
     else
     {
-      //chCaptured = white_captured.back();
       iCaptured = iwhite_captured.back();
       iwhite_captured.pop_back();
-
-      capturedPiece = white_captured.back();
-
-      white_captured.pop_back();
     }
 
-    //bool isWhite = (iCaptured < 0) ? false : true;
-    bool isWhite = (Player::BLACK_PLAYER == static_cast<Player>(getCurrentTurn())) ? false : true;
-    capturedPiece = m_gameLayer->createPieceFileName(abs(iCaptured), isWhite);
-    m_addPiece(abs(iCaptured), isWhite, Size(to.iRow, to.iColumn));
 
     // Move the captured piece back. Was this an "en passant" move?
     if (curUndo.en_passant.bApplied)
     {
+      // Remove the attacker
+      m_boardA[to.iRow][to.iColumn] = Constants::EMPTY_SQUAREI;
+
+
       // Move the captured piece back
-      //board[m_undo.en_passant.PawnCaptured.iRow][m_undo.en_passant.PawnCaptured.iColumn] = chCaptured;
-      m_gameLayer->getDataChess().board[curUndo.en_passant.PawnCaptured.iRow][curUndo.en_passant.PawnCaptured.iColumn] = iCaptured;
       m_boardA[curUndo.en_passant.PawnCaptured.iRow][curUndo.en_passant.PawnCaptured.iColumn] = iCaptured;
 
-      m_gameLayer->setPieceToNewPos(capturedPiece, Size(curUndo.en_passant.PawnCaptured.iRow, curUndo.en_passant.PawnCaptured.iColumn));
-
-      capturedPiece->setCell(Size(curUndo.en_passant.PawnCaptured.iRow, curUndo.en_passant.PawnCaptured.iColumn));
-      m_gameLayer->getBoard()->addPiece(capturedPiece, Size(curUndo.en_passant.PawnCaptured.iRow, curUndo.en_passant.PawnCaptured.iColumn), static_cast<int>(ZOrderGame::PIECE));
-
-      // Remove the attacker
-      //board[to.iRow][to.iColumn] = EMPTY_SQUARE;
-      m_gameLayer->getDataChess().board[to.iRow][to.iColumn] = 0;
-      m_boardA[to.iRow][to.iColumn] = 0;
-      m_deletePiece(Size(to.iRow, to.iColumn));
-      m_gameLayer->removePieceBoard(Size(to.iRow, to.iColumn));
+      //Add captured piece to board
+      m_addPiece(abs(iCaptured), Piece::isWhite(iCaptured), Size(curUndo.en_passant.PawnCaptured.iRow, curUndo.en_passant.PawnCaptured.iColumn));
     }
     else
     {
-      //board[to.iRow][to.iColumn] = chCaptured;
-
-      m_gameLayer->getDataChess().board[to.iRow][to.iColumn] = iCaptured;
-      //??????????????????????? Check "+" "-";
       m_boardA[to.iRow][to.iColumn] = iCaptured;
-      m_gameLayer->getBoard()->addPiece(capturedPiece, Size(to.iRow, to.iColumn), static_cast<int>(ZOrderGame::PIECE));
 
-      m_gameLayer->setPieceToNewPos(capturedPiece, Size(to.iRow, to.iColumn));
-      capturedPiece->setCell(Size(to.iRow, to.iColumn));
-
-      m_gameLayer->setPieceToNewPos(piece, Size(from.iRow, from.iColumn));
-      m_gameLayer->movePieceToPos(piece, Size(from.iRow, from.iColumn));
-      m_movePiece(Size(to.iRow, to.iColumn), Size(from.iRow, from.iColumn));
-      piece->setCell(Size(from.iRow, from.iColumn));
-
-      /*m_gameLayer->setPieceToNewPos(piece, Size(to.iRow, to.iColumn));
-      m_gameLayer->movePieceToPos(piece, Size(to.iRow, to.iColumn));*/
+      //Add captured piece to board
+      m_addPiece(abs(iCaptured), Piece::isWhite(iCaptured), Size(to.iRow, to.iColumn));
     }
   }
   else
   {
-    //board[to.iRow][to.iColumn] = EMPTY_SQUARE;
-    m_gameLayer->getDataChess().board[to.iRow][to.iColumn] = 0;
-    m_gameLayer->removePieceBoard(Size(to.iRow, to.iColumn));
-
-    m_boardA[to.iRow][to.iColumn] = 0;
-    m_deletePiece(Size(to.iRow, to.iColumn));
+    m_boardA[to.iRow][to.iColumn] = Constants::EMPTY_SQUAREI;
   }
 
   // If there was a castling
   if (curUndo.castling.bApplied)
   {
-    //char chRook = getPieceAtPosition(m_undo.castling.rook_after.iRow, m_undo.castling.rook_after.iColumn);
     int iRook = getPieceAtPositionI(curUndo.castling.rook_after.iRow, curUndo.castling.rook_after.iColumn);
 
-    Piece* rookPiece = getPieceAtPosition(curUndo.castling.rook_after.iRow, curUndo.castling.rook_after.iColumn);
-
     // Remove the rook from present position
-    //board[m_undo.castling.rook_after.iRow][m_undo.castling.rook_after.iColumn] = EMPTY_SQUARE;
-    m_gameLayer->getDataChess().board[curUndo.castling.rook_after.iRow][curUndo.castling.rook_after.iColumn] = 0;
-    m_boardA[curUndo.castling.rook_after.iRow][curUndo.castling.rook_after.iColumn] = 0;
-
-    m_gameLayer->removePieceBoard(Size(curUndo.castling.rook_after.iRow, curUndo.castling.rook_after.iColumn));
-    m_deletePiece(Size(curUndo.castling.rook_after.iRow, curUndo.castling.rook_after.iColumn));
+    m_boardA[curUndo.castling.rook_after.iRow][curUndo.castling.rook_after.iColumn] = Constants::EMPTY_SQUAREI;
 
     // 'Jump' into to new position
-    //board[m_undo.castling.rook_before.iRow][m_undo.castling.rook_before.iColumn] = chRook;
-    m_gameLayer->getDataChess().board[curUndo.castling.rook_before.iRow][curUndo.castling.rook_before.iColumn] = iRook;
     m_boardA[curUndo.castling.rook_before.iRow][curUndo.castling.rook_before.iColumn] = iRook;
-    
-    m_gameLayer->setPieceToNewPos(rookPiece, Size(curUndo.castling.rook_before.iRow, curUndo.castling.rook_before.iColumn));
-    m_gameLayer->movePieceToPos(rookPiece, Size(curUndo.castling.rook_before.iRow, curUndo.castling.rook_before.iColumn));
+
+    // Move rook on the board
     m_movePiece(Size(curUndo.castling.rook_after.iRow, curUndo.castling.rook_after.iColumn), Size(curUndo.castling.rook_before.iRow, curUndo.castling.rook_before.iColumn));
-    rookPiece->setCell(Size(curUndo.castling.rook_before.iRow, curUndo.castling.rook_before.iColumn));
 
     // Restore the values of castling allowed or not
-    //m_bCastlingKingSideAllowed[getCurrentTurn()] = m_undo.bCastlingKingSideAllowed;
     m_bCastlingKingSideAllowed[getCurrentTurn()] = curUndo.bCastlingKingSideAllowed;
-    //m_bCastlingQueenSideAllowed[getCurrentTurn()] = m_undo.bCastlingQueenSideAllowed;
     m_bCastlingQueenSideAllowed[getCurrentTurn()] = curUndo.bCastlingQueenSideAllowed;
   }
 
@@ -481,8 +402,6 @@ Piece* Logic::getPieceAtPosition(int i, int j)
 
 int Logic::getPieceAtPositionI(int i, int j)
 {
-  /*DataChess& dataChess = m_gameLayer->getDataChess();
-  return dataChess.board[i][j];*/
   return m_boardA[i][j];
 }
 
@@ -782,25 +701,18 @@ bool Logic::isReachable(int iRow, int iColumn, int iColor)
     // Check all the way to the right
     for (int i = iColumn + 1; i < 8; i++)
     {
-      //char chPieceFound = getPieceAtPosition(iRow, i);
       int iPieceFound = getPieceAtPositionI(iRow, i);
-      //Piece* pieceFound = getPieceAtPosition(iRow, i);
       if (Constants::EMPTY_SQUAREI == iPieceFound)
       {
         // This square is empty, move on
         continue;
       }
 
-      //if (iColor == getPieceColor(chPieceFound))
-      //int foundPieceColor = (pieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
-      //if (iColor == foundPieceColor)
       if (iColor == static_cast<int>(Piece::getColor(iPieceFound)))
       {
         // This is a piece of the same color
         break;
       }
-      /*else if ((pieceFound->getType() == TypePiece::QUEEN) ||
-        (pieceFound->getType() == TypePiece::ROOK))*/
       else if ((static_cast<TypePiece>(abs(iPieceFound)) == TypePiece::QUEEN) ||
         (static_cast<TypePiece>(abs(iPieceFound)) == TypePiece::ROOK))
       {
@@ -818,18 +730,14 @@ bool Logic::isReachable(int iRow, int iColumn, int iColor)
     // Check all the way to the left
     for (int i = iColumn - 1; i >= 0; i--)
     {
-      //char chPieceFound = getPieceAtPosition(iRow, i);
       int iPieceFound = getPieceAtPositionI(iRow, i);
-      Piece* pieceFound = getPieceAtPosition(iRow, i);
-      //if (Constants::EMPTY_SQUARE == pieceFound)
+
       if (Constants::EMPTY_SQUAREI == iPieceFound)
       {
         // This square is empty, move on
         continue;
       }
 
-      //int foundPieceColor = (pieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
-      //if (iColor == foundPieceColor)
       if (iColor == static_cast<int>(Piece::getColor(iPieceFound)))
       {
         // This is a piece of the same color
@@ -855,17 +763,13 @@ bool Logic::isReachable(int iRow, int iColumn, int iColor)
     // Check all the way up
     for (int i = iRow + 1; i < 8; i++)
     {
-      //char chPieceFound = getPieceAtPosition(i, iColumn);
       int iPieceFound = getPieceAtPositionI(i, iColumn);
-      //Piece* pieceFound = getPieceAtPosition(i, iColumn);
       if (Constants::EMPTY_SQUAREI == iPieceFound)
       {
         // This square is empty, move on
         continue;
       }
 
-      //int foundPieceColor = (pieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
-      //if (iColor == foundPieceColor)
       if(iColor == static_cast<int>(Piece::getColor(iPieceFound)))
       {
         // This is a piece of the same color
@@ -896,16 +800,13 @@ bool Logic::isReachable(int iRow, int iColumn, int iColor)
     // Check all the way down
     for (int i = iRow - 1; i >= 0; i--)
     {
-      //char chPieceFound = getPieceAtPosition(i, iColumn);
       int iPieceFound = getPieceAtPositionI(i, iColumn);
-      //Piece* pieceFound = getPieceAtPosition(i, iColumn);
       if (Constants::EMPTY_SQUAREI == iPieceFound)
       {
         // This square is empty, move on
         continue;
       }
 
-      //int foundPieceColor = (pieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
       if (iColor == static_cast<int>(Piece::getColor(iPieceFound)))
       {
         // This is a piece of the same color
@@ -939,9 +840,7 @@ bool Logic::isReachable(int iRow, int iColumn, int iColor)
     // Check the diagonal up-right
     for (int i = iRow + 1, j = iColumn + 1; i < 8 && j < 8; i++, j++)
     {
-      //char chPieceFound = getPieceAtPosition(i, j);
       int iPieceFound = getPieceAtPositionI(i, j);
-      //Piece* pieceFound = getPieceAtPosition(i, j);
       if (Constants::EMPTY_SQUAREI == iPieceFound)
       {
         // This square is empty, move on
@@ -970,16 +869,14 @@ bool Logic::isReachable(int iRow, int iColumn, int iColor)
     // Check the diagonal up-left
     for (int i = iRow + 1, j = iColumn - 1; i < 8 && j > 0; i++, j--)
     {
-      //char chPieceFound = getPieceAtPosition(i, j);
       int iPieceFound = getPieceAtPositionI(i, j);
-      //Piece* pieceFound = getPieceAtPosition(i, j);
+
       if (Constants::EMPTY_SQUAREI == iPieceFound)
       {
         // This square is empty, move on
         continue;
       }
 
-      //int foundPieceColor = (pieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
       if (iColor == static_cast<int>(Piece::getColor(iPieceFound)))
       {
         // This is a piece of the same color
@@ -1002,16 +899,14 @@ bool Logic::isReachable(int iRow, int iColumn, int iColor)
     // Check the diagonal down-right
     for (int i = iRow - 1, j = iColumn + 1; i > 0 && j < 8; i--, j++)
     {
-      //char chPieceFound = getPieceAtPosition(i, j);
       int iPieceFound = getPieceAtPositionI(i, j);
-      //Piece* pieceFound = getPieceAtPosition(i, j);
+
       if (Constants::EMPTY_SQUAREI == iPieceFound)
       {
         // This square is empty, move on
         continue;
       }
 
-      //int foundPieceColor = (pieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
       if (iColor == static_cast<int>(Piece::getColor(iPieceFound)))
       {
         // This is a piece of the same color
@@ -1034,7 +929,6 @@ bool Logic::isReachable(int iRow, int iColumn, int iColor)
     // Check the diagonal down-left
     for (int i = iRow - 1, j = iColumn - 1; i > 0 && j > 0; i--, j--)
     {
-      //char chPieceFound = getPieceAtPosition(i, j);
       int iPieceFound = getPieceAtPositionI(i, j);
       Piece* pieceFound = getPieceAtPosition(i, j);
       if (Constants::EMPTY_SQUAREI == iPieceFound)
@@ -1043,7 +937,6 @@ bool Logic::isReachable(int iRow, int iColumn, int iColor)
         continue;
       }
 
-      //int foundPieceColor = (pieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
       if (iColor == static_cast<int>(Piece::getColor(iPieceFound)))
       {
         // This is a piece of the same color
@@ -1081,16 +974,14 @@ bool Logic::isReachable(int iRow, int iColumn, int iColor)
         continue;
       }
 
-      //char chPieceFound = getPieceAtPosition(iRowToTest, iColumnToTest);
       int iPieceFound = getPieceAtPositionI(iRowToTest, iColumnToTest);
-      //Piece* pieceFound = getPieceAtPosition(iRowToTest, iColumnToTest);
+   
       if (Constants::EMPTY_SQUAREI == iPieceFound)
       {
         // This square is empty, move on
         continue;
       }
 
-      //int foundPieceColor = (pieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
       if (iColor == static_cast<int>(Piece::getColor(iPieceFound)))
       {
         // This is a piece of the same color

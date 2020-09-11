@@ -92,9 +92,9 @@ bool GameLayer::init()
   pPieceMoveLogic->loadBoard(Constants::INITIAL_PIECE_BOARD);
 
   pPieceMoveLogic->callBackAddPiece([this](int type, bool isWhite, const Size& futureCell) { this->m_board->addPieceN(type, isWhite, futureCell, static_cast<int>(ZOrderGame::PIECE));});
-  pPieceMoveLogic->callBackDeletePiece ([this](const Size& presentCell) { this->m_board->removePieceN(presentCell);});
-  pPieceMoveLogic->callBackMovePiece([this](const Size& presentCell, const Size& futureCell) {this->m_board->movePieceFromToN(presentCell, futureCell);});
-  pPieceMoveLogic->callBackUpdatePieceCell([this](const Size& presentCell, const Size& futureCell) {this->m_board->updatePieceCellN(presentCell, futureCell); });
+  pPieceMoveLogic->callBackDeletePiece ([this](const Size& presentCell){ this->m_board->removePieceN(presentCell); });
+  pPieceMoveLogic->callBackMovePiece([this](const Size& presentCell, const Size& futureCell) { this->m_board->movePieceFromToN(presentCell, futureCell); });
+  pPieceMoveLogic->callBackUpdatePieceCell([this](const Size& presentCell, const Size& futureCell) { this->m_board->updatePieceCellN(presentCell, futureCell); });
 
   // Create Promotion Layer
   PromotionLayer* pPromotionLayer = createPromotionLayer();
@@ -119,14 +119,11 @@ bool GameLayer::init()
   // Set callBacks to touchAndDragLayer;
   auto lfUpdatePieceBoard = [this](Piece* piece, Size& prevPos, Size& newPos)->void
   {
-    //movePiece(prevPos, newPos);
     bool isMoveValid = this->checkPieceMove(piece, prevPos, newPos);
 
     if (isMoveValid)
     {
       movePiece(prevPos, newPos);
-      //piece->setCell(newPos);
-      //updateBoardChess(piece, prevPos, newPos);
     }
     else
     {
@@ -324,65 +321,20 @@ void GameLayer::movePromotion(Size& present, Size& future, Promotion& promotion,
   to_record += presentStr;
   to_record += futureStr;
 
-  /*cout << "Promote to (Q, R, N, B): ";
-    std::string piece;
-    getline(cin, piece);
-
-    if (piece.length() > 1)
-    {
-      createNextMessage("You should type only one character (Q, R, N or B)\n");
-      return;
-    }
-
-    char chPromoted = toupper(piece[0]);
-
-    if (chPromoted != 'Q' && chPromoted != 'R' && chPromoted != 'N' && chPromoted != 'B')
-    {
-      createNextMessage("Invalid character.\n");
-      return;
-    }
-
-    S_promotion.chBefore = current_game->getPieceAtPosition(present.iRow, present.iColumn);
-
-    if (Chess::WHITE_PLAYER == current_game->getCurrentTurn())
-    {
-      S_promotion.chAfter = toupper(chPromoted);
-    }
-    else
-    {
-      S_promotion.chAfter = tolower(chPromoted);
-    }
-
-    to_record += '=';
-    to_record += toupper(chPromoted); // always log with a capital letter
-    */
-
-  //Piece* piece = m_pieceMoveLogic->getPieceAtPosition(present.width, present.height);
   int iPiece = m_pieceMoveLogic->getPieceAtPositionI(present.width, present.height);
-  //promotion.pieceBefore = piece;
-  //promotion.typeBefore = iPiece;
-
-  //Piece* promotedPiece{ nullptr };
 
   int kColor{ 1 };
   if(static_cast<int>(Player::WHITE_PLAYER) == m_pieceMoveLogic->getCurrentTurn())
   {
-    // to delete
-    //promotion.pieceAfter = promotedPiece;
     kColor = 1;
-    promotion.typeAfter = kColor * typePromotionPiece;
-    // to delete
-    promotion.isWhite = true;
   }
   else
   {
-    // to delete
-    //promotion.pieceAfter = promotedPiece;
     kColor = -1;
-    promotion.typeAfter = kColor * typePromotionPiece;
-    // to delete
-    promotion.isWhite = false;
   }
+
+  promotion.typeAfter = kColor * typePromotionPiece;
+  promotion.typeBefore = iPiece;
 
   // ---------------------------------------------------
   // Log the move: do it prior to making the move
@@ -396,7 +348,6 @@ void GameLayer::movePromotion(Size& present, Size& future, Promotion& promotion,
   // Is that move allowed?
   EnPassant  S_enPassant = { 0 };
   Castling   S_castling = { 0 };
-  //makeTheMove(Size(present.iRow, present.iColumn), Size(future.iRow, future.iColumn), &S_enPassant, &S_castling, &S_promotion);
   makeTheMove(present, future, &S_enPassant, &S_castling, &promotion);
 
   // ---------------------------------------------------------------
@@ -434,7 +385,6 @@ void GameLayer::movePromotion(Size& present, Size& future, Promotion& promotion,
 
 void GameLayer::movePieceToPos(Piece* piece, const Size& futureCell)
 {
-  //Vec2 prevPosPiece = m_grid->getPointByCell(int(futureCell.height), int(futureCell.width));
   Vec2 prevPosPiece = m_board->getPointByCell(int(futureCell.height), int(futureCell.width));
   piece->setPosition(prevPosPiece);
 }
@@ -449,18 +399,6 @@ void GameLayer::movePiece(const Size& move_from, const Size& move_to)
 {
   std::string to_record;
 
-  // Get user input for the piece they want to move
-  /*cout << "Choose piece to be moved. (example: A1 or b2): ";
-
-  std::string move_from;
-  getline(cin, move_from);
-
-  if (move_from.length() > 2)
-  {
-    createNextMessage("You should type only two characters (column and row)\n");
-    return;
-  }*/
-
   Position present;
   present.iColumn = move_from.height;
   present.iRow = move_from.width;
@@ -471,42 +409,9 @@ void GameLayer::movePiece(const Size& move_from, const Size& move_to)
   to_record += presentStr;
   //to_record += "-";
 
-  // ---------------------------------------------------
-  // Did the user pick a valid piece?
-  // Must check if:
-  // - It's inside the board (A1-H8)
-  // - There is a piece in the square
-  // - The piece is consistent with the player's turn
-  // ---------------------------------------------------
-  /*present.iColumn = toupper(present.iColumn);
-
-  if (present.iColumn < 'A' || present.iColumn > 'H')
-  {
-    createNextMessage("Invalid column.\n");
-    return;
-  }
-
-  if (present.iRow < '0' || present.iRow > '8')
-  {
-    createNextMessage("Invalid row.\n");
-    return;
-  }
-
-  // Put in the string to be logged
-  to_record += present.iColumn;
-  to_record += present.iRow;
-  to_record += "-";
-
-  // Convert column from ['A'-'H'] to [0x00-0x07]
-  present.iColumn = present.iColumn - 'A';
-
-  // Convert row from ['1'-'8'] to [0x00-0x07]
-  present.iRow = present.iRow - '1';*/
-
-  //char chPiece = current_game->getPieceAtPosition(present.iRow, present.iColumn);
   Piece* piece = m_pieceMoveLogic->getPieceAtPosition(present.iRow, present.iColumn);
+
   int iPiece = m_pieceMoveLogic->getPieceAtPositionI(present.iRow, present.iColumn);
-  //new Code
 
   //cout << "Piece is " << char(chPiece) << "\n";
 
@@ -536,19 +441,6 @@ void GameLayer::movePiece(const Size& move_from, const Size& move_to)
   }
 
   // ---------------------------------------------------
-  // Get user input for the square to move to
-  // ---------------------------------------------------
-  /*cout << "Move to: ";
-  std::string move_to;
-  getline(cin, move_to);
-
-  if (move_to.length() > 2)
-  {
-    createNextMessage("You should type only two characters (column and row)\n");
-    return;
-  }*/
-
-  // ---------------------------------------------------
   // Did the user pick a valid house to move?
   // Must check if:
   // - It's inside the board (A1-H8)
@@ -562,30 +454,6 @@ void GameLayer::movePiece(const Size& move_from, const Size& move_to)
 
   //Put in the string to be logged
   to_record += futureStr;
-
-  //future.iColumn = toupper(future.iColumn);
-
-  /*if (future.iColumn < 'A' || future.iColumn > 'H')
-  {
-    createNextMessage("Invalid column.\n");
-    return;
-  }
-
-  if (future.iRow < '0' || future.iRow > '8')
-  {
-    createNextMessage("Invalid row.\n");
-    return;
-  }*/
-
-  // Put in the string to be logged
-  /*to_record += future.iColumn;
-  to_record += future.iRow;
-
-  // Convert columns from ['A'-'H'] to [0x00-0x07]
-  future.iColumn = future.iColumn - 'A';
-
-  // Convert row from ['1'-'8'] to [0x00-0x07]
-  future.iRow = future.iRow - '1';*/
 
   // Check if it is not the exact same square
   if (future.iRow == present.iRow && future.iColumn == present.iColumn)
@@ -615,13 +483,12 @@ void GameLayer::movePiece(const Size& move_from, const Size& move_to)
     bool isWhite = (static_cast<int>(Player::WHITE_PLAYER) == m_pieceMoveLogic->getCurrentTurn());
 
     // Set callBack
-    //auto lfHidePromotion = [this, to_record, present, future, &S_promotion](int typePiece)
     auto lfHidePromotion = [this, present, future, &S_promotion](int typePiece)
     {
       Size sPresent(present.iRow, present.iColumn);
       Size sFuture(future.iRow, future.iColumn);
 
-      m_board->removePieceN(sFuture);
+      m_board->removePieceN(sPresent);
       m_board->addPieceN(typePiece, m_pieceMoveLogic->getOppositCurrentTurn(), sFuture, static_cast<int>(ZOrderGame::PIECE));
 
       this->movePromotion(sPresent, sFuture, S_promotion, typePiece);
@@ -632,40 +499,6 @@ void GameLayer::movePiece(const Size& move_from, const Size& move_to)
     m_promotionLayer->show(isWhite);
 
     return;
-    //movePromotion(to_record, Size(present.iRow, present.iColumn), S_promotion, m_lastPromotedPiece);
-
-    /*cout << "Promote to (Q, R, N, B): ";
-    std::string piece;
-    getline(cin, piece);
-
-    if (piece.length() > 1)
-    {
-      createNextMessage("You should type only one character (Q, R, N or B)\n");
-      return;
-    }
-
-    char chPromoted = toupper(piece[0]);
-
-    if (chPromoted != 'Q' && chPromoted != 'R' && chPromoted != 'N' && chPromoted != 'B')
-    {
-      createNextMessage("Invalid character.\n");
-      return;
-    }
-
-    S_promotion.chBefore = current_game->getPieceAtPosition(present.iRow, present.iColumn);
-
-    if (Chess::WHITE_PLAYER == current_game->getCurrentTurn())
-    {
-      S_promotion.chAfter = toupper(chPromoted);
-    }
-    else
-    {
-      S_promotion.chAfter = tolower(chPromoted);
-    }
-
-    to_record += '=';
-    to_record += toupper(chPromoted); // always log with a capital letter
-    */
   }
 
   // ---------------------------------------------------
@@ -717,8 +550,6 @@ void GameLayer::movePiece(const Size& move_from, const Size& move_to)
 
 void GameLayer::makeTheMove(const Size& present, const Size& future, EnPassant* S_enPassant, Castling* S_castling, Promotion* S_promotion)
 {
-  //char chPiece = current_game->getPieceAtPosition(present.iRow, present.iColumn);
-  Piece* piece = m_pieceMoveLogic->getPieceAtPosition(present.width, present.height);
   int iPiece = m_pieceMoveLogic->getPieceAtPositionI(present.width, present.height);
 
   // -----------------------
@@ -726,13 +557,8 @@ void GameLayer::makeTheMove(const Size& present, const Size& future, EnPassant* 
   // -----------------------
   if (m_pieceMoveLogic->isSquareOccupied(future.width, future.height))
   {
-    //char chAuxPiece = current_game->getPieceAtPosition(future.iRow, future.iColumn);
     int iAuxPiece = m_pieceMoveLogic->getPieceAtPositionI(future.width, future.height);
 
-    //Piece* auxPiece = m_pieceMoveLogic->getPieceAtPosition(future.width, future.height);
-
-    //if (Chess::getPieceColor(chPiece) != Chess::getPieceColor(chAuxPiece))
-    //if(piece && piece->isWhite() != auxPiece->isWhite())
     if(Piece::getColor(iPiece) != Piece::getColor(iAuxPiece))
     {
       //createNextMessage(Chess::describePiece(chAuxPiece) + " captured!\n");
@@ -753,7 +579,6 @@ void GameLayer::makeTheMove(const Size& present, const Size& future, EnPassant* 
     //createNextMessage("Castling applied!\n");
   }
 
-  //current_game->movePiece(present, future, S_enPassant, S_castling, S_promotion);
   Position ppresent;
   ppresent.iRow = present.width;
   ppresent.iColumn = present.height;
