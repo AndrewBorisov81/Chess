@@ -48,8 +48,6 @@ public:
 
   cocos2d::Rect getRect();
 
-  Piece* clonePiece();
-
 private:
   TypePiece m_type{ TypePiece::PAWN };
 
