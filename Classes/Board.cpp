@@ -68,11 +68,11 @@ bool Board::init()
 
 void Board::loadAllPieces(std::vector<std::vector<Piece*>>& pieces, int zOrder)
 {
-  for (int i = 0; i < pieces.size(); i++)
+  for (unsigned int i = 0; i < pieces.size(); i++)
   {
     std::vector<Piece*> row = pieces[i];
 
-    for (int j = 0; j < row.size(); j++)
+    for (unsigned int j = 0; j < row.size(); j++)
     {
       if (row[j] != 0)
       {
