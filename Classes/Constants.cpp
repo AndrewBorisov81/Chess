@@ -25,11 +25,15 @@ namespace Constants
   const std::string WHITE_QUEEN_PNG = "whiteQueen3.png";
   const std::string WHITE_KING_PNG = "whiteKing3.png";
 
+  // Prompts
+  const std::string GREEN_RECT_PNG = "greenRect.png";
+  const std::string RED_RECT_PNG = "redRect.png";
+  const std::string GREEN_CIRCLE_PNG = "greenCircle.png";
+
   // Game elements setting
   const float CELL_SIZE(118.0f);
   const int ROWS(8);
   const int COLUMNS(8);
-  Piece* EMPTY_SQUARE(nullptr);
   int EMPTY_SQUAREI(0);
 
   // This represents the pieces on the board.

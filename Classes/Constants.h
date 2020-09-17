@@ -36,18 +36,15 @@ namespace Constants
   extern Piece* EMPTY_SQUARE;
   extern int EMPTY_SQUAREI;
 
+  // Prompts
+  extern const std::string GREEN_RECT_PNG;
+  extern const std::string RED_RECT_PNG;
+  extern const std::string GREEN_CIRCLE_PNG;
+
   // This represents the pieces on the board.
   // Keep in mind that pieces[0][0] represents A1
   // pieces[1][1] represents B2 and so on.
   // Numbers with a minus sign are white
-  //*extern const int INITIAL_Piece_BOARD[8][8];
-
-  // Debug
-  // Castling
-  //extern const int INITIAL_Piece_BOARD[8][8];
-
-  // Checkmate
-  //extern const int INITIAL_Piece_BOARD[8][8];
 
   // Debug promotion
   extern const int INITIAL_PIECE_BOARD[8][8];
