@@ -297,8 +297,6 @@ bool PieceMoveLogic::isMoveValid(Position present, Position future, EnPassant* S
       if (future.iColumn > present.iColumn)
       {
         // if future.iColumn is greather, it means king side
-        //int pieceColor = (piece->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
-        //if (!castlingAllowed(Side::KING_SIDE, pieceColor))
         if (!castlingAllowed(Side::KING_SIDE, static_cast<int>(Piece::getColor(iPiece))))
         {
           //createNextMessage("Castling to the king side is not allowed.\n");
@@ -308,6 +306,7 @@ bool PieceMoveLogic::isMoveValid(Position present, Position future, EnPassant* S
         {
           // Check if the square that the king skips is not under attack
           UnderAttack square_skipped1 = isUnderAttack(present.iRow, present.iColumn + 1, getCurrentTurn(), nullptr);
+          // ????????????????????????????????????????
           //UnderAttack square_skipped2 = isUnderAttack(future.iRow, future.iColumn, getCurrentTurn(), nullptr);
           if (!square_skipped1.bUnderAttack)
           {
@@ -380,9 +379,7 @@ bool PieceMoveLogic::isMoveValid(Position present, Position future, EnPassant* S
   // -------------------------------------------------------------------------
   if (isSquareOccupied(future.iRow, future.iColumn))
   {
-    //char chAuxPiece = getPieceAtPosition(future.iRow, future.iColumn);
     int iAuxPiece = getPieceAtPositionI(future.iRow, future.iColumn);
-    //Piece* auxPiece = getPieceAtPosition(future.iRow, future.iColumn);
     if (Piece::getColor(iPiece) == Piece::getColor(iAuxPiece))
     {
       //std::cout << "Position is already taken by a piece of the same color\n";
