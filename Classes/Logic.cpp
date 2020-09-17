@@ -19,19 +19,6 @@ Logic::Logic()
 Logic::Logic(GameLayer* gameLayer) 
   : m_gameLayer(gameLayer)
 {
-  /*DataChess& dataChess = m_gameLayer->getDataChess();
-
-  for (int i = 0; i < dataChess.pieces.size(); i++)
-  {
-    std::vector<Piece*> pieceRow = dataChess.pieces[i];
-    std::vector<Piece*> newRow;
-    for (int j = 0; j < pieceRow.size(); j++)
-    {
-      newRow.push_back(dataChess.pieces[i][j]);
-    }
-    m_pieces.push_back(newRow);
-  }*/
-
   // Board presentation
   for (int i = 0; i < Constants::ROWS; i++)
   {
@@ -58,7 +45,6 @@ bool Logic::init()
    // -------------------------------------------------------------------
    // White player always starts
   m_currentTurn = static_cast<int>(Player::WHITE_PLAYER);
-  //m_currentTurn = 0;
 
   // Game on!
   m_bGameFinished = false;
@@ -70,9 +56,6 @@ bool Logic::init()
   m_undo.bCastlingQueenSideAllowed = false;
   m_undo.en_passant.bApplied = false;
   m_undo.castling.bApplied = false;*/
-
-  // Initial board settings
-  //memcpy(board, initial_board, sizeof(char) * 8 * 8);
 
   // Castling is allowed (to each side) until the player moves the king or the rook
   m_bCastlingKingSideAllowed[static_cast<int>(Player::WHITE_PLAYER)] = true;
@@ -95,11 +78,6 @@ void Logic::initUndo(Undo& undo)
   undo.castling.bApplied = false;
 }
 
-//---------------------------------------------------------------------------------------
-// Commands
-// Functions to handle the commands of the program
-// New game, Move, Undo, Save game, Load game, etc
-//---------------------------------------------------------------------------------------
 void Logic::movePiece(Position present, Position future, EnPassant* S_enPassant, Castling* S_castling, Promotion* S_promotion)
 {
   Undo curUndo;
@@ -237,7 +215,6 @@ void Logic::movePiece(Position present, Position future, EnPassant* S_enPassant,
   changeTurns();
 
   // This move can be undone
-  //m_undo.bCanUndo = true;
   curUndo.bCanUndo = true;
 
   m_undos.push(curUndo);
@@ -920,7 +897,7 @@ bool Logic::isReachable(int iRow, int iColumn, int iColor)
     for (int i = iRow - 1, j = iColumn - 1; i > 0 && j > 0; i--, j--)
     {
       int iPieceFound = getPieceAtPositionI(i, j);
-      //Piece* pieceFound = getPieceAtPosition(i, j);
+
       if (Constants::EMPTY_SQUAREI == iPieceFound)
       {
         // This square is empty, move on
