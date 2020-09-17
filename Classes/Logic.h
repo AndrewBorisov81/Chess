@@ -94,8 +94,11 @@ class Logic : public cocos2d::Node
 {
 public:
   Logic();
+
   Logic(GameLayer* gameLayer);
+
   ~Logic();
+
   virtual bool init();
 
   void movePiece(Position present, Position future, EnPassant* S_enPassant, Castling* S_castling, Promotion* S_promotion);
@@ -176,6 +179,7 @@ public:
   void callBackDeletePiece(const std::function<void(const cocos2d::Size& presentCell)> deletePiece);
   void callBackMovePiece(const std::function<void(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> movePiece);
   void callBackUpdatePieceCell(const std::function<void(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> updatePieceCell);
+  void callBackUndoLastMove(const std::function<void(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> undoLastMove);
 
 protected:
   GameLayer* m_gameLayer{ nullptr };
@@ -200,4 +204,5 @@ protected:
   std::function<void(int type, bool isWhite, const cocos2d::Size& futureCell)> m_addPiece{ nullptr };
   std::function<void(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> m_movePiece{ nullptr };
   std::function<void(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> m_updatePieceCell{ nullptr };
+  std::function<void(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> m_undoLastMove{ nullptr };
 };

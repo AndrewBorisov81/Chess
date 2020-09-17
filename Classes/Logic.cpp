@@ -345,18 +345,15 @@ void Logic::undoLastMove()
     m_bCastlingQueenSideAllowed[getCurrentTurn()] = curUndo.bCastlingQueenSideAllowed;
   }
 
-  // Clean m_undo struct
-  /*m_undo.bCanUndo = false;
-  m_undo.bCapturedLastMove = false;
-  m_undo.en_passant.bApplied = false;
-  m_undo.castling.bApplied = false;
-  m_undo.promotion.bApplied = false;*/
-
   // If it was a checkmate, toggle back to game not finished
   m_bGameFinished = false;
 
   // Finally, remove the last move from the list
   deleteLastMove();
+
+  //  CallBack
+  if(m_undoLastMove)
+    m_undoLastMove(Size(from.iRow, from.iColumn), Size(to.iRow, to.iColumn));
 }
 
 void Logic::changeTurns(void)
@@ -498,10 +495,10 @@ std::array<std::array<int, 8>, 8>& Logic::getBoardA()
 
 void Logic::loadBoard(const int piece_board[8][8])
 {
-  for (int i = 0; i < m_boardA.size(); i++)
+  for (unsigned int i = 0; i < m_boardA.size(); i++)
   {
     std::array<int, 8> row = m_boardA[i];
-    for (int j = 0; j < row.size(); j++)
+    for (unsigned int j = 0; j < row.size(); j++)
     {
       row[j] = piece_board[i][j];
     }
@@ -1902,5 +1899,10 @@ void Logic::callBackMovePiece(const std::function<void(const cocos2d::Size& pres
 void Logic::callBackUpdatePieceCell(const std::function<void(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> updatePieceCell)
 {
   m_updatePieceCell = updatePieceCell;
+}
+
+void Logic::callBackUndoLastMove(const std::function<void(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> undoLastMove)
+{
+  m_undoLastMove = undoLastMove;
 }
 
