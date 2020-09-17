@@ -21,11 +21,11 @@ enum class GameState
 enum class ZOrderGame
 {
   BOARD = 101,
-  GRID = 202,
-  PIECE = 303,
-  TOUCH_AND_DRAG = 404,
-  PROMOTION = 505,
-  HUD = 606
+  PROMT = 201,
+  PIECE = 301,
+  TOUCH_AND_DRAG = 401,
+  PROMOTION = 501,
+  HUD = 601
 };
 
 
@@ -39,6 +39,7 @@ class Piece;
 class TouchAndDragLayer;
 class PieceMoveLogic;
 class PromotionLayer;
+class PromptLayer;
 class HudLayer;
 
 struct EnPassant;
@@ -92,6 +93,7 @@ private:
   PieceMoveLogic* m_pieceMoveLogic{ nullptr };
 
   TouchAndDragLayer* m_touchAndDragLayer{ nullptr };
+  PromptLayer* m_promptLayer{ nullptr };
   PromotionLayer* m_promotionLayer{ nullptr };
   HudLayer* m_hudLayer{ nullptr };
 
@@ -103,6 +105,7 @@ private:
   PieceMoveLogic* createPieceMoveLogic(GameLayer* gameField);
 
   TouchAndDragLayer* createTouchAndDragLayer(float cellSize, int rows, int columns);
+  PromptLayer* createPromptPieceLayer(float cellSize, int rows, int columns);
   PromotionLayer* createPromotionLayer();
   HudLayer* createHudLayer();
 

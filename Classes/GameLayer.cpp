@@ -5,6 +5,7 @@
 #include "PieceMoveLogic.h"
 #include "TouchAndDragLayer.h"
 #include "PromotionLayer.h"
+#include "PromptLayer.h"
 #include "HudLayer.h"
 #include "Constants.h"
 
@@ -88,10 +89,23 @@ bool GameLayer::init()
   this->addChild(pPieceMoveLogic, 1);
   pPieceMoveLogic->loadBoard(Constants::INITIAL_PIECE_BOARD);
 
+  // CallBacks for Logic
   pPieceMoveLogic->callBackAddPiece([this](int type, bool isWhite, const Size& futureCell) { this->m_board->addPieceN(type, isWhite, futureCell, static_cast<int>(ZOrderGame::PIECE));});
   pPieceMoveLogic->callBackDeletePiece ([this](const Size& presentCell){ this->m_board->removePieceN(presentCell); });
   pPieceMoveLogic->callBackMovePiece([this](const Size& presentCell, const Size& futureCell) { this->m_board->movePieceFromToN(presentCell, futureCell); });
   pPieceMoveLogic->callBackUpdatePieceCell([this](const Size& presentCell, const Size& futureCell) { this->m_board->updatePieceCellN(presentCell, futureCell); });
+  pPieceMoveLogic->callBackUndoLastMove([this](const Size& presentCell, const Size& futureCell) 
+  {
+    m_promptLayer->hideRectPrompts();
+    m_promptLayer->showRectPrompts();
+    m_promptLayer->setPositionRects(presentCell, futureCell);
+  });
+
+  // Creat PromptPieceLayer
+  PromptLayer* promptLayer = createPromptPieceLayer(Constants::CELL_SIZE, Constants::ROWS, Constants::COLUMNS);
+  promptLayer->setPosition(board->getPosition());
+  m_promptLayer = promptLayer;
+  this->addChild(promptLayer, static_cast<int>(ZOrderGame::PROMT));
 
   // Create Promotion Layer
   PromotionLayer* pPromotionLayer = createPromotionLayer();
@@ -118,9 +132,14 @@ bool GameLayer::init()
   {
     bool isMoveValid = this->checkPieceMove(prevPos, newPos);
 
+    m_promptLayer->hideRectPrompts();
+
     if (isMoveValid)
     {
       movePiece(prevPos, newPos);
+
+      m_promptLayer->showRectPrompts();
+      m_promptLayer->setPositionRects(prevPos, newPos);
     }
     else
     {
@@ -128,6 +147,9 @@ bool GameLayer::init()
 
       // Move back Piece
       m_board->movePieceFromToN(newPos, prevPos);
+
+      m_promptLayer->showRectPrompts(false);
+      m_promptLayer->setPositionRects(prevPos, newPos);
     } 
   };
   
@@ -206,6 +228,22 @@ TouchAndDragLayer* GameLayer::createTouchAndDragLayer(float cellSize, int rows, 
   {
     delete pTouchAndDrag;
     pTouchAndDrag = nullptr;
+    return nullptr;
+  }
+}
+
+PromptLayer* GameLayer::createPromptPieceLayer(float cellSize, int rows, int columns)
+{
+  PromptLayer* pPromptLayer = new(std::nothrow) PromptLayer(cellSize, rows, columns);
+  if (pPromptLayer && pPromptLayer->init())
+  {
+    pPromptLayer->autorelease();
+    return pPromptLayer;
+  }
+  else
+  {
+    delete pPromptLayer;
+    pPromptLayer = nullptr;
     return nullptr;
   }
 }
