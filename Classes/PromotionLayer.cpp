@@ -94,7 +94,7 @@ void PromotionLayer::showPiece(bool isWhite)
   else
     itemPiece = m_blackPiece;
 
-  for (int i = 0; i < itemPiece.size(); i++)
+  for (unsigned int i = 0; i < itemPiece.size(); i++)
   {
     Menu* piece = itemPiece[i];
     piece->setOpacity(255);
@@ -103,13 +103,13 @@ void PromotionLayer::showPiece(bool isWhite)
 
 void PromotionLayer::hidePiece()
 {
-  for (int i = 0; i < m_whitePiece.size(); i++)
+  for (unsigned int i = 0; i < m_whitePiece.size(); i++)
   {
     Menu* piece = m_whitePiece[i];
     piece->setOpacity(0);
   }
 
-  for (int i = 0; i < m_blackPiece.size(); i++)
+  for (unsigned int i = 0; i < m_blackPiece.size(); i++)
   {
     Menu* piece = m_blackPiece[i];
     piece->setOpacity(0);
@@ -175,7 +175,7 @@ void PromotionLayer::createPiece(bool isWhite, Size tableSize)
   f1->setPosition(Vec2(initPosX - tableSize.width/2, 0));
 
   // Set position
-  for (int i = 0; i < itemPiece.size() - 1; i++)
+  for (unsigned int i = 0; i < itemPiece.size() - 1; i++)
   {
     Menu* prevPiece = itemPiece[i];
     Menu* curPiece = itemPiece[i + 1];
