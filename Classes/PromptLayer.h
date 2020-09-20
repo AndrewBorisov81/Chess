@@ -2,11 +2,18 @@
 
 #include "cocos2d.h"
 
+#include <vector>
 #include <array>
+#include <functional>
 
 #include "Grid.h"
 
 class PromptElement;
+class PromptLogicHelper;
+
+struct EnPassant;
+struct Castling;
+struct Promotion;
 
 class PromptLayer : public Grid
 {
@@ -21,8 +28,13 @@ public:
   void setPositionRects(const cocos2d::Size& from, const cocos2d::Size& to);
   void hideRectPrompts();
 
-  void showCirclePrompts();
+  void showCirclePrompts(const std::vector<cocos2d::Size>& valideMoves);
   void hideCirclePrompts();
+  void setPositionCircles(const std::vector<cocos2d::Size>& valideMoves);
+  
+  void getValideMoves(int typePiece, const cocos2d::Size& presentCell, std::vector<cocos2d::Size>& possibleMoves);
+
+  void callBackIsMoveValide(const std::function<bool(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> isMoveValide);
 
 private:
   PromptElement* m_presentPromptRect{ nullptr };
@@ -30,5 +42,9 @@ private:
   PromptElement* m_promptCircle{ nullptr };
 
   std::array<PromptElement*, 27> m_circles;
+
+  PromptLogicHelper* m_promptLogicHelper{ nullptr };
+
+  std::function<bool(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> m_isMoveValideCallBack;
 };
 

@@ -1,6 +1,8 @@
 #include "PromptLayer.h"
-#include "Constants.h"
+#include "PromptLogicHelper.h"
 #include "PromptElement.h"
+#include "Constants.h"
+#include "LogicData.h"
 
 USING_NS_CC;
 
@@ -47,7 +49,13 @@ bool PromptLayer::init()
     PromptElement* promptCircle = PromptElement::createPromptElement(TypePrompt::PROMPT_CIRCLE);
     this->addChild(promptCircle, 1);
     promptCircle->hide();
+    m_circles[i] = promptCircle;
   }
+
+  // Create promptLogicHelper(get possible moves)
+  PromptLogicHelper* promptLogicHelper = PromptLogicHelper::createPromptLogicHelper();
+  m_promptLogicHelper = promptLogicHelper;
+  this->addChild(promptLogicHelper, 1);
 
   return true;
 }
@@ -77,13 +85,44 @@ void PromptLayer::hideRectPrompts()
   m_futurePromptRect->hide();
 }
 
-void PromptLayer::showCirclePrompts()
+void PromptLayer::showCirclePrompts(const std::vector<cocos2d::Size>& valideMoves)
 {
-
+  for (unsigned int i = 0; i < valideMoves.size(); i++)
+  {
+    /*Size cell = valideMoves[i];
+    PromptElement* circlePrompt = m_circles[i];
+    circlePrompt->setPosition(getPointByCell(cell));*/
+  }
 }
 
 void PromptLayer::hideCirclePrompts()
 {
 
+}
+
+void PromptLayer::setPositionCircles(const std::vector<cocos2d::Size>& valideMoves)
+{
+
+}
+
+void PromptLayer::getValideMoves(int typePiece, const cocos2d::Size& presentCell, std::vector<cocos2d::Size>& valideMoves)
+{
+  // No check is move valide
+  std::vector<cocos2d::Size> possibleMoves;
+
+  m_promptLogicHelper->getPossibleMoves(typePiece, presentCell, possibleMoves);
+
+  for (auto el : possibleMoves)
+  {
+    bool isMoveValide = m_isMoveValideCallBack(presentCell, el);
+
+    if (isMoveValide)
+      possibleMoves.push_back(el);
+  }
+}
+
+void PromptLayer::callBackIsMoveValide(const std::function<bool(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> isMoveValide)
+{
+  m_isMoveValideCallBack = isMoveValide;
 }
 
