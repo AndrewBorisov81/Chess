@@ -15,6 +15,7 @@
 #include <cmath>
 #include <string>
 #include <stdlib.h>
+#include <vector>
 
 USING_NS_CC;
 using namespace cocos2d::ui;
@@ -57,17 +58,17 @@ bool GameLayer::init()
     {
       row.push_back(0);
     }
-    m_dataChess.board.push_back(row);
+    //m_dataChess.board.push_back(row);
   }
 
   // Board presentation
-  for (int i = 0; i < Constants::ROWS; i++)
+  /*for (int i = 0; i < Constants::ROWS; i++)
   {
     for (int j = 0; j < Constants::COLUMNS; j++)
     {
       m_dataChess.board[i][j] = Constants::INITIAL_PIECE_BOARD[i][j];
     }
-  }
+  }*/
 
   // Create Board
   Board* board = createBoard(Constants::CELL_SIZE, Constants::ROWS, Constants::COLUMNS);
@@ -79,7 +80,7 @@ bool GameLayer::init()
 
   // Create Piece
   m_pieces = createPieces(Constants::INITIAL_PIECE_BOARD, Constants::ROWS, Constants::COLUMNS);
-  m_dataChess.pieces = m_pieces;
+  //m_dataChess.pieces = m_pieces;
   // Load piece
   board->loadAllPieces(m_pieces, static_cast<int>(ZOrderGame::PIECE));
 
@@ -150,6 +151,14 @@ bool GameLayer::init()
 
       m_promptLayer->showRectPrompts(false);
       m_promptLayer->setPositionRects(prevPos, newPos);
+
+      //m_promptLayer->callBackIsMoveValide = checkPieceMove(prevPos, newPos);
+
+      std::vector<cocos2d::Size> valideMovesPiece;
+
+      int typePiece = static_cast<int>(piece->getType());
+
+      m_promptLayer->getValideMoves(typePiece, prevPos, valideMovesPiece);
     } 
   };
   

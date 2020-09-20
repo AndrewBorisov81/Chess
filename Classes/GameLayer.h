@@ -46,11 +46,11 @@ struct EnPassant;
 struct Castling;
 struct Promotion;
 
-struct DataChess
+/*struct DataChess
 {
   std::vector<std::vector<Piece*>> pieces;
   std::vector<std::vector<int>> board;
-};
+};*/
 
 class GameLayer : public cocos2d::Layer
 {
@@ -88,7 +88,7 @@ private:
 
   std::vector<std::vector<Piece*>> m_pieces;
 
-  DataChess m_dataChess;
+  //DataChess m_dataChess;
 
   PieceMoveLogic* m_pieceMoveLogic{ nullptr };
 
