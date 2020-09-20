@@ -2,6 +2,8 @@
 
 #include "cocos2d.h"
 
+class PromptLogicHelper;
+
 enum class TypePrompt
 {
   PROMPT_RECT,
