@@ -46,12 +46,6 @@ struct EnPassant;
 struct Castling;
 struct Promotion;
 
-/*struct DataChess
-{
-  std::vector<std::vector<Piece*>> pieces;
-  std::vector<std::vector<int>> board;
-};*/
-
 class GameLayer : public cocos2d::Layer
 {
 public:
@@ -66,7 +60,7 @@ public:
 
   void movePiece(const cocos2d::Size& move_from, const cocos2d::Size& move_to);
 
-  bool checkPieceMove(const cocos2d::Size& prevCellIJ, const cocos2d::Size& curCellIJ);
+  bool checkPieceMove(const cocos2d::Size& prevCellIJ, const cocos2d::Size& curCellIJ, bool checkPrompt = false);
 
   void undoMove();
 
@@ -87,8 +81,6 @@ private:
   Grid* m_grid{ nullptr };
 
   std::vector<std::vector<Piece*>> m_pieces;
-
-  //DataChess m_dataChess;
 
   PieceMoveLogic* m_pieceMoveLogic{ nullptr };
 
@@ -112,11 +104,4 @@ private:
   // Promotion
   void applyPromotion();
   void movePromotion(cocos2d::Size& present, cocos2d::Size& future, Promotion& promotion, int typePromotionPiece);
-
-  /*cocos2d::EventListenerMouse* m_mouseListener;
-
-  void onMouseDown(cocos2d::Event* event);
-  void onMouseUp(cocos2d::Event* event);
-  void onMouseMove(cocos2d::Event* event);*/
-
 };

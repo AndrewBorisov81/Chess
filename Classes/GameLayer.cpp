@@ -50,26 +50,6 @@ bool GameLayer::init()
   Vec2 origin = Director::getInstance()->getVisibleOrigin();
   m_screenSize = visibleSize;
 
-  // Board presentation
-  for (int i = 0; i < Constants::ROWS; i++)
-  {
-    std::vector<int> row;
-    for (int j = 0; j < Constants::COLUMNS; j++)
-    {
-      row.push_back(0);
-    }
-    //m_dataChess.board.push_back(row);
-  }
-
-  // Board presentation
-  /*for (int i = 0; i < Constants::ROWS; i++)
-  {
-    for (int j = 0; j < Constants::COLUMNS; j++)
-    {
-      m_dataChess.board[i][j] = Constants::INITIAL_PIECE_BOARD[i][j];
-    }
-  }*/
-
   // Create Board
   Board* board = createBoard(Constants::CELL_SIZE, Constants::ROWS, Constants::COLUMNS);
   this->addChild(board, static_cast<int>(ZOrderGame::BOARD));
@@ -80,7 +60,7 @@ bool GameLayer::init()
 
   // Create Piece
   m_pieces = createPieces(Constants::INITIAL_PIECE_BOARD, Constants::ROWS, Constants::COLUMNS);
-  //m_dataChess.pieces = m_pieces;
+
   // Load piece
   board->loadAllPieces(m_pieces, static_cast<int>(ZOrderGame::PIECE));
 
@@ -94,7 +74,7 @@ bool GameLayer::init()
   pPieceMoveLogic->callBackAddPiece([this](int type, bool isWhite, const Size& futureCell) { this->m_board->addPieceN(type, isWhite, futureCell, static_cast<int>(ZOrderGame::PIECE));});
   pPieceMoveLogic->callBackDeletePiece ([this](const Size& presentCell){ this->m_board->removePieceN(presentCell); });
   pPieceMoveLogic->callBackMovePiece([this](const Size& presentCell, const Size& futureCell) { this->m_board->movePieceFromToN(presentCell, futureCell); });
-  pPieceMoveLogic->callBackUpdatePieceCell([this](const Size& presentCell, const Size& futureCell) { this->m_board->updatePieceCellN(presentCell, futureCell); });
+  //pPieceMoveLogic->callBackUpdatePieceCell([this](const Size& presentCell, const Size& futureCell) { this->m_board->updatePieceCellN(presentCell, futureCell); });
   pPieceMoveLogic->callBackUndoLastMove([this](const Size& presentCell, const Size& futureCell) 
   {
     m_promptLayer->hideRectPrompts();
@@ -134,31 +114,54 @@ bool GameLayer::init()
     bool isMoveValid = this->checkPieceMove(prevPos, newPos);
 
     m_promptLayer->hideRectPrompts();
+    m_promptLayer->hideCirclePrompts();
 
     if (isMoveValid)
     {
       movePiece(prevPos, newPos);
+
+      piece->setCell(newPos);
 
       m_promptLayer->showRectPrompts();
       m_promptLayer->setPositionRects(prevPos, newPos);
     }
     else
     {
-      piece->setCell(newPos);
+      if (Constants::EMPTY_SQUAREI == m_pieceMoveLogic->getPieceAtPositionI(newPos.width, newPos.height))
+      {
+        piece->setCell(newPos);
 
-      // Move back Piece
-      m_board->movePieceFromToN(newPos, prevPos);
+        // Move back Piece
+        m_board->movePieceFromToN(newPos, prevPos);
+      }
+      else
+      {
+        // Move back Piece
+        m_board->movePieceFromToN(prevPos, prevPos);
+      }
 
+      // Show rect prompts
       m_promptLayer->showRectPrompts(false);
       m_promptLayer->setPositionRects(prevPos, newPos);
 
-      //m_promptLayer->callBackIsMoveValide = checkPieceMove(prevPos, newPos);
+      // Show circle prompts
+      auto lfCallBackIsMoveValide = [this](const Size& prevPos, const Size& newPos)->bool
+      { 
+        bool isMoveValide = this->checkPieceMove(prevPos, newPos, true);
 
-      std::vector<cocos2d::Size> valideMovesPiece;
+        return isMoveValide;
+      };
+
+      m_promptLayer->callBackIsMoveValide(lfCallBackIsMoveValide);
 
       int typePiece = static_cast<int>(piece->getType());
 
+      std::vector<cocos2d::Size> valideMovesPiece;
+
       m_promptLayer->getValideMoves(typePiece, prevPos, valideMovesPiece);
+
+      m_promptLayer->setPositionCircles(valideMovesPiece);
+      m_promptLayer->showCirclePrompts(valideMovesPiece);
     } 
   };
   
@@ -653,7 +656,7 @@ std::vector<std::vector<Piece*>> GameLayer::createPieces(const int piece_board[8
   return pieces;
 }
 
-bool GameLayer::checkPieceMove(const cocos2d::Size& prevCellIJ, const cocos2d::Size& curCellIJ)
+bool GameLayer::checkPieceMove(const cocos2d::Size& prevCellIJ, const cocos2d::Size& curCellIJ, bool checkPrompt)
 {
   EnPassant  S_enPassant = { 0 };
   Castling   S_castling = { 0 };
@@ -667,7 +670,7 @@ bool GameLayer::checkPieceMove(const cocos2d::Size& prevCellIJ, const cocos2d::S
   future.iRow = (int)(curCellIJ.width);
   future.iColumn = (int)(curCellIJ.height);
 
-  bool isMoveValid = m_pieceMoveLogic->isMoveValid(present, future, &S_enPassant, &S_castling, &S_promotion);
+  bool isMoveValid = m_pieceMoveLogic->isMoveValid(present, future, &S_enPassant, &S_castling, &S_promotion, checkPrompt);
 
   return isMoveValid;
 }
@@ -681,33 +684,10 @@ void GameLayer::undoMove(void)
   }
 
   m_pieceMoveLogic->undoLastMove();
+
+  m_promptLayer->hideCirclePrompts();
   //createNextMessage("Last move was undone\n");
 }
 
-/*void GameLayer::onMouseDown(Event* event)
-{
-  EventMouse* e = (EventMouse*)event;
-}
-
-void GameLayer::onMouseUp(Event* event)
-{
-  // to illustrate the event....
-  EventMouse* e = (EventMouse*)event;
-  //m_currentPiece = nullptr;
-  m_delta.x = 0;
-  m_delta.y = 0;
-}
-
-void GameLayer::onMouseMove(Event* event)
-{
-  //m_delta = e->getDelta();
-
-  /*if (m_currentPiece)
-  {
-    EventMouse* e = (EventMouse*)event;
-    Vec2 curFig(m_currentPiece->getPosition());
-    m_currentPiece->setPosition(m_currentPiece->getPosition() + e->getDelta());
-  }
-}*/
 
 
