@@ -32,6 +32,9 @@ public:
 
   void setColor(ColorPrompt colorPrompt);
 
+  void setCellPos(const cocos2d::Size& cellPos);
+  cocos2d::Size getCellPos();
+
   TypePrompt getTypePrompt();
   void setTypePrompt(TypePrompt typeElement);
 
@@ -43,4 +46,6 @@ private:
   cocos2d::Sprite* m_greenRect{ nullptr };
   cocos2d::Sprite* m_redRect{ nullptr };
   cocos2d::Sprite* m_circle{ nullptr };
+
+  cocos2d::Size m_cellPos{ -1, -1 };
 };

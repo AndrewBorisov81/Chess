@@ -115,6 +115,16 @@ void PromptElement::setColor(ColorPrompt colorPrompt)
   }
 }
 
+void PromptElement::setCellPos(const cocos2d::Size & cellPos)
+{
+  m_cellPos = cellPos;
+}
+
+cocos2d::Size PromptElement::getCellPos()
+{
+  return m_cellPos;
+}
+
 TypePrompt PromptElement::getTypePrompt()
 {
   return TypePrompt::PROMPT_CIRCLE;
