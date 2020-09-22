@@ -33,7 +33,7 @@ bool PieceMoveLogic::init()
   return true;
 }
 
-bool PieceMoveLogic::isMoveValid(Position present, Position future, EnPassant* S_enPassant, Castling* S_castling, Promotion* S_promotion)
+bool PieceMoveLogic::isMoveValid(Position present, Position future, EnPassant* S_enPassant, Castling* S_castling, Promotion* S_promotion, bool checkPrompt)
 {
   bool bValid = false;
 
@@ -118,14 +118,18 @@ bool PieceMoveLogic::isMoveValid(Position present, Position future, EnPassant* S
       }
 
       // Did the pawn have a double move forward and was it an adjacent column?
-      if (2 == abs(LastMoveTo.iRow - LastMoveFrom.iRow) && 1 == abs(LastMoveFrom.iColumn - present.iColumn))
+      if (2 == abs(LastMoveTo.iRow - LastMoveFrom.iRow) && 1 == abs(LastMoveFrom.iColumn - present.iColumn) && LastMoveTo.iColumn == future.iColumn)
       {
-        //std::cout << "En passant move!\n";
         bValid = true;
 
-        S_enPassant->bApplied = true;
-        S_enPassant->PawnCaptured.iRow = LastMoveTo.iRow;
-        S_enPassant->PawnCaptured.iColumn = LastMoveTo.iColumn;
+        if (!checkPrompt)
+        {
+          S_enPassant->bApplied = true;
+          S_enPassant->PawnCaptured.iRow = LastMoveTo.iRow;
+          S_enPassant->PawnCaptured.iColumn = LastMoveTo.iColumn;
+
+         //std::cout << "En passant move!\n";
+        }
       }
       // Wants to capture a piece
       else if (1 == (abs(future.iColumn - present.iColumn)))
@@ -306,8 +310,6 @@ bool PieceMoveLogic::isMoveValid(Position present, Position future, EnPassant* S
         {
           // Check if the square that the king skips is not under attack
           UnderAttack square_skipped1 = isUnderAttack(present.iRow, present.iColumn + 1, getCurrentTurn(), nullptr);
-          // ????????????????????????????????????????
-          //UnderAttack square_skipped2 = isUnderAttack(future.iRow, future.iColumn, getCurrentTurn(), nullptr);
           if (!square_skipped1.bUnderAttack)
           {
             // Fill the S_castling structure
