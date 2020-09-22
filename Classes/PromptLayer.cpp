@@ -87,22 +87,35 @@ void PromptLayer::hideRectPrompts()
 
 void PromptLayer::showCirclePrompts(const std::vector<cocos2d::Size>& valideMoves)
 {
-  for (unsigned int i = 0; i < valideMoves.size(); i++)
+  for (auto toShowCell: valideMoves)
   {
-    /*Size cell = valideMoves[i];
-    PromptElement* circlePrompt = m_circles[i];
-    circlePrompt->setPosition(getPointByCell(cell));*/
-  }
+    //Size circleToShowCell = toShowCell->getCellPos();
+
+    for (auto circle : m_circles)
+    {
+      Size circleInBox = circle->getCellPos();
+
+      if(toShowCell.width == circleInBox.width && toShowCell.height == circleInBox.height)
+        circle->show();
+    }
+  }    
 }
 
 void PromptLayer::hideCirclePrompts()
 {
-
+  for (auto el : m_circles)
+    el->hide();
 }
 
 void PromptLayer::setPositionCircles(const std::vector<cocos2d::Size>& valideMoves)
 {
-
+  for (unsigned int i = 0; i < valideMoves.size(); i++)
+  {
+    Size cell = valideMoves[i];
+    PromptElement* circlePrompt = m_circles[i];
+    circlePrompt->setPosition(getPointByCell(cell.height, cell.width));
+    circlePrompt->setCellPos(Size(cell.width, cell.height));
+  }
 }
 
 void PromptLayer::getValideMoves(int typePiece, const cocos2d::Size& presentCell, std::vector<cocos2d::Size>& valideMoves)
@@ -114,10 +127,13 @@ void PromptLayer::getValideMoves(int typePiece, const cocos2d::Size& presentCell
 
   for (auto el : possibleMoves)
   {
-    bool isMoveValide = m_isMoveValideCallBack(presentCell, el);
+    bool isMoveValide{ false };
+
+    if(m_isMoveValideCallBack)
+      isMoveValide = m_isMoveValideCallBack(presentCell, el);
 
     if (isMoveValide)
-      possibleMoves.push_back(el);
+      valideMoves.push_back(el);
   }
 }
 
