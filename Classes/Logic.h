@@ -88,7 +88,7 @@ public:
   std::vector<int> iwhite_captured;
   std::vector<int> iblack_captured;
 
-  void parseMove(std::string move, Position* pFrom, Position* pTo, char* chPromoted = nullptr);
+  //void parseMove(std::string move, Position* pFrom, Position* pTo, char* chPromoted = nullptr);
   std::string parseMoveCellIntToString(const Position& pFrom);
   void parseMoveStringToCell(std::string move, Position* pFrom, Position* pTo);
 
@@ -101,7 +101,6 @@ public:
   void callBackAddPiece(const std::function<void(int type, bool isWhite, const cocos2d::Size& futureCell)> addPiece);
   void callBackDeletePiece(const std::function<void(const cocos2d::Size& presentCell)> deletePiece);
   void callBackMovePiece(const std::function<void(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> movePiece);
-  void callBackUpdatePieceCell(const std::function<void(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> updatePieceCell);
   void callBackUndoLastMove(const std::function<void(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> undoLastMove);
 
 protected:
@@ -126,6 +125,5 @@ protected:
   std::function<void(const cocos2d::Size& presentCell)> m_deletePiece{ nullptr };
   std::function<void(int type, bool isWhite, const cocos2d::Size& futureCell)> m_addPiece{ nullptr };
   std::function<void(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> m_movePiece{ nullptr };
-  std::function<void(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> m_updatePieceCell{ nullptr };
   std::function<void(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> m_undoLastMove{ nullptr };
 };

@@ -49,14 +49,6 @@ bool Logic::init()
   // Game on!
   m_bGameFinished = false;
 
-  // Nothing has happend yet
-  /*m_undo.bCapturedLastMove = false;
-  m_undo.bCanUndo = false;
-  m_undo.bCastlingKingSideAllowed = false;
-  m_undo.bCastlingQueenSideAllowed = false;
-  m_undo.en_passant.bApplied = false;
-  m_undo.castling.bApplied = false;*/
-
   // Castling is allowed (to each side) until the player moves the king or the rook
   m_bCastlingKingSideAllowed[static_cast<int>(Player::WHITE_PLAYER)] = true;
   m_bCastlingKingSideAllowed[static_cast<int>(Player::BLACK_PLAYER)] = true;
@@ -144,9 +136,6 @@ void Logic::movePiece(Position present, Position future, EnPassant* S_enPassant,
   // Remove piece from future position on board
   if(Constants::EMPTY_SQUAREI != iCapturedPiece)
     m_deletePiece(Size(future.iRow, future.iColumn));
-
-  // Update pieceCell
-  m_updatePieceCell(Size(present.iRow, present.iColumn), Size(future.iRow, future.iColumn));
 
   // Move piece to new position
   if (S_promotion->bApplied)
@@ -402,7 +391,7 @@ int Logic::getOppositCurrentTurn()
   return oppositCurrentTurn;
 }
 
-void Logic::parseMove(std::string move, Position* pFrom, Position* pTo, char* chPromoted)
+/*void Logic::parseMove(std::string move, Position* pFrom, Position* pTo, char* chPromoted)
 {
   pFrom->iColumn = move[0];
   pFrom->iRow = move[1];
@@ -428,7 +417,7 @@ void Logic::parseMove(std::string move, Position* pFrom, Position* pTo, char* ch
       //chPromoted = Constants::EMPTY_SQUARE;
     }
   }
-}
+}*/
 
 std::string Logic::parseMoveCellIntToString(const Position& pos)
 {
@@ -1788,10 +1777,7 @@ bool Logic::isCheckMate()
     else
     {
       // Last resort: can any piece get in between the attacker and the king?
-      //char chAttacker = getPieceAtPosition(king_attacked.attacker[0].pos.iRow, king_attacked.attacker[0].pos.iColumn);
       int iPieceAttacker = getPieceAtPositionI(king_attacked.attacker[0].pos.iRow, king_attacked.attacker[0].pos.iColumn);
-
-      //Piece* pieceAttacker = getPieceAtPosition(king_attacked.attacker[0].pos.iRow, king_attacked.attacker[0].pos.iColumn);
 
       TypePiece typePiece = static_cast<TypePiece>(abs(iPieceAttacker));
 
@@ -1871,11 +1857,6 @@ void Logic::callBackDeletePiece(const std::function<void(const cocos2d::Size& pr
 void Logic::callBackMovePiece(const std::function<void(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> movePiece)
 {
   m_movePiece = movePiece;
-}
-
-void Logic::callBackUpdatePieceCell(const std::function<void(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> updatePieceCell)
-{
-  m_updatePieceCell = updatePieceCell;
 }
 
 void Logic::callBackUndoLastMove(const std::function<void(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> undoLastMove)
