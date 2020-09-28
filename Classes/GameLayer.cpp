@@ -8,6 +8,9 @@
 #include "PromptLayer.h"
 #include "HudLayer.h"
 #include "Constants.h"
+#include "Globals.h"
+
+#include "ConnectorC.hpp"
 
 #include "cocos2d.h"
 #include "ui/CocosGUI.h"
@@ -74,13 +77,18 @@ bool GameLayer::init()
   pPieceMoveLogic->callBackAddPiece([this](int type, bool isWhite, const Size& futureCell) { this->m_board->addPieceN(type, isWhite, futureCell, static_cast<int>(ZOrderGame::PIECE));});
   pPieceMoveLogic->callBackDeletePiece ([this](const Size& presentCell){ this->m_board->removePieceN(presentCell); });
   pPieceMoveLogic->callBackMovePiece([this](const Size& presentCell, const Size& futureCell) { this->m_board->movePieceFromToN(presentCell, futureCell); });
-  //pPieceMoveLogic->callBackUpdatePieceCell([this](const Size& presentCell, const Size& futureCell) { this->m_board->updatePieceCellN(presentCell, futureCell); });
   pPieceMoveLogic->callBackUndoLastMove([this](const Size& presentCell, const Size& futureCell) 
   {
     m_promptLayer->hideRectPrompts();
     m_promptLayer->showRectPrompts();
     m_promptLayer->setPositionRects(presentCell, futureCell);
   });
+
+  // Create connector
+  // AI
+  /*Connector* connector = Connector::createConnector();
+  this->addChild(connector, 1);
+  m_connector = connector;*/
 
   // Creat PromptPieceLayer
   PromptLayer* promptLayer = createPromptPieceLayer(Constants::CELL_SIZE, Constants::ROWS, Constants::COLUMNS);
@@ -124,6 +132,25 @@ bool GameLayer::init()
 
       m_promptLayer->showRectPrompts();
       m_promptLayer->setPositionRects(prevPos, newPos);
+
+      // AI(computer)
+      if (Player::WHITE_PLAYER  != static_cast<Player>(m_pieceMoveLogic->getCurrentTurn()))
+      {
+        std::string lastMove = m_pieceMoveLogic->getLastMove();
+        std::string computerMove = getNextMove(lastMove);
+
+        // Parse the line
+        /*Position from;
+        Position to;*/
+
+        bool stop = true;
+
+        //m_pieceMoveLogic->parseMoveStringToCell(computerMove, &from, &to);
+
+        //movePiece(prevPos, newPos);
+
+        //piece->setCell(newPos);
+      }
     }
     else
     {
