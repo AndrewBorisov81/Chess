@@ -438,7 +438,7 @@ void Logic::parseMoveStringToCell(std::string move, Position* pFrom, Position* p
 }
 
 // to delete
-void Logic::updatePiece(const std::vector<std::vector<Piece*>>& pieces)
+/*void Logic::updatePiece(const std::vector<std::vector<Piece*>>& pieces)
 {
   //m_pieces.clear();
 
@@ -452,7 +452,7 @@ void Logic::updatePiece(const std::vector<std::vector<Piece*>>& pieces)
     }
     m_pieces.push_back(newRow);
   }
-}
+}*/
 
 std::array<std::array<int, 8>, 8>& Logic::getBoardA()
 {

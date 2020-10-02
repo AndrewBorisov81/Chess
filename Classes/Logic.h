@@ -92,7 +92,7 @@ public:
   std::string parseMoveCellIntToString(const Position& pFrom);
   void parseMoveStringToCell(std::string move, Position* pFrom, Position* pTo);
 
-  void updatePiece(const std::vector<std::vector<Piece*>>& pieces);
+  //void updatePiece(const std::vector<std::vector<Piece*>>& pieces);
 
   std::array<std::array<int, 8>, 8>& getBoardA();
   void loadBoard(const int piece_board[8][8]);
