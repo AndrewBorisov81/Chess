@@ -10,7 +10,8 @@
 #include "Constants.h"
 #include "Globals.h"
 
-#include "ConnectorC.hpp"
+//#include "ConnectorC.hpp"
+#include "Connector.h"
 
 #include "cocos2d.h"
 #include "ui/CocosGUI.h"
@@ -86,9 +87,10 @@ bool GameLayer::init()
 
   // Create connector
   // AI
-  /*Connector* connector = Connector::createConnector();
+  Connector* connector = Connector::createConnector();
   this->addChild(connector, 1);
-  m_connector = connector;*/
+  m_connector = connector;
+  m_connector->ConnectToEngine("D:\\BIBAGAMES\\C++PROJECTS\\COCOS\\PROJECTS\\Chess\\proj.win32\\stockfish.exe");
 
   // Creat PromptPieceLayer
   PromptLayer* promptLayer = createPromptPieceLayer(Constants::CELL_SIZE, Constants::ROWS, Constants::COLUMNS);
@@ -137,17 +139,16 @@ bool GameLayer::init()
       if (Player::WHITE_PLAYER  != static_cast<Player>(m_pieceMoveLogic->getCurrentTurn()))
       {
         std::string lastMove = m_pieceMoveLogic->getLastMove();
-        std::string computerMove = getNextMove(lastMove);
+        std::string computerMove = m_connector->getNextMove(lastMove);
 
         // Parse the line
-        /*Position from;
-        Position to;*/
+        Position from;
+        Position to;
 
-        bool stop = true;
+        m_pieceMoveLogic->parseMoveStringToCell(computerMove, &from, &to);
 
-        //m_pieceMoveLogic->parseMoveStringToCell(computerMove, &from, &to);
-
-        //movePiece(prevPos, newPos);
+        movePiece(Size(from.iRow, from.iColumn), Size(to.iRow, to.iColumn));
+        m_board->movePieceFromToN(Size(from.iRow, from.iColumn), Size(to.iRow, to.iColumn));
 
         //piece->setCell(newPos);
       }

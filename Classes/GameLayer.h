@@ -41,7 +41,7 @@ class PieceMoveLogic;
 class PromotionLayer;
 class PromptLayer;
 class HudLayer;
-//class Connector;
+class Connector;
 
 struct EnPassant;
 struct Castling;
@@ -89,7 +89,7 @@ private:
   PromptLayer* m_promptLayer{ nullptr };
   PromotionLayer* m_promotionLayer{ nullptr };
   HudLayer* m_hudLayer{ nullptr };
-  //Connector* m_connector{ nullptr };
+  Connector* m_connector{ nullptr };
 
   Grid* createGrid(float cellSize, int rows, int columns);
   Board* createBoard(float cellSize, int rows, int columns);
