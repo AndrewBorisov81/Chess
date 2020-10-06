@@ -106,4 +106,7 @@ private:
   // Promotion
   void applyPromotion();
   void movePromotion(cocos2d::Size& present, cocos2d::Size& future, Promotion& promotion, int typePromotionPiece);
+
+  //to delet
+  bool m_isFirstMove{ true };
 };

@@ -91,6 +91,7 @@ bool GameLayer::init()
   this->addChild(connector, 1);
   m_connector = connector;
   m_connector->ConnectToEngine("D:\\BIBAGAMES\\C++PROJECTS\\COCOS\\PROJECTS\\Chess\\proj.win32\\stockfish.exe");
+  //m_connector->ConnectToEngine("D:\\BIBAGAMES\\C++PROJECTS\\COCOS\\PROJECTS\\Chess\\proj.win32\\stockfish12.exe");
 
   // Creat PromptPieceLayer
   PromptLayer* promptLayer = createPromptPieceLayer(Constants::CELL_SIZE, Constants::ROWS, Constants::COLUMNS);
@@ -136,10 +137,30 @@ bool GameLayer::init()
       m_promptLayer->setPositionRects(prevPos, newPos);
 
       // AI(computer)
-      if (Player::WHITE_PLAYER  != static_cast<Player>(m_pieceMoveLogic->getCurrentTurn()))
+      if (Globals::onePlayer == true && Player::WHITE_PLAYER  != static_cast<Player>(m_pieceMoveLogic->getCurrentTurn()))
       {
-        std::string lastMove = m_pieceMoveLogic->getLastMove();
-        std::string computerMove = m_connector->getNextMove(lastMove);
+        std::string toComputerMove;
+
+        //m_isFirstMove = false;
+        if (m_isFirstMove)
+        {
+          toComputerMove = m_pieceMoveLogic->getLastMove();
+        }
+        else
+        {
+          std::string lastMove = m_pieceMoveLogic->getLastMove();
+          std::string penultMove = m_pieceMoveLogic->getPenultMove();
+          toComputerMove = lastMove + " " + penultMove;
+        }
+
+        m_isFirstMove = false;
+
+        /*std::string lastMove = m_pieceMoveLogic->getLastMove();
+        std::string penultMove = m_pieceMoveLogic->getPenultMove();
+
+        std::string toComputerMove = lastMove + " " + penultMove;*/
+
+        std::string computerMove = m_connector->getNextMove(toComputerMove);
 
         // Parse the line
         Position from;
@@ -147,10 +168,13 @@ bool GameLayer::init()
 
         m_pieceMoveLogic->parseMoveStringToCell(computerMove, &from, &to);
 
-        movePiece(Size(from.iRow, from.iColumn), Size(to.iRow, to.iColumn));
-        m_board->movePieceFromToN(Size(from.iRow, from.iColumn), Size(to.iRow, to.iColumn));
+        bool isMoveValideComp = this->checkPieceMove(Size(from.iRow, from.iColumn), Size(to.iRow, to.iColumn));
 
-        //piece->setCell(newPos);
+        if (isMoveValideComp)
+        {
+          movePiece(Size(from.iRow, from.iColumn), Size(to.iRow, to.iColumn));
+          m_board->movePieceFromToN(Size(from.iRow, from.iColumn), Size(to.iRow, to.iColumn));
+        }
       }
     }
     else
