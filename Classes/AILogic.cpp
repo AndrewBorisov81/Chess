@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include "PromptLogicHelper.h"
+
 USING_NS_CC;
 
 AILogic::AILogic()
@@ -21,6 +23,11 @@ bool AILogic::init()
     return false;
   }
 
+  // Create promptLogicHelper(get possible moves)
+  PromptLogicHelper* promptLogicHelper = PromptLogicHelper::createPromptLogicHelper();
+  m_promptLogicHelper = promptLogicHelper;
+  this->addChild(promptLogicHelper, 1);
+
   return true;
 }
 
@@ -38,7 +45,7 @@ void AILogic::SwitchPawnWithFigure()
 
 }
 
-void AILogic::calculateBestMove(Size& bestMove)
+void AILogic::calculateBestMove(const std::vector<cocos2d::Size>& allPossibleMoves, Size& bestMove)
 {
   std::vector<Size*> newGameMoves;
   //use any negative large number
@@ -60,6 +67,16 @@ void AILogic::calculateBestMove(Size& bestMove)
 
 void AILogic::getBestMove()
 {
+
+}
+
+void AILogic::getPossibleMoves(const std::vector<cocos2d::Size>& possibleMoves, Player turn)
+{
+  for (int i = 0; i < 8; i++)
+    for (int j = 0; i < 8; i++)
+    {
+
+    }
 
 }
 
@@ -88,13 +105,11 @@ float AILogic::evaluateBoard()
   for (int i = 0; i < 8; i++) {
     for (int j = 0; j < 8; j++) {
 
-      //int typePieceI = m_callBackPieceTypeColor(i, j);
-      int typePieceI;
+      int typePieceI = m_callBackGetPiece(i, j);
 
       isWhite = Piece::isWhite(typePieceI);
 
       typePiece = Piece::getTypeP(typePieceI);
-
 
       totalEvaluation = totalEvaluation + getPieceValue(typePiece, isWhite, i, j);
     }
@@ -116,9 +131,33 @@ void AILogic::addMove()
 
 }
 
-void AILogic::callBackGetPieceTypeColor(const std::function<int(int x, int y)>& callBack)
+void AILogic::callBackGetPiece(const std::function<int(int x, int y)>& callBack)
 {
-  m_callBackPieceTypeColor = callBack;
+  m_callBackGetPiece = callBack;
+}
+
+void AILogic::getValideMoves(int typePiece, const cocos2d::Size & presentCell, std::vector<cocos2d::Size>& valideMoves)
+{
+  // No check is move valide
+  std::vector<cocos2d::Size> possibleMoves;
+
+  m_promptLogicHelper->getPossibleMoves(typePiece, presentCell, possibleMoves);
+
+  for (auto el : possibleMoves)
+  {
+    bool isMoveValide{ false };
+
+    if (m_isMoveValideCallBack)
+      isMoveValide = m_isMoveValideCallBack(presentCell, el);
+
+    if (isMoveValide)
+      valideMoves.push_back(el);
+  }
+}
+
+void AILogic::callBackIsMoveValide(const std::function<bool(const cocos2d::Size&presentCell, const cocos2d::Size&futureCell)> isMoveValideCallBack)
+{
+  m_isMoveValideCallBack = isMoveValideCallBack;
 }
 
 float AILogic::getAbsoluteValue(TypePiece typePiece, bool isWhite, int x, int y)

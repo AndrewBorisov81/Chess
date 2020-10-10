@@ -26,6 +26,8 @@ struct Castle { bool kingSide; };*/
   bool isCastling() const { return m_details.index() == 2; };
 };*/
 
+class PromptLogicHelper;
+
 class AILogic: public cocos2d::Node
 {
 public:
@@ -38,9 +40,10 @@ public:
   void PlaceFigure();
   void SwitchPawnWithFigure();
 
-  void calculateBestMove(cocos2d::Size& bestMove);
+  void calculateBestMove(const std::vector<cocos2d::Size>& allPossibleMove, cocos2d::Size& bestMove);
 
   void getBestMove();
+  void getPossibleMoves(const std::vector<cocos2d::Size>& possibleMoves, Player turn = Player::BLACK_PLAYER);
 
   float getAbsoluteValue(TypePiece typePiece, bool isWhite, int x, int y);
   float getPieceValue(TypePiece typePiece, bool isWhite, int x, int y);
@@ -55,10 +58,18 @@ public:
   void addMove();
 
   // Callbacks
-  void callBackGetPieceTypeColor(const std::function<int(int x, int y)>& callBack);
+  void callBackGetPiece(const std::function<int(int x, int y)>& callBack);
+
+  // Call backs
+  void getValideMoves(int typePiece, const cocos2d::Size& presentCell, std::vector<cocos2d::Size>& possibleMoves);
+  void callBackIsMoveValide(const std::function<bool(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> isMoveValide);
 
 private:
+  PromptLogicHelper* m_promptLogicHelper{ nullptr };
 
-  std::function<int(int, int)> m_callBackPieceTypeColor{ nullptr };
+  std::function<int(int, int)> m_callBackGetPiece{ nullptr };
+
+  // Call backs
+  std::function<bool(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> m_isMoveValideCallBack;
   
 };
