@@ -102,6 +102,9 @@ void Connector::ConnectToEngine(char* path)
 
 std::string Connector::getNextMove(std::string position)
 {
+  // clear buffer
+  //memset(buffer, 0, sizeof buffer);
+
   std::string str;
   position = "position startpos moves " + position + "\ngo\n";
 
