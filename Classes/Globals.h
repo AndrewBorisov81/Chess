@@ -2,6 +2,6 @@
 
 namespace Globals
 {
-  bool onePlayer = true;
+  bool onePlayer = false;
   bool playerIsWhite = true;
 }
