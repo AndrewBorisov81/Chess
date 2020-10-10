@@ -42,6 +42,7 @@ class PromotionLayer;
 class PromptLayer;
 class HudLayer;
 class Connector;
+class AILogic;
 
 struct EnPassant;
 struct Castling;
@@ -90,6 +91,7 @@ private:
   PromotionLayer* m_promotionLayer{ nullptr };
   HudLayer* m_hudLayer{ nullptr };
   Connector* m_connector{ nullptr };
+  AILogic* m_AILogic{ nullptr };
 
   Grid* createGrid(float cellSize, int rows, int columns);
   Board* createBoard(float cellSize, int rows, int columns);
@@ -102,11 +104,12 @@ private:
   PromptLayer* createPromptPieceLayer(float cellSize, int rows, int columns);
   PromotionLayer* createPromotionLayer();
   HudLayer* createHudLayer();
+  AILogic* createAILogic();
 
   // Promotion
   void applyPromotion();
   void movePromotion(cocos2d::Size& present, cocos2d::Size& future, Promotion& promotion, int typePromotionPiece);
 
-  //to delet
+  //to delete
   bool m_isFirstMove{ true };
 };

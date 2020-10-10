@@ -7,6 +7,7 @@
 #include "PromotionLayer.h"
 #include "PromptLayer.h"
 #include "HudLayer.h"
+#include "AILogic.h"
 #include "Constants.h"
 #include "Globals.h"
 
@@ -87,11 +88,24 @@ bool GameLayer::init()
 
   // Create connector
   // AI
-  Connector* connector = Connector::createConnector();
+  /*Connector* connector = Connector::createConnector();
   this->addChild(connector, 1);
   m_connector = connector;
-  m_connector->ConnectToEngine("D:\\BIBAGAMES\\C++PROJECTS\\COCOS\\PROJECTS\\Chess\\proj.win32\\stockfish.exe");
-  //m_connector->ConnectToEngine("D:\\BIBAGAMES\\C++PROJECTS\\COCOS\\PROJECTS\\Chess\\proj.win32\\stockfish12.exe");
+  m_connector->ConnectToEngine("D:\\BIBAGAMES\\C++PROJECTS\\COCOS\\PROJECTS\\Chess\\proj.win32\\stockfish.exe");*/
+
+  // Create AILogic
+  AILogic* AILogic = createAILogic();
+  this->addChild(AILogic, 1);
+  m_AILogic = AILogic;
+
+  auto lfGetPieceTypeColor = [this](int i, int j)->int
+  {
+    int piece = m_pieceMoveLogic->getPieceAtPositionI(i, j);
+
+    return piece;
+  };
+
+  AILogic->callBackGetPieceTypeColor(lfGetPieceTypeColor);
 
   // Creat PromptPieceLayer
   PromptLayer* promptLayer = createPromptPieceLayer(Constants::CELL_SIZE, Constants::ROWS, Constants::COLUMNS);
@@ -142,6 +156,7 @@ bool GameLayer::init()
         std::string toComputerMove;
 
         //m_isFirstMove = false;
+
         if (m_isFirstMove)
         {
           toComputerMove = m_pieceMoveLogic->getLastMove();
@@ -152,13 +167,6 @@ bool GameLayer::init()
           std::string penultMove = m_pieceMoveLogic->getPenultMove();
           toComputerMove = lastMove + " " + penultMove;
         }
-
-        m_isFirstMove = false;
-
-        /*std::string lastMove = m_pieceMoveLogic->getLastMove();
-        std::string penultMove = m_pieceMoveLogic->getPenultMove();
-
-        std::string toComputerMove = lastMove + " " + penultMove;*/
 
         std::string computerMove = m_connector->getNextMove(toComputerMove);
 
@@ -217,13 +225,16 @@ bool GameLayer::init()
     } 
   };
   
+  // Touch And Drag layer callback Udate Piece Board
   touchAndDragLayer->callBackHaveMovedPiece(lfUpdatePieceBoard);
 
   auto lfGetPieceFromCell = [this](Size& cellIJ)->Piece*
   {
     Piece* pieceIJ = m_board->getPieceFromCell(cellIJ.width, cellIJ.height);
+
     return pieceIJ;
   };
+
   touchAndDragLayer->callBackGetPieceFromCell(lfGetPieceFromCell);
 
   // Create HudLayer
@@ -342,6 +353,24 @@ HudLayer* GameLayer::createHudLayer()
     pHudLayer = nullptr;
     return nullptr;
   }
+}
+
+AILogic* GameLayer::createAILogic()
+{
+  AILogic* pAILogic = new(std::nothrow) AILogic();
+  if (pAILogic && pAILogic->init())
+  {
+    pAILogic->autorelease();
+    return pAILogic;
+  }
+  else
+  {
+    delete pAILogic;
+    pAILogic = nullptr;
+    return nullptr;
+  }
+
+  return nullptr;
 }
 
 PieceMoveLogic* GameLayer::createPieceMoveLogic(GameLayer* gameLayer)
