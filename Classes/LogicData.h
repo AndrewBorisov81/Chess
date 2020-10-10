@@ -66,6 +66,17 @@ struct UnderAttack
   Attacker attacker[9]; //maximum theorical number of attackers
 };
 
+struct Move
+{
+  int iPiece;
+  Position from;
+  Position to;
+
+  EnPassant en_passant;
+  Castling castling;
+  Promotion promotion;
+};
+
 struct Undo
 {
   bool bCanUndo;
