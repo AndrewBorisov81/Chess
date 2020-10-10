@@ -1,6 +1,8 @@
 #include "AILogic.h"
 #include "AIData.h"
 
+#include <vector>
+
 USING_NS_CC;
 
 AILogic::AILogic()
@@ -10,6 +12,16 @@ AILogic::AILogic()
 
 AILogic::~AILogic()
 {
+}
+
+bool AILogic::init()
+{
+  if (!Node::init())
+  {
+    return false;
+  }
+
+  return true;
 }
 
 void AILogic::ChooseFigure()
@@ -30,7 +42,7 @@ void AILogic::calculateBestMove(Size& bestMove)
 {
   std::vector<Size*> newGameMoves;
   //use any negative large number
-  float bestValue = -9999;
+  float bestValue = -9999.0f;
 
   /*for (var i = 0; i < newGameMoves.length; i++) {
     var newGameMove = newGameMoves[i];
@@ -48,32 +60,14 @@ void AILogic::calculateBestMove(Size& bestMove)
 
 void AILogic::getBestMove()
 {
+
 }
 
-float AILogic::getPieceValue(TypePiece typePiece)
+float AILogic::getPieceValue(TypePiece typePiece, bool isWhite, int x, int y)
 {
-  switch (typePiece)
-  {
-  case TypePiece::PAWN:
-    break;
+  float absoluteValue = getAbsoluteValue(typePiece, isWhite, x, y);
 
-  case TypePiece::KNIGHT:
-    break;
-
-  case TypePiece::BISHOP:
-    break;
-
-  case TypePiece::ROOK:
-    break;
-
-  case TypePiece::QUEEN:
-    break;
-
-  case TypePiece::KING:
-    break;
-  }
-
-  return 0.0;
+  return (isWhite) ? absoluteValue : -absoluteValue;
 }
 
 void AILogic::minimaxRoot()
@@ -88,16 +82,43 @@ void AILogic::minimax()
 float AILogic::evaluateBoard()
 {
   float totalEvaluation{ 0.0f };
+  bool isWhite{ true };
+  TypePiece typePiece{ TypePiece::PAWN };
 
   for (int i = 0; i < 8; i++) {
     for (int j = 0; j < 8; j++) {
-      TypePiece typePiece{ TypePiece::PAWN };
-      totalEvaluation = totalEvaluation + getPieceValue(typePiece);
+
+      //int typePieceI = m_callBackPieceTypeColor(i, j);
+      int typePieceI;
+
+      isWhite = Piece::isWhite(typePieceI);
+
+      typePiece = Piece::getTypeP(typePieceI);
+
+
+      totalEvaluation = totalEvaluation + getPieceValue(typePiece, isWhite, i, j);
     }
   }
   return totalEvaluation;
+}
 
-  return 0.0;
+void AILogic::generateMoves()
+{
+}
+
+void AILogic::buildMoves()
+{
+
+}
+
+void AILogic::addMove()
+{
+
+}
+
+void AILogic::callBackGetPieceTypeColor(const std::function<int(int x, int y)>& callBack)
+{
+  m_callBackPieceTypeColor = callBack;
 }
 
 float AILogic::getAbsoluteValue(TypePiece typePiece, bool isWhite, int x, int y)
