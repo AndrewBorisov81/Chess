@@ -40,6 +40,8 @@ public:
 
   std::string getLastMove();
 
+  std::string getPenultMove();
+
   void deleteLastMove(void);
 
   int getCurrentTurn();
@@ -82,8 +84,8 @@ public:
   std::deque<Round> rounds;
 
   // Save the captured pieces
-  std::vector<Piece*> white_captured;
-  std::vector<Piece*> black_captured;
+  /*std::vector<Piece*> white_captured;
+  std::vector<Piece*> black_captured;*/
 
   std::vector<int> iwhite_captured;
   std::vector<int> iblack_captured;
@@ -91,8 +93,6 @@ public:
   //void parseMove(std::string move, Position* pFrom, Position* pTo, char* chPromoted = nullptr);
   std::string parseMoveCellIntToString(const Position& pFrom);
   void parseMoveStringToCell(std::string move, Position* pFrom, Position* pTo);
-
-  //void updatePiece(const std::vector<std::vector<Piece*>>& pieces);
 
   std::array<std::array<int, 8>, 8>& getBoardA();
   void loadBoard(const int piece_board[8][8]);

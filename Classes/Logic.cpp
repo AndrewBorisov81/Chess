@@ -380,6 +380,28 @@ std::string Logic::getLastMove()
   return last_move;
 }
 
+std::string Logic::getPenultMove()
+{
+  std::string penult_move = "d7d5";
+
+  if (rounds.size() >= 2)
+  {
+    // Who did the penult move?
+    if (Player::WHITE_PLAYER == static_cast<Player>(getCurrentTurn()))
+    {
+      // If it's black's turn now, white had the last move
+      penult_move = rounds[rounds.size() - 2].white_move;
+    }
+    else
+    {
+      // Last move was black's
+      penult_move = rounds[rounds.size() - 2].black_move;
+    }
+  }
+
+  return penult_move;
+}
+
 int Logic::getCurrentTurn()
 {
   return m_currentTurn;
@@ -390,34 +412,6 @@ int Logic::getOppositCurrentTurn()
   int oppositCurrentTurn = (m_currentTurn == static_cast<int>(Player::WHITE_PLAYER)) ? static_cast<int>(Player::BLACK_PLAYER) : static_cast<int>(Player::WHITE_PLAYER);
   return oppositCurrentTurn;
 }
-
-/*void Logic::parseMove(std::string move, Position* pFrom, Position* pTo, char* chPromoted)
-{
-  pFrom->iColumn = move[0];
-  pFrom->iRow = move[1];
-  pTo->iColumn = move[3];
-  pTo->iRow = move[4];
-
-  // Convert columns from ['A'-'H'] to [0x00-0x07]
-  pFrom->iColumn = pFrom->iColumn - 'A';
-  pTo->iColumn = pTo->iColumn - 'A';
-
-  // Convert row from ['1'-'8'] to [0x00-0x07]
-  pFrom->iRow = pFrom->iRow - '1';
-  pTo->iRow = pTo->iRow - '1';
-
-  if (chPromoted != nullptr)
-  {
-    if (move[5] == '=')
-    {
-      //*chPromoted = move[6];
-    }
-    else
-    {
-      //chPromoted = Constants::EMPTY_SQUARE;
-    }
-  }
-}*/
 
 std::string Logic::parseMoveCellIntToString(const Position& pos)
 {
@@ -436,23 +430,6 @@ void Logic::parseMoveStringToCell(std::string move, Position* pFrom, Position* p
   pTo->iColumn = static_cast<int>(move[2]) - 97;
   pTo->iRow = static_cast<int>(move[3]) - 49;
 }
-
-// to delete
-/*void Logic::updatePiece(const std::vector<std::vector<Piece*>>& pieces)
-{
-  //m_pieces.clear();
-
-  for (unsigned int i = 0; i < pieces.size(); i++)
-  {
-    std::vector<Piece*> pieceRow = pieces[i];
-    std::vector<Piece*> newRow;
-    for (unsigned int j = 0; j < pieceRow.size(); j++)
-    {
-      newRow.push_back(pieces[i][j]);
-    }
-    m_pieces.push_back(newRow);
-  }
-}*/
 
 std::array<std::array<int, 8>, 8>& Logic::getBoardA()
 {
