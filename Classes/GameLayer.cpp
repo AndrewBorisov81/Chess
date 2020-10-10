@@ -105,7 +105,7 @@ bool GameLayer::init()
     return piece;
   };
 
-  AILogic->callBackGetPieceTypeColor(lfGetPieceTypeColor);
+  AILogic->callBackGetPiece(lfGetPieceTypeColor);
 
   // Creat PromptPieceLayer
   PromptLayer* promptLayer = createPromptPieceLayer(Constants::CELL_SIZE, Constants::ROWS, Constants::COLUMNS);
