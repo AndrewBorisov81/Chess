@@ -89,8 +89,6 @@ void PromptLayer::showCirclePrompts(const std::vector<cocos2d::Size>& valideMove
 {
   for (auto toShowCell: valideMoves)
   {
-    //Size circleToShowCell = toShowCell->getCellPos();
-
     for (auto circle : m_circles)
     {
       Size circleInBox = circle->getCellPos();
