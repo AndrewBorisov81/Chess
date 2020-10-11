@@ -32,18 +32,21 @@ class AILogic: public cocos2d::Node
 {
 public:
   AILogic();
+  AILogic(Player turn);
   ~AILogic();
 
   virtual bool init();
+
+  void setTurn(Player turn);
 
   void ChooseFigure();
   void PlaceFigure();
   void SwitchPawnWithFigure();
 
-  void calculateBestMove(const std::vector<cocos2d::Size>& allPossibleMove, cocos2d::Size& bestMove);
+  void calculateBestMove(cocos2d::Size& bestMove);
 
-  void getBestMove();
-  void getPossibleMoves(const std::vector<cocos2d::Size>& possibleMoves, Player turn = Player::BLACK_PLAYER);
+  void getBestMove(cocos2d::Size& bestMove);
+  //void getPossibleMoves(const std::vector<cocos2d::Size>& possibleMoves, Player turn = Player::BLACK_PLAYER);
 
   float getAbsoluteValue(TypePiece typePiece, bool isWhite, int x, int y);
   float getPieceValue(TypePiece typePiece, bool isWhite, int x, int y);
@@ -65,6 +68,8 @@ public:
   void callBackIsMoveValide(const std::function<bool(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> isMoveValide);
 
 private:
+  Player m_turn{ Player::BLACK_PLAYER };
+
   PromptLogicHelper* m_promptLogicHelper{ nullptr };
 
   std::function<int(int, int)> m_callBackGetPiece{ nullptr };
