@@ -59,7 +59,7 @@ void PromotionLayer::show(bool isWhite)
   else
     itemPiece = m_blackPiece;
 
-  for (int i = 0; i < itemPiece.size(); i++)
+  for (unsigned int i = 0; i < itemPiece.size(); i++)
   {
     Menu* piece = itemPiece[i];
     piece->setOpacity(255);
