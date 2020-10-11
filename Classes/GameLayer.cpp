@@ -3,11 +3,12 @@
 #include "Grid.h"
 #include "Piece.h"
 #include "PieceMoveLogic.h"
+#include "AILogic.h"
 #include "TouchAndDragLayer.h"
 #include "PromotionLayer.h"
 #include "PromptLayer.h"
 #include "HudLayer.h"
-#include "AILogic.h"
+#include "LogicData.h"
 #include "Constants.h"
 #include "Globals.h"
 
@@ -94,7 +95,7 @@ bool GameLayer::init()
   m_connector->ConnectToEngine("D:\\BIBAGAMES\\C++PROJECTS\\COCOS\\PROJECTS\\Chess\\proj.win32\\stockfish.exe");*/
 
   // Create AILogic
-  AILogic* AILogic = createAILogic();
+  AILogic* AILogic = createAILogic(Player::BLACK_PLAYER);
   this->addChild(AILogic, 1);
   m_AILogic = AILogic;
 
@@ -106,6 +107,15 @@ bool GameLayer::init()
   };
 
   AILogic->callBackGetPiece(lfGetPieceTypeColor);
+
+  // Set callBacks to touchAndDragLayer;
+  /*auto lfUpdatePieceBoard = [this](Piece* piece, Size& prevPos, Size& newPos)->bool
+  {
+    bool isMoveValid = this->checkPieceMove(prevPos, newPos);
+  }*/
+
+  // Callbacks
+  //AILogic->callBackIsMoveValide();
 
   // Creat PromptPieceLayer
   PromptLayer* promptLayer = createPromptPieceLayer(Constants::CELL_SIZE, Constants::ROWS, Constants::COLUMNS);
@@ -355,9 +365,9 @@ HudLayer* GameLayer::createHudLayer()
   }
 }
 
-AILogic* GameLayer::createAILogic()
+AILogic* GameLayer::createAILogic(Player turn)
 {
-  AILogic* pAILogic = new(std::nothrow) AILogic();
+  AILogic* pAILogic = new(std::nothrow) AILogic(turn);
   if (pAILogic && pAILogic->init())
   {
     pAILogic->autorelease();
