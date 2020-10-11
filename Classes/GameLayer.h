@@ -47,6 +47,7 @@ class AILogic;
 struct EnPassant;
 struct Castling;
 struct Promotion;
+enum class Player;
 
 class GameLayer : public cocos2d::Layer
 {
@@ -104,7 +105,7 @@ private:
   PromptLayer* createPromptPieceLayer(float cellSize, int rows, int columns);
   PromotionLayer* createPromotionLayer();
   HudLayer* createHudLayer();
-  AILogic* createAILogic();
+  AILogic* createAILogic(Player turn);
 
   // Promotion
   void applyPromotion();
