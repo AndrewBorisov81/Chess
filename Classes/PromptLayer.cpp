@@ -26,7 +26,7 @@ bool PromptLayer::init()
 {
   Grid::init();
 
-  if (!CCLayer::init()) {
+  if (!Layer::init()) {
 
     return false;
   }
@@ -87,16 +87,16 @@ void PromptLayer::hideRectPrompts()
 
 void PromptLayer::showCirclePrompts(const std::vector<cocos2d::Size>& valideMoves)
 {
-  for (auto toShowCell: valideMoves)
+  for (auto toShowCell : valideMoves)
   {
     for (auto circle : m_circles)
     {
       Size circleInBox = circle->getCellPos();
 
-      if(toShowCell.width == circleInBox.width && toShowCell.height == circleInBox.height)
+      if (toShowCell.width == circleInBox.width && toShowCell.height == circleInBox.height)
         circle->show();
     }
-  }    
+  }
 }
 
 void PromptLayer::hideCirclePrompts()
@@ -127,7 +127,7 @@ void PromptLayer::getValideMoves(int typePiece, const cocos2d::Size& presentCell
   {
     bool isMoveValide{ false };
 
-    if(m_isMoveValideCallBack)
+    if (m_isMoveValideCallBack)
       isMoveValide = m_isMoveValideCallBack(presentCell, el);
 
     if (isMoveValide)
@@ -139,4 +139,3 @@ void PromptLayer::callBackIsMoveValide(const std::function<bool(const cocos2d::S
 {
   m_isMoveValideCallBack = isMoveValide;
 }
-

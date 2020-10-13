@@ -1,5 +1,5 @@
 #include "TouchAndDragLayer.h"
-#include "GameLayer.h"
+//#include "GameLayer.h"
 #include "Piece.h"
 #include "Constants.h"
 
@@ -19,7 +19,7 @@ TouchAndDragLayer::~TouchAndDragLayer()
 
 bool TouchAndDragLayer::init()
 {
-  if (!CCLayer::init()) {
+  if (!Layer::init()) {
 
     return false;
   }
@@ -74,7 +74,7 @@ void TouchAndDragLayer::onMouseDown(Event* event)
     {
       Piece* pClickPiece{ nullptr };
 
-      if(m_getPieceFromCellCallBack)
+      if (m_getPieceFromCellCallBack)
         pClickPiece = m_getPieceFromCellCallBack(Size(cellI, cellJ));
 
       if (pClickPiece)
@@ -138,7 +138,7 @@ void TouchAndDragLayer::onMouseMove(Event* event)
 
     if (m_currentDragPiece)
     {
-      if(x >= 0 && y >= 0 && y < Constants::ROWS * Constants::CELL_SIZE && x < Constants::ROWS * Constants::CELL_SIZE)
+      if (x >= 0 && y >= 0 && y < Constants::ROWS * Constants::CELL_SIZE && x < Constants::ROWS * Constants::CELL_SIZE)
         m_currentDragPiece->setPosition(Vec2(x, y));
     }
   }

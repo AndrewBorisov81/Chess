@@ -31,7 +31,7 @@ public:
   void showCirclePrompts(const std::vector<cocos2d::Size>& valideMoves);
   void hideCirclePrompts();
   void setPositionCircles(const std::vector<cocos2d::Size>& valideMoves);
-  
+
   // Call backs
   void getValideMoves(int typePiece, const cocos2d::Size& presentCell, std::vector<cocos2d::Size>& possibleMoves);
   void callBackIsMoveValide(const std::function<bool(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> isMoveValide);
@@ -48,4 +48,3 @@ private:
   // Call backs
   std::function<bool(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> m_isMoveValideCallBack;
 };
-

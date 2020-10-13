@@ -12,9 +12,9 @@ typedef enum tagTouchAndDragState
   kUngrabbed
 } TouchAndDragState;
 
-class GameLayer;
+//class GameLayer;
 class Piece;
-struct DataChess;
+//struct DataChess;
 
 class TouchAndDragLayer : public Grid
 {
@@ -31,12 +31,12 @@ public:
 
   cocos2d::EventListenerMouse* m_mouseListener;
 
- void onMouseDown(cocos2d::Event* event);
- void onMouseUp(cocos2d::Event* event);
- void onMouseMove(cocos2d::Event* event);
+  void onMouseDown(cocos2d::Event* event);
+  void onMouseUp(cocos2d::Event* event);
+  void onMouseMove(cocos2d::Event* event);
 
- void callBackHaveMovedPiece(const std::function<void(Piece* piece, cocos2d::Size& oldPos, cocos2d::Size& newPos)>& callBack);
- void callBackGetPieceFromCell(const std::function<Piece*(cocos2d::Size& clickCell)>& callBack);
+  void callBackHaveMovedPiece(const std::function<void(Piece* piece, cocos2d::Size& oldPos, cocos2d::Size& newPos)>& callBack);
+  void callBackGetPieceFromCell(const std::function<Piece*(cocos2d::Size& clickCell)>& callBack);
 
 private:
   Piece* m_currentDragPiece{ nullptr };

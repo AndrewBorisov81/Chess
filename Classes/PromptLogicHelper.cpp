@@ -45,46 +45,46 @@ void PromptLogicHelper::getPossibleMoves(int typePiece, const cocos2d::Size& pre
 
   switch (typePiece)
   {
-    case 1: // Rook
-      getPossibleMovesDirection(presentCell.width, presentCell.height, Direction::HORIZONTAL, resultPossibleMovesPiece);
-      getPossibleMovesDirection(presentCell.width, presentCell.height, Direction::VERTICAL, resultPossibleMovesPiece);
-      break;
+  case 1: // Rook
+    getPossibleMovesDirection(presentCell.width, presentCell.height, Direction::HORIZONTAL, resultPossibleMovesPiece);
+    getPossibleMovesDirection(presentCell.width, presentCell.height, Direction::VERTICAL, resultPossibleMovesPiece);
+    break;
 
-    case 2: // Knight
-      getPossibleMovesDirection(presentCell.width, presentCell.height, Direction::L_SHAPE, resultPossibleMovesPiece);
-      break;
+  case 2: // Knight
+    getPossibleMovesDirection(presentCell.width, presentCell.height, Direction::L_SHAPE, resultPossibleMovesPiece);
+    break;
 
-    case 3: // Bishop
-      getPossibleMovesDirection(presentCell.width, presentCell.height, Direction::DIAGONAL, resultPossibleMovesPiece);
-      break;
+  case 3: // Bishop
+    getPossibleMovesDirection(presentCell.width, presentCell.height, Direction::DIAGONAL, resultPossibleMovesPiece);
+    break;
 
-    case 4: // Queen
-      getPossibleMovesDirection(presentCell.width, presentCell.height, Direction::DIAGONAL, resultPossibleMovesPiece);
-      getPossibleMovesDirection(presentCell.width, presentCell.height, Direction::HORIZONTAL, resultPossibleMovesPiece);
-      getPossibleMovesDirection(presentCell.width, presentCell.height, Direction::VERTICAL, resultPossibleMovesPiece);
-      break;
+  case 4: // Queen
+    getPossibleMovesDirection(presentCell.width, presentCell.height, Direction::DIAGONAL, resultPossibleMovesPiece);
+    getPossibleMovesDirection(presentCell.width, presentCell.height, Direction::HORIZONTAL, resultPossibleMovesPiece);
+    getPossibleMovesDirection(presentCell.width, presentCell.height, Direction::VERTICAL, resultPossibleMovesPiece);
+    break;
 
-    case 5: // King
-    {
-      constexpr int size = 10;
-      Size king_moves[size] = { Size( 1, 0 ), Size( -1, 0 ), Size( 0, -1 ), Size( 0, 1 ),
-                              Size( 1, -1 ), Size( 1, 1 ), Size( -1, -1 ), Size( -1, 1 ),
-                              Size(0, -2), Size(0, 2) };
+  case 5: // King
+  {
+    constexpr int size = 10;
+    Size king_moves[size] = { Size(1, 0), Size(-1, 0), Size(0, -1), Size(0, 1),
+                            Size(1, -1), Size(1, 1), Size(-1, -1), Size(-1, 1),
+                            Size(0, -2), Size(0, 2) };
 
-      getPossibleMovesPawnKing(presentCell.width, presentCell.height, resultPossibleMovesPiece, king_moves, size);
+    getPossibleMovesPawnKing(presentCell.width, presentCell.height, resultPossibleMovesPiece, king_moves, size);
 
-    }
-      break;
+  }
+  break;
 
-    case 6: // Pawn
-    {
-      constexpr int size = 8;
-      Size pawn_moves[size]{ Size( 1, 0 ), Size( 1, 1 ), Size( 1, -1 ), Size( 2, 0 ),
-                          Size( -1, 0 ), Size( -1, 1 ), Size( -1, -1 ), Size(-2, 0) };
+  case 6: // Pawn
+  {
+    constexpr int size = 8;
+    Size pawn_moves[size]{ Size(1, 0), Size(1, 1), Size(1, -1), Size(2, 0),
+                        Size(-1, 0), Size(-1, 1), Size(-1, -1), Size(-2, 0) };
 
-      getPossibleMovesPawnKing(presentCell.width, presentCell.height, resultPossibleMovesPiece, pawn_moves, size);
-    }
-      break;
+    getPossibleMovesPawnKing(presentCell.width, presentCell.height, resultPossibleMovesPiece, pawn_moves, size);
+  }
+  break;
   }
 }
 
@@ -92,86 +92,86 @@ void PromptLogicHelper::getPossibleMovesDirection(int iRow, int iColumn, Directi
 {
   switch (direction)
   {
-    case Direction::DIAGONAL:
+  case Direction::DIAGONAL:
+  {
+    // Check the diagonal up-right
+    for (int i = iRow + 1, j = iColumn + 1; i < 8 && j < 8; i++, j++)
+    {
+      resultPossibleMovesPiece.push_back(Size(i, j));
+    }
+
+    // Check the diagonal up-left
+    for (int i = iRow + 1, j = iColumn - 1; i < 8 && j >= 0; i++, j--)
+    {
+      resultPossibleMovesPiece.push_back(Size(i, j));
+    }
+
+    // Check the diagonal down-right
+    for (int i = iRow - 1, j = iColumn + 1; i >= 0 && j < 8; i--, j++)
+    {
+      resultPossibleMovesPiece.push_back(Size(i, j));
+    }
+
+    // Check the diagonal down-left
+    for (int i = iRow - 1, j = iColumn - 1; i >= 0 && j >= 0; i--, j--)
+    {
+      resultPossibleMovesPiece.push_back(Size(i, j));
+    }
+  }
+  break;
+
+  case Direction::HORIZONTAL:
+  {
+    // Check all the way to the right
+    for (int i = iColumn + 1; i < 8; i++)
+    {
+      resultPossibleMovesPiece.push_back(Size(iRow, i));
+    }
+
+    // Check all the way to the left
+    for (int i = iColumn - 1; i >= 0; i--)
+    {
+      resultPossibleMovesPiece.push_back(Size(iRow, i));
+    }
+  }
+  break;
+
+  case Direction::VERTICAL:
+  {
+    // Check all the way up
+    for (int i = iRow + 1; i < 8; i++)
+    {
+      resultPossibleMovesPiece.push_back(Size(i, iColumn));
+    }
+
+    // Check all the way down
+    for (int i = iRow - 1; i >= 0; i--)
+    {
+      resultPossibleMovesPiece.push_back(Size(i, iColumn));
+    }
+  }
+  break;
+
+  case Direction::L_SHAPE:
+  {
+    // Knight
+    Size knight_moves[8] = { Size(1, -2), Size(2, -1), Size(2, 1), Size(1, 2),
+                          Size(-1, -2), Size(-2, -1), Size(-2, 1), Size(-1, 2) };
+    for (int i = 0; i < 8; i++)
+    {
+      int row = iRow + knight_moves[i].width;
+      int column = iColumn + knight_moves[i].height;
+
+      if (row < 0 || row > 7 || column < 0 || column > 7)
       {
-        // Check the diagonal up-right
-        for (int i = iRow + 1, j = iColumn + 1; i < 8 && j < 8; i++, j++)
-        {
-          resultPossibleMovesPiece.push_back(Size(i, j));
-        }
-
-        // Check the diagonal up-left
-        for (int i = iRow + 1, j = iColumn - 1; i < 8 && j >= 0; i++, j--)
-        {
-          resultPossibleMovesPiece.push_back(Size(i, j));
-        }
-
-        // Check the diagonal down-right
-        for (int i = iRow - 1, j = iColumn + 1; i >= 0 && j < 8; i--, j++)
-        {
-          resultPossibleMovesPiece.push_back(Size(i, j));
-        }
-
-        // Check the diagonal down-left
-        for (int i = iRow - 1, j = iColumn - 1; i >= 0 && j >= 0; i--, j--)
-        {
-          resultPossibleMovesPiece.push_back(Size(i, j));
-        }
+        // This square does not even exist, so no need to test
+        continue;
       }
-      break;
 
-    case Direction::HORIZONTAL:
-      {
-        // Check all the way to the right
-        for (int i = iColumn + 1; i < 8; i++)
-        {
-          resultPossibleMovesPiece.push_back(Size(iRow, i));
-        }
-
-        // Check all the way to the left
-        for (int i = iColumn - 1; i >= 0; i--)
-        {
-          resultPossibleMovesPiece.push_back(Size(iRow, i));
-        }
-      }
-      break;
-
-    case Direction::VERTICAL:
-      {
-        // Check all the way up
-        for (int i = iRow + 1; i < 8; i++)
-        {
-          resultPossibleMovesPiece.push_back(Size(i, iColumn));
-        }
-
-        // Check all the way down
-        for (int i = iRow - 1; i >= 0; i--)
-        {
-          resultPossibleMovesPiece.push_back(Size(i, iColumn));
-        }
-      }
-      break;
-
-    case Direction::L_SHAPE:
-      {
-        // Knight
-        Size knight_moves[8] = { Size(1, -2), Size(2, -1), Size(2, 1), Size(1, 2),
-                              Size(-1, -2), Size(-2, -1), Size(-2, 1), Size(-1, 2) };
-        for (int i = 0; i < 8; i++)
-        {
-          int row = iRow + knight_moves[i].width;
-          int column = iColumn + knight_moves[i].height;
-
-          if (row < 0 || row > 7 || column < 0 || column > 7)
-          {
-            // This square does not even exist, so no need to test
-            continue;
-          }
-
-          resultPossibleMovesPiece.push_back(Size(row, column));
-        }
-      }
-      break;
+      resultPossibleMovesPiece.push_back(Size(row, column));
+    }
+  }
+  break;
   }
 }
 
