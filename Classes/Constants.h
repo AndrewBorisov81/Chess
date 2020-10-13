@@ -49,3 +49,4 @@ namespace Constants
   // Debug promotion
   extern const int INITIAL_PIECE_BOARD[8][8];
 }
+
