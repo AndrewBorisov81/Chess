@@ -58,29 +58,29 @@ TypePiece Piece::getTypeP(int iPiece)
 
   switch (iPiece)
   {
-    case 1:
-      typePiece = TypePiece::ROOK;
-      break;
-    
-    case 2:
-      typePiece = TypePiece::KNIGHT;
-      break;
+  case 1:
+    typePiece = TypePiece::ROOK;
+    break;
 
-    case 3:
-      typePiece = TypePiece::BISHOP;
-      break;
+  case 2:
+    typePiece = TypePiece::KNIGHT;
+    break;
 
-    case 4:
-      typePiece = TypePiece::QUEEN;
-      break;
+  case 3:
+    typePiece = TypePiece::BISHOP;
+    break;
 
-    case 5:
-      typePiece = TypePiece::KING;
-      break;
+  case 4:
+    typePiece = TypePiece::QUEEN;
+    break;
 
-    case 6:
-      typePiece = TypePiece::PAWN;
-      break;
+  case 5:
+    typePiece = TypePiece::KING;
+    break;
+
+  case 6:
+    typePiece = TypePiece::PAWN;
+    break;
   }
   return typePiece;
 }

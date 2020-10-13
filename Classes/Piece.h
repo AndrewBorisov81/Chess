@@ -57,3 +57,4 @@ private:
 
   cocos2d::Size m_cell;
 };
+

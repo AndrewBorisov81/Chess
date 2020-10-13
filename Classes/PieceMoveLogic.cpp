@@ -128,7 +128,7 @@ bool PieceMoveLogic::isMoveValid(Position present, Position future, EnPassant* S
           S_enPassant->PawnCaptured.iRow = LastMoveTo.iRow;
           S_enPassant->PawnCaptured.iColumn = LastMoveTo.iColumn;
 
-         //std::cout << "En passant move!\n";
+          //std::cout << "En passant move!\n";
         }
       }
       // Wants to capture a piece
@@ -400,4 +400,3 @@ bool PieceMoveLogic::isMoveValid(Position present, Position future, EnPassant* S
 
   return bValid;
 }
-
