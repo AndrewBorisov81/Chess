@@ -14,7 +14,7 @@ PromotionLayer::~PromotionLayer()
 
 bool PromotionLayer::init()
 {
-  if (!CCLayer::init()) {
+  if (!Layer::init()) {
 
     return false;
   }
@@ -73,7 +73,7 @@ void PromotionLayer::show(bool isWhite)
 void PromotionLayer::hide()
 {
   hidePiece();
-  
+
   m_table->setOpacity(0);
 
   if (m_hideCallBack)
@@ -123,7 +123,7 @@ void PromotionLayer::pieceCallback(cocos2d::Ref * pSender)
     auto menu = static_cast<Menu*>(static_cast<Node*>(pSender)->getParent());
     int tagPiece = menu->getTag();
     m_tagPiece = tagPiece;
-    if(m_clickPieceCallBack)
+    if (m_clickPieceCallBack)
       m_clickPieceCallBack(tagPiece);
   }
 }
@@ -153,7 +153,7 @@ void PromotionLayer::createPiece(bool isWhite, Size tableSize)
     Rect curRect;
 
     Menu* piece = createPiece(i, isWhite, curRect);
-    
+
     piece->setTag(i);
 
     sumSizeWidthPiece += curRect.size.width;
@@ -170,9 +170,9 @@ void PromotionLayer::createPiece(bool isWhite, Size tableSize)
   Rect pieceRect = rectPiece[0];
   deltaShift = 0.3 * pieceRect.size.width;
 
-  float initPosX = (tableSize.width - sumSizeWidthPiece)/2;
+  float initPosX = (tableSize.width - sumSizeWidthPiece) / 2;
   Menu* f1 = itemPiece[0];
-  f1->setPosition(Vec2(initPosX - tableSize.width/2, 0));
+  f1->setPosition(Vec2(initPosX - tableSize.width / 2, 0));
 
   // Set position
   for (unsigned int i = 0; i < itemPiece.size() - 1; i++)

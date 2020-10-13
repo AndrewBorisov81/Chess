@@ -16,7 +16,7 @@ enum class ColorPrompt
   RED
 };
 
-class PromptElement: public cocos2d::Node
+class PromptElement : public cocos2d::Node
 {
 public:
   PromptElement();
@@ -40,7 +40,7 @@ public:
 
 private:
   TypePrompt m_typePrompt{ TypePrompt::PROMPT_RECT };
-  
+
   ColorPrompt m_colorPrompt{ ColorPrompt::GREEN };
 
   cocos2d::Sprite* m_greenRect{ nullptr };
@@ -49,3 +49,4 @@ private:
 
   cocos2d::Size m_cellPos{ -1, -1 };
 };
+

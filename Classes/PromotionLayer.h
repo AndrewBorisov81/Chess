@@ -28,7 +28,7 @@ public:
   void callBackClickPiece(const std::function<void(int)>& callBack);
   void callBackHide(const std::function<void(int)>& callBack);
 
-  void createPiece(bool isWhite, cocos2d::Size tableSize); 
+  void createPiece(bool isWhite, cocos2d::Size tableSize);
   cocos2d::Menu* createPiece(int typePiece, bool isWhite, cocos2d::Rect& pieceRect);
 
 private:

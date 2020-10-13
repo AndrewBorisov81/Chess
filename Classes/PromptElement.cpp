@@ -13,7 +13,7 @@ PromptElement::PromptElement()
 PromptElement::PromptElement(TypePrompt typePrompt)
   :m_typePrompt(typePrompt)
 {
- 
+
 }
 
 PromptElement::~PromptElement()
@@ -74,7 +74,7 @@ void PromptElement::show()
     if (m_greenRect && m_colorPrompt == ColorPrompt::GREEN)
       m_greenRect->setOpacity(255);
 
-    if(m_redRect && m_colorPrompt == ColorPrompt::RED)
+    if (m_redRect && m_colorPrompt == ColorPrompt::RED)
       m_redRect->setOpacity(255);
   }
   else
