@@ -13,7 +13,7 @@ HudLayer::~HudLayer()
 
 bool HudLayer::init()
 {
-  if (!CCLayer::init()) {
+  if (!Layer::init()) {
 
     return false;
   }
@@ -40,7 +40,7 @@ bool HudLayer::init()
 
 void HudLayer::menuCloseCallback(Ref* pSender)
 {
-  if(m_undoLastMove)
+  if (m_undoLastMove)
     m_undoLastMove();
 }
 

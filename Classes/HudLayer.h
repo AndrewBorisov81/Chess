@@ -4,7 +4,7 @@
 
 #include <functional>
 
-class HudLayer: public cocos2d::Layer
+class HudLayer : public cocos2d::Layer
 {
 public:
   HudLayer();
@@ -20,3 +20,4 @@ public:
 private:
   std::function<void()> m_undoLastMove{ nullptr };
 };
+

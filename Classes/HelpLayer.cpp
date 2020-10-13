@@ -12,7 +12,7 @@ HelpLayer::~HelpLayer()
 
 bool HelpLayer::init()
 {
-  if (!CCLayer::init()) {
+  if (!Layer::init()) {
 
     return false;
   }
