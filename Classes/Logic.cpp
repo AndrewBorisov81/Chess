@@ -16,7 +16,7 @@ Logic::Logic()
 
 }
 
-Logic::Logic(GameLayer* gameLayer) 
+Logic::Logic(GameLayer* gameLayer)
   : m_gameLayer(gameLayer)
 {
   // Board presentation
@@ -26,7 +26,7 @@ Logic::Logic(GameLayer* gameLayer)
     {
       m_boardA[i][j] = Constants::INITIAL_PIECE_BOARD[i][j];
     }
-  }  
+  }
 }
 
 Logic::~Logic()
@@ -77,7 +77,7 @@ void Logic::movePiece(Position present, Position future, EnPassant* S_enPassant,
 
   // Get the piece to be moved
   int iPiece = getPieceAtPositionI(present.iRow, present.iColumn);
- 
+
   // Is the destination square occupied?
   int iCapturedPiece = getPieceAtPositionI(future.iRow, future.iColumn);
 
@@ -105,7 +105,7 @@ void Logic::movePiece(Position present, Position future, EnPassant* S_enPassant,
   {
     int iCapturedEP = getPieceAtPositionI(S_enPassant->PawnCaptured.iRow, S_enPassant->PawnCaptured.iColumn);
 
-    if(Piece::isWhite(iCapturedEP))
+    if (Piece::isWhite(iCapturedEP))
     {
       iwhite_captured.push_back(iCapturedEP);
     }
@@ -116,7 +116,7 @@ void Logic::movePiece(Position present, Position future, EnPassant* S_enPassant,
 
     // Now, remove the captured pawn
     m_boardA[S_enPassant->PawnCaptured.iRow][S_enPassant->PawnCaptured.iColumn] = Constants::EMPTY_SQUAREI;
-    m_deletePiece(Size(S_enPassant->PawnCaptured.iRow, S_enPassant->PawnCaptured.iColumn));    
+    m_deletePiece(Size(S_enPassant->PawnCaptured.iRow, S_enPassant->PawnCaptured.iColumn));
 
     // Set Undo structure as piece was captured and "en passant" move was performed
     curUndo.bCapturedLastMove = true;
@@ -134,14 +134,14 @@ void Logic::movePiece(Position present, Position future, EnPassant* S_enPassant,
   m_boardA[present.iRow][present.iColumn] = Constants::EMPTY_SQUAREI;
 
   // Remove piece from future position on board
-  if(Constants::EMPTY_SQUAREI != iCapturedPiece)
+  if (Constants::EMPTY_SQUAREI != iCapturedPiece)
     m_deletePiece(Size(future.iRow, future.iColumn));
 
   // Move piece to new position
   if (S_promotion->bApplied)
   {
     m_boardA[future.iRow][future.iColumn] = S_promotion->typeAfter;
- 
+
     // Set Undo structure as a promotion occured
     memcpy(&curUndo.promotion, S_promotion, sizeof(Promotion));
   }
@@ -179,7 +179,7 @@ void Logic::movePiece(Position present, Position future, EnPassant* S_enPassant,
   }
 
   // Castling requirements
-  if(TypePiece::KING == Piece::getTypeP(abs(iPiece)))
+  if (TypePiece::KING == Piece::getTypeP(abs(iPiece)))
   {
     // After the king has moved once, no more castling allowed
     m_bCastlingKingSideAllowed[getCurrentTurn()] = false;
@@ -233,7 +233,7 @@ void Logic::undoLastMove()
     m_deletePiece(Size(to.iRow, to.iColumn));
 
     // Add piece to the board
-    m_addPiece(abs(curUndo.promotion.typeBefore), Piece::isWhite(curUndo.promotion.typeBefore) , Size(to.iRow, to.iColumn));
+    m_addPiece(abs(curUndo.promotion.typeBefore), Piece::isWhite(curUndo.promotion.typeBefore), Size(to.iRow, to.iColumn));
 
     m_boardA[from.iRow][from.iColumn] = curUndo.promotion.typeBefore;
   }
@@ -318,7 +318,7 @@ void Logic::undoLastMove()
   deleteLastMove();
 
   //  CallBack
-  if(m_undoLastMove)
+  if (m_undoLastMove)
     m_undoLastMove(Size(from.iRow, from.iColumn), Size(to.iRow, to.iColumn));
 }
 
@@ -456,170 +456,170 @@ bool Logic::isPathFree(Position startingPos, Position finishingPos, int iDirecti
 
   switch (direction)
   {
-    case Direction::HORIZONTAL:
+  case Direction::HORIZONTAL:
+  {
+    // If it is a horizontal move, we can assume the startingPos.iRow == finishingPos.iRow
+    // If the piece wants to move from column 0 to column 7, we must check if columns 1-6 are free
+    if (startingPos.iColumn == finishingPos.iColumn)
     {
-      // If it is a horizontal move, we can assume the startingPos.iRow == finishingPos.iRow
-      // If the piece wants to move from column 0 to column 7, we must check if columns 1-6 are free
-      if (startingPos.iColumn == finishingPos.iColumn)
-      {
-        //std::cout << "Error. Movement is horizontal but column is the same\n";
-      }
-
-      // Moving to the right
-      else if (startingPos.iColumn < finishingPos.iColumn)
-      {
-        // Settting bFree as initially true, only inside the cases, guarantees that the path is checked
-        bFree = true;
-
-        for (int i = startingPos.iColumn + 1; i < finishingPos.iColumn; i++)
-        {
-          if (isSquareOccupied(startingPos.iRow, i))
-          {
-            bFree = false;
-            std::cout << "Horizontal path to the right is not clear!\n";
-          }
-        }
-      }
-
-      // Moving to the left
-      else //if (startingPos.iColumn > finishingPos.iColumn)
-      {
-        // Settting bFree as initially true, only inside the cases, guarantees that the path is checked
-        bFree = true;
-
-        for (int i = startingPos.iColumn - 1; i > finishingPos.iColumn; i--)
-        {
-          if (isSquareOccupied(startingPos.iRow, i))
-          {
-            bFree = false;
-            std::cout << "Horizontal path to the left is not clear!\n";
-          }
-        }
-      }
+      //std::cout << "Error. Movement is horizontal but column is the same\n";
     }
-    break;
 
-    case Direction::VERTICAL:
+    // Moving to the right
+    else if (startingPos.iColumn < finishingPos.iColumn)
     {
-      // If it is a vertical move, we can assume the startingPos.iColumn == finishingPos.iColumn
-      // If the piece wants to move from column 0 to column 7, we must check if columns 1-6 are free
-      if (startingPos.iRow == finishingPos.iRow)
+      // Settting bFree as initially true, only inside the cases, guarantees that the path is checked
+      bFree = true;
+
+      for (int i = startingPos.iColumn + 1; i < finishingPos.iColumn; i++)
       {
-        std::cout << "Error. Movement is vertical but row is the same\n";
-        throw("Error. Movement is vertical but row is the same");
-      }
-
-      // Moving up
-      else if (startingPos.iRow < finishingPos.iRow)
-      {
-        // Settting bFree as initially true, only inside the cases, guarantees that the path is checked
-        bFree = true;
-
-        for (int i = startingPos.iRow + 1; i < finishingPos.iRow; i++)
-        {
-          if (isSquareOccupied(i, startingPos.iColumn))
-          {
-            bFree = false;
-            std::cout << "Vertical path up is not clear!\n";
-          }
-        }
-      }
-
-      // Moving down
-      else //if (startingPos.iColumn > finishingPos.iRow)
-      {
-        // Settting bFree as initially true, only inside the cases, guarantees that the path is checked
-        bFree = true;
-
-        for (int i = startingPos.iRow - 1; i > finishingPos.iRow; i--)
-        {
-          if (isSquareOccupied(i, startingPos.iColumn))
-          {
-            bFree = false;
-            std::cout << "Vertical path down is not clear!\n";
-          }
-        }
-      }
-    }
-    break;
-
-    case Direction::DIAGONAL:
-    {
-      // Moving up and right
-      if ((finishingPos.iRow > startingPos.iRow) && (finishingPos.iColumn > startingPos.iColumn))
-      {
-        // Settting bFree as initially true, only inside the cases, guarantees that the path is checked
-        bFree = true;
-
-        for (int i = 1; i < abs(finishingPos.iRow - startingPos.iRow); i++)
-        {
-          if (isSquareOccupied(startingPos.iRow + i, startingPos.iColumn + i))
-          {
-            bFree = false;
-            std::cout << "Diagonal path up-right is not clear!\n";
-          }
-        }
-      }
-
-      // Moving up and left
-      else if ((finishingPos.iRow > startingPos.iRow) && (finishingPos.iColumn < startingPos.iColumn))
-      {
-        // Settting bFree as initially true, only inside the cases, guarantees that the path is checked
-        bFree = true;
-
-        for (int i = 1; i < abs(finishingPos.iRow - startingPos.iRow); i++)
-        {
-          if (isSquareOccupied(startingPos.iRow + i, startingPos.iColumn - i))
-          {
-            bFree = false;
-            std::cout << "Diagonal path up-left is not clear!\n";
-          }
-        }
-      }
-
-      // Moving down and right
-      else if ((finishingPos.iRow < startingPos.iRow) && (finishingPos.iColumn > startingPos.iColumn))
-      {
-        // Settting bFree as initially true, only inside the cases, guarantees that the path is checked
-        bFree = true;
-
-        for (int i = 1; i < abs(finishingPos.iRow - startingPos.iRow); i++)
-        {
-          if (isSquareOccupied(startingPos.iRow - i, startingPos.iColumn + i))
-          {
-            bFree = false;
-            std::cout << "Diagonal path down-right is not clear!\n";
-          }
-        }
-      }
-
-      // Moving down and left
-      else if ((finishingPos.iRow < startingPos.iRow) && (finishingPos.iColumn < startingPos.iColumn))
-      {
-        // Settting bFree as initially true, only inside the cases, guarantees that the path is checked
-        bFree = true;
-
-        for (int i = 1; i < abs(finishingPos.iRow - startingPos.iRow); i++)
-        {
-          if (isSquareOccupied(startingPos.iRow - i, startingPos.iColumn - i))
-          {
-            bFree = false;
-            std::cout << "Diagonal path down-left is not clear!\n";
-          }
-        }
-      }
-
-      else
-      {
-        if (isSquareOccupied(startingPos.iRow, startingPos.iColumn))
+        if (isSquareOccupied(startingPos.iRow, i))
         {
           bFree = false;
-          //throw("Error. Diagonal move not allowed\n");
-          std::cout << "Diagonal move not allowed\n";
+          std::cout << "Horizontal path to the right is not clear!\n";
         }
       }
     }
-    break;
+
+    // Moving to the left
+    else //if (startingPos.iColumn > finishingPos.iColumn)
+    {
+      // Settting bFree as initially true, only inside the cases, guarantees that the path is checked
+      bFree = true;
+
+      for (int i = startingPos.iColumn - 1; i > finishingPos.iColumn; i--)
+      {
+        if (isSquareOccupied(startingPos.iRow, i))
+        {
+          bFree = false;
+          std::cout << "Horizontal path to the left is not clear!\n";
+        }
+      }
+    }
+  }
+  break;
+
+  case Direction::VERTICAL:
+  {
+    // If it is a vertical move, we can assume the startingPos.iColumn == finishingPos.iColumn
+    // If the piece wants to move from column 0 to column 7, we must check if columns 1-6 are free
+    if (startingPos.iRow == finishingPos.iRow)
+    {
+      std::cout << "Error. Movement is vertical but row is the same\n";
+      throw("Error. Movement is vertical but row is the same");
+    }
+
+    // Moving up
+    else if (startingPos.iRow < finishingPos.iRow)
+    {
+      // Settting bFree as initially true, only inside the cases, guarantees that the path is checked
+      bFree = true;
+
+      for (int i = startingPos.iRow + 1; i < finishingPos.iRow; i++)
+      {
+        if (isSquareOccupied(i, startingPos.iColumn))
+        {
+          bFree = false;
+          std::cout << "Vertical path up is not clear!\n";
+        }
+      }
+    }
+
+    // Moving down
+    else //if (startingPos.iColumn > finishingPos.iRow)
+    {
+      // Settting bFree as initially true, only inside the cases, guarantees that the path is checked
+      bFree = true;
+
+      for (int i = startingPos.iRow - 1; i > finishingPos.iRow; i--)
+      {
+        if (isSquareOccupied(i, startingPos.iColumn))
+        {
+          bFree = false;
+          std::cout << "Vertical path down is not clear!\n";
+        }
+      }
+    }
+  }
+  break;
+
+  case Direction::DIAGONAL:
+  {
+    // Moving up and right
+    if ((finishingPos.iRow > startingPos.iRow) && (finishingPos.iColumn > startingPos.iColumn))
+    {
+      // Settting bFree as initially true, only inside the cases, guarantees that the path is checked
+      bFree = true;
+
+      for (int i = 1; i < abs(finishingPos.iRow - startingPos.iRow); i++)
+      {
+        if (isSquareOccupied(startingPos.iRow + i, startingPos.iColumn + i))
+        {
+          bFree = false;
+          std::cout << "Diagonal path up-right is not clear!\n";
+        }
+      }
+    }
+
+    // Moving up and left
+    else if ((finishingPos.iRow > startingPos.iRow) && (finishingPos.iColumn < startingPos.iColumn))
+    {
+      // Settting bFree as initially true, only inside the cases, guarantees that the path is checked
+      bFree = true;
+
+      for (int i = 1; i < abs(finishingPos.iRow - startingPos.iRow); i++)
+      {
+        if (isSquareOccupied(startingPos.iRow + i, startingPos.iColumn - i))
+        {
+          bFree = false;
+          std::cout << "Diagonal path up-left is not clear!\n";
+        }
+      }
+    }
+
+    // Moving down and right
+    else if ((finishingPos.iRow < startingPos.iRow) && (finishingPos.iColumn > startingPos.iColumn))
+    {
+      // Settting bFree as initially true, only inside the cases, guarantees that the path is checked
+      bFree = true;
+
+      for (int i = 1; i < abs(finishingPos.iRow - startingPos.iRow); i++)
+      {
+        if (isSquareOccupied(startingPos.iRow - i, startingPos.iColumn + i))
+        {
+          bFree = false;
+          std::cout << "Diagonal path down-right is not clear!\n";
+        }
+      }
+    }
+
+    // Moving down and left
+    else if ((finishingPos.iRow < startingPos.iRow) && (finishingPos.iColumn < startingPos.iColumn))
+    {
+      // Settting bFree as initially true, only inside the cases, guarantees that the path is checked
+      bFree = true;
+
+      for (int i = 1; i < abs(finishingPos.iRow - startingPos.iRow); i++)
+      {
+        if (isSquareOccupied(startingPos.iRow - i, startingPos.iColumn - i))
+        {
+          bFree = false;
+          std::cout << "Diagonal path down-left is not clear!\n";
+        }
+      }
+    }
+
+    else
+    {
+      if (isSquareOccupied(startingPos.iRow, startingPos.iColumn))
+      {
+        bFree = false;
+        //throw("Error. Diagonal move not allowed\n");
+        std::cout << "Diagonal move not allowed\n";
+      }
+    }
+  }
+  break;
   }
 
   return bFree;
@@ -703,7 +703,7 @@ bool Logic::isReachable(int iRow, int iColumn, int iColor)
         continue;
       }
 
-      if(iColor == static_cast<int>(Piece::getColor(iPieceFound)))
+      if (iColor == static_cast<int>(Piece::getColor(iPieceFound)))
       {
         // This is a piece of the same color
         break;
@@ -908,7 +908,7 @@ bool Logic::isReachable(int iRow, int iColumn, int iColor)
       }
 
       int iPieceFound = getPieceAtPositionI(iRowToTest, iColumnToTest);
-   
+
       if (Constants::EMPTY_SQUAREI == iPieceFound)
       {
         // This square is empty, move on
@@ -1142,7 +1142,7 @@ UnderAttack Logic::isUnderAttack(int iRow, int iColumn, int iColor, IntendedMove
       //Piece* chPieceFound = getPiece_considerMove(i, iColumn, pintended_move);
       int iPieceFound = getPiece_considerMove(i, iColumn, pintended_move);
       //if (Constants::EMPTY_SQUARE == chPieceFound)
-      if(Constants::EMPTY_SQUAREI == static_cast<int>(Piece::getColor(iPieceFound)))
+      if (Constants::EMPTY_SQUAREI == static_cast<int>(Piece::getColor(iPieceFound)))
       {
         // This square is empty, move on
         continue;
@@ -1226,7 +1226,7 @@ UnderAttack Logic::isUnderAttack(int iRow, int iColumn, int iColor, IntendedMove
       }
 
       //int chPieceColor = (chPieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
-      if (iColor ==  static_cast<int>(Piece::getColor(iPieceFound)))
+      if (iColor == static_cast<int>(Piece::getColor(iPieceFound)))
       {
         // This is a piece of the same color, so no problem
         break;

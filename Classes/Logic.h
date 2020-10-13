@@ -105,9 +105,9 @@ public:
 
 protected:
   GameLayer* m_gameLayer{ nullptr };
-  
+
   std::vector<std::vector<Piece*>> m_pieces;
-  
+
   std::array<std::array<int, 8>, 8> m_boardA;
 
   std::stack<Undo> m_undos;
