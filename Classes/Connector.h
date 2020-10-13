@@ -4,7 +4,7 @@
 
 #include "cocos2d.h"
 
-class Connector: public cocos2d::Node
+class Connector : public cocos2d::Node
 {
 public:
 
