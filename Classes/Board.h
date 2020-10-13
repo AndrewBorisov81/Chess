@@ -45,3 +45,4 @@ private:
 
   cocos2d::Label* m_labelTouchInfo;
 };
+

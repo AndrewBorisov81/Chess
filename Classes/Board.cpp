@@ -29,7 +29,7 @@ bool Board::init()
 {
   Grid::init();
 
-  if (!CCLayer::init()) {
+  if (!Layer::init()) {
 
     return false;
   }
@@ -135,7 +135,7 @@ void Board::movePieceFromToN(const cocos2d::Size& presentCell, const cocos2d::Si
 void Board::updatePieceCellN(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)
 {
   Piece* piece = getPieceFromCell(presentCell.width, presentCell.height);
-  if(piece)
+  if (piece)
     piece->setCell(futureCell);
 }
 
