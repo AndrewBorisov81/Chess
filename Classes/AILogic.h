@@ -28,7 +28,7 @@ struct Castle { bool kingSide; };*/
 
 class PromptLogicHelper;
 
-class AILogic: public cocos2d::Node
+class AILogic : public cocos2d::Node
 {
 public:
   AILogic();
@@ -76,5 +76,5 @@ private:
 
   // Call backs
   std::function<bool(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> m_isMoveValideCallBack;
-  
+
 };
