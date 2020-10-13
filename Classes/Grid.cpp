@@ -16,7 +16,7 @@ Grid::Grid()
 Grid::Grid(float cellSize, int rows, int columns)
   :m_cellSize(cellSize), m_rows(rows), m_columns(columns)
 {
-  
+
 }
 
 Grid::~Grid()
@@ -26,7 +26,7 @@ Grid::~Grid()
 
 bool Grid::init()
 {
-  if (!CCLayer::init()) {
+  if (!Layer::init()) {
 
     return false;
   }

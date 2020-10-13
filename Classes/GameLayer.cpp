@@ -38,7 +38,7 @@ GameLayer::~GameLayer()
 
 bool GameLayer::init()
 {
-  if (!CCLayer::init()) {
+  if (!Layer::init()) {
 
     return false;
   }
@@ -77,10 +77,10 @@ bool GameLayer::init()
   pPieceMoveLogic->loadBoard(Constants::INITIAL_PIECE_BOARD);
 
   // CallBacks for Logic
-  pPieceMoveLogic->callBackAddPiece([this](int type, bool isWhite, const Size& futureCell) { this->m_board->addPieceN(type, isWhite, futureCell, static_cast<int>(ZOrderGame::PIECE));});
-  pPieceMoveLogic->callBackDeletePiece ([this](const Size& presentCell){ this->m_board->removePieceN(presentCell); });
+  pPieceMoveLogic->callBackAddPiece([this](int type, bool isWhite, const Size& futureCell) { this->m_board->addPieceN(type, isWhite, futureCell, static_cast<int>(ZOrderGame::PIECE)); });
+  pPieceMoveLogic->callBackDeletePiece([this](const Size& presentCell) { this->m_board->removePieceN(presentCell); });
   pPieceMoveLogic->callBackMovePiece([this](const Size& presentCell, const Size& futureCell) { this->m_board->movePieceFromToN(presentCell, futureCell); });
-  pPieceMoveLogic->callBackUndoLastMove([this](const Size& presentCell, const Size& futureCell) 
+  pPieceMoveLogic->callBackUndoLastMove([this](const Size& presentCell, const Size& futureCell)
   {
     m_promptLayer->hideRectPrompts();
     m_promptLayer->showRectPrompts();
@@ -161,7 +161,7 @@ bool GameLayer::init()
       m_promptLayer->setPositionRects(prevPos, newPos);
 
       // AI(computer)
-      if (Globals::onePlayer == true && Player::WHITE_PLAYER  != static_cast<Player>(m_pieceMoveLogic->getCurrentTurn()))
+      if (Globals::onePlayer == true && Player::WHITE_PLAYER != static_cast<Player>(m_pieceMoveLogic->getCurrentTurn()))
       {
         std::string toComputerMove;
 
@@ -216,7 +216,7 @@ bool GameLayer::init()
 
       // Show circle prompts
       auto lfCallBackIsMoveValide = [this](const Size& prevPos, const Size& newPos)->bool
-      { 
+      {
         bool isMoveValide = this->checkPieceMove(prevPos, newPos, true);
 
         return isMoveValide;
@@ -232,9 +232,9 @@ bool GameLayer::init()
 
       m_promptLayer->setPositionCircles(valideMovesPiece);
       m_promptLayer->showCirclePrompts(valideMovesPiece);
-    } 
+    }
   };
-  
+
   // Touch And Drag layer callback Udate Piece Board
   touchAndDragLayer->callBackHaveMovedPiece(lfUpdatePieceBoard);
 
@@ -266,7 +266,7 @@ bool GameLayer::init()
 }
 
 void GameLayer::update(float delta) {
-  
+
 }
 
 Board* GameLayer::createBoard(float cellSize, int rows, int columns)
@@ -411,7 +411,7 @@ void GameLayer::movePromotion(Size& present, Size& future, Promotion& promotion,
   Position ppresent;
   ppresent.iRow = present.width;
   ppresent.iColumn = present.height;
-  
+
   Position pfuture;
   pfuture.iRow = future.width;
   pfuture.iColumn = future.height;
@@ -425,7 +425,7 @@ void GameLayer::movePromotion(Size& present, Size& future, Promotion& promotion,
   int iPiece = m_pieceMoveLogic->getPieceAtPositionI(present.width, present.height);
 
   int kColor{ 1 };
-  if(static_cast<int>(Player::WHITE_PLAYER) == m_pieceMoveLogic->getCurrentTurn())
+  if (static_cast<int>(Player::WHITE_PLAYER) == m_pieceMoveLogic->getCurrentTurn())
   {
     kColor = 1;
   }
@@ -626,7 +626,7 @@ void GameLayer::makeTheMove(const Size& present, const Size& future, EnPassant* 
   {
     int iAuxPiece = m_pieceMoveLogic->getPieceAtPositionI(future.width, future.height);
 
-    if(Piece::getColor(iPiece) != Piece::getColor(iAuxPiece))
+    if (Piece::getColor(iPiece) != Piece::getColor(iAuxPiece))
     {
       //createNextMessage(Chess::describePiece(chAuxPiece) + " captured!\n");
     }
@@ -676,40 +676,40 @@ const std::vector<std::vector<Piece*>>& GameLayer::getPiece()
 Piece* GameLayer::createPieceFileName(int type, bool isWhite)
 {
   std::string fileName(Constants::WHITE_PAWN_PNG);
-  TypePiece typePiece{TypePiece::PAWN};
+  TypePiece typePiece{ TypePiece::PAWN };
 
   switch (type)
   {
-    case 1:
-      typePiece = TypePiece::ROOK;
-      fileName = (isWhite) ? Constants::WHITE_ROOK_PNG : Constants::BLACK_ROOK_PNG;
-      break;
+  case 1:
+    typePiece = TypePiece::ROOK;
+    fileName = (isWhite) ? Constants::WHITE_ROOK_PNG : Constants::BLACK_ROOK_PNG;
+    break;
 
-    case 2:
-      typePiece = TypePiece::KNIGHT;
-      fileName = (isWhite) ? Constants::WHITE_KNIGHT_PNG : Constants::BLACK_KNIGHT_PNG;
-      break;
+  case 2:
+    typePiece = TypePiece::KNIGHT;
+    fileName = (isWhite) ? Constants::WHITE_KNIGHT_PNG : Constants::BLACK_KNIGHT_PNG;
+    break;
 
-    case 3:
-      typePiece = TypePiece::BISHOP;
-      fileName = (isWhite) ? Constants::WHITE_BISHOP_PNG : Constants::BLACK_BISHOP_PNG;
-      break;
+  case 3:
+    typePiece = TypePiece::BISHOP;
+    fileName = (isWhite) ? Constants::WHITE_BISHOP_PNG : Constants::BLACK_BISHOP_PNG;
+    break;
 
-    case 4:
-      typePiece = TypePiece::QUEEN;
-      fileName = (isWhite) ? Constants::WHITE_QUEEN_PNG : Constants::BLACK_QUEEN_PNG;
-      break;
+  case 4:
+    typePiece = TypePiece::QUEEN;
+    fileName = (isWhite) ? Constants::WHITE_QUEEN_PNG : Constants::BLACK_QUEEN_PNG;
+    break;
 
-    case 5:
-      typePiece = TypePiece::KING;
-      fileName =(isWhite) ? Constants::WHITE_KING_PNG : Constants::BLACK_KING_PNG;
-      break;
+  case 5:
+    typePiece = TypePiece::KING;
+    fileName = (isWhite) ? Constants::WHITE_KING_PNG : Constants::BLACK_KING_PNG;
+    break;
 
-    case 6:
-      typePiece = TypePiece::PAWN;
-      fileName = (isWhite) ? Constants::WHITE_PAWN_PNG : Constants::BLACK_PAWN_PNG;
-      break;
- }
+  case 6:
+    typePiece = TypePiece::PAWN;
+    fileName = (isWhite) ? Constants::WHITE_PAWN_PNG : Constants::BLACK_PAWN_PNG;
+    break;
+  }
 
   Piece* pPiece = Piece::createPiece(type, isWhite, fileName);
   pPiece->setType(typePiece);
