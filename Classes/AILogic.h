@@ -3,28 +3,9 @@
 #include "cocos2d.h"
 
 #include <functional>
-//#include <variant>
 
 #include "Piece.h"
 #include "LogicData.h"
-
-/*struct Simple{ int fromx, fromy, tox, toy; };
-struct Capture { int fromx, fromy, tox, toy; bool enpassant; };
-struct Castle { bool kingSide; };*/
-
-/*class ChessMove
-{
-  std::variant<Simple, Capture, Castle> m_details;
-
-  int iPiece;
-  Player turn;
-  Position from;
-  Position to;
-
-  bool isSimple() const{ return m_details.index() == 0; };
-  bool isCapturing() const { return m_details.index() == 1; };
-  bool isCastling() const { return m_details.index() == 2; };
-};*/
 
 class PromptLogicHelper;
 
