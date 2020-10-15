@@ -91,6 +91,7 @@ list(APPEND GAME_HEADER
      Classes/HudLayer.h
      Classes/Logic.h
      Classes/Piece.h
+     Classes/PieceMove.h
      Classes/PieceMoveLogic.h
      Classes/PromotionLayer.h
      Classes/PromptLayer.h
