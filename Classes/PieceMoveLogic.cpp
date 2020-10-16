@@ -34,7 +34,14 @@ bool PieceMoveLogic::init()
 }
 
 bool PieceMoveLogic::isMoveValid(Position present, Position future, EnPassant* S_enPassant, Castling* S_castling, Promotion* S_promotion, bool checkPrompt)
+//bool PieceMoveLogic::isMoveValide(PieceMove& pieceMove)
 {
+  //----------------------------------------------------------------------------
+  // NEW NEW
+  /*Position present, future;
+  EnPassant* S_enPassant; Castling* S_castling; Promotion* S_promotion; bool checkPrompt;*/
+
+  //---------------------------------------------------------------------------
   bool bValid = false;
 
   int iPiece = getPieceAtPositionI(present.iRow, present.iColumn);
