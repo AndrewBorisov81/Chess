@@ -70,6 +70,7 @@ list(APPEND GAME_SOURCE
      Classes/HudLayer.cpp
      Classes/Logic.cpp
      Classes/Piece.cpp
+     Classes/PieceMove.cpp
      Classes/PieceMoveLogic.cpp
      Classes/PromotionLayer.cpp
      Classes/PromptLayer.cpp
