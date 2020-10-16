@@ -11,6 +11,18 @@ struct CastleT { Position king_from, king_to, castle_from, castle_to;
 struct PromotionT { Position from, to; int typeBefore, typeAfter; };
 struct IntendedT { Position from, to; int piece; };
 
+struct MoveData
+{
+  Position from, to;
+  Position king_from, king_to, castle_from, castle_to;
+
+  int piece;
+  int typeBefore, typeAfter;
+
+  bool enpassant;
+  bool kingSide;
+};
+
 class PieceMove
 {
 public:
@@ -20,5 +32,7 @@ public:
   bool isCapturing() const { return details.index() == 1; };
   bool isCastling() const { return details.index() == 2; };
   bool isPromotion() const { return details.index() == 3; };
-  bool isIntendedT() const { return details.index() == 4; };
+  bool isIntended() const { return details.index() == 4; };
+
+  void getMoveData(MoveData& moveData);
 };
