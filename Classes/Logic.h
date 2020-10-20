@@ -83,10 +83,6 @@ public:
 
   std::deque<Round> rounds;
 
-  // Save the captured pieces
-  /*std::vector<Piece*> white_captured;
-  std::vector<Piece*> black_captured;*/
-
   std::vector<int> iwhite_captured;
   std::vector<int> iblack_captured;
 
@@ -95,6 +91,7 @@ public:
   void parseMoveStringToCell(std::string move, Position* pFrom, Position* pTo);
 
   std::array<std::array<int, 8>, 8>& getBoardA();
+  void updateBoardA(int typePiece, cocos2d::Size& cellUpdate);
   void loadBoard(const int piece_board[8][8]);
 
   //Callbacks
@@ -102,6 +99,7 @@ public:
   void callBackDeletePiece(const std::function<void(const cocos2d::Size& presentCell)> deletePiece);
   void callBackMovePiece(const std::function<void(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> movePiece);
   void callBackUndoLastMove(const std::function<void(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> undoLastMove);
+  //void callBackPromotion(const std::function<int(int typePiece, bool isWhite, const cocos2d::Size& futureCell)> promotion);
 
 protected:
   GameLayer* m_gameLayer{ nullptr };
@@ -126,4 +124,5 @@ protected:
   std::function<void(int type, bool isWhite, const cocos2d::Size& futureCell)> m_addPiece{ nullptr };
   std::function<void(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> m_movePiece{ nullptr };
   std::function<void(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> m_undoLastMove{ nullptr };
+  std::function<int(int typePiece, bool isWhite, const cocos2d::Size& futureCell)> m_promotion{ nullptr };
 };

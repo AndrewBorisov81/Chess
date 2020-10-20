@@ -142,6 +142,8 @@ void Logic::movePiece(Position present, Position future, EnPassant* S_enPassant,
   {
     m_boardA[future.iRow][future.iColumn] = S_promotion->typeAfter;
 
+    S_promotion->typeBefore = iPiece;
+
     // Set Undo structure as a promotion occured
     memcpy(&curUndo.promotion, S_promotion, sizeof(Promotion));
   }
@@ -213,6 +215,8 @@ void Logic::movePiece(Position present, Position future, EnPassant* S_enPassant,
 void Logic::undoLastMove()
 {
   Undo curUndo = m_undos.top();
+
+  if (m_undos.size() <= 0) return;
 
   std::string last_move = getLastMove();
 
@@ -314,12 +318,12 @@ void Logic::undoLastMove()
   // If it was a checkmate, toggle back to game not finished
   m_bGameFinished = false;
 
-  // Finally, remove the last move from the list
-  deleteLastMove();
-
   //  CallBack
   if (m_undoLastMove)
     m_undoLastMove(Size(from.iRow, from.iColumn), Size(to.iRow, to.iColumn));
+
+  // Finally, remove the last move from the list
+  deleteLastMove();
 }
 
 void Logic::changeTurns(void)
@@ -434,6 +438,11 @@ void Logic::parseMoveStringToCell(std::string move, Position* pFrom, Position* p
 std::array<std::array<int, 8>, 8>& Logic::getBoardA()
 {
   return m_boardA;
+}
+
+void Logic::updateBoardA(int typePiece, cocos2d::Size& cellUpdate)
+{
+  m_boardA[cellUpdate.width][cellUpdate.height] = typePiece;
 }
 
 void Logic::loadBoard(const int piece_board[8][8])
@@ -1138,17 +1147,13 @@ UnderAttack Logic::isUnderAttack(int iRow, int iColumn, int iColor, IntendedMove
     // Check all the way up
     for (int i = iRow + 1; i < 8; i++)
     {
-      //char chPieceFound = getPiece_considerMove(i, iColumn, pintended_move);
-      //Piece* chPieceFound = getPiece_considerMove(i, iColumn, pintended_move);
       int iPieceFound = getPiece_considerMove(i, iColumn, pintended_move);
-      //if (Constants::EMPTY_SQUARE == chPieceFound)
       if (Constants::EMPTY_SQUAREI == static_cast<int>(Piece::getColor(iPieceFound)))
       {
         // This square is empty, move on
         continue;
       }
 
-      //int chPieceColor = (chPieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
       if (iColor == static_cast<int>(Piece::getColor(iPieceFound)))
       {
         // This is a piece of the same color, so no problem
@@ -1176,16 +1181,15 @@ UnderAttack Logic::isUnderAttack(int iRow, int iColumn, int iColor, IntendedMove
     // Check all the way down
     for (int i = iRow - 1; i >= 0; i--)
     {
-      //char chPieceFound = getPiece_considerMove(i, iColumn, pintended_move);
+      
       int iPieceFound = getPiece_considerMove(i, iColumn, pintended_move);
-      //Piece* chPieceFound = getPiece_considerMove(i, iColumn, pintended_move);
+      
       if (Constants::EMPTY_SQUAREI == iPieceFound)
       {
         // This square is empty, move on
         continue;
       }
 
-      //int chPieceColor = (chPieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
       if (iColor == static_cast<int>(Piece::getColor(iPieceFound)))
       {
         // This is a piece of the same color, so no problem
@@ -1216,16 +1220,14 @@ UnderAttack Logic::isUnderAttack(int iRow, int iColumn, int iColor, IntendedMove
     // Check the diagonal up-right
     for (int i = iRow + 1, j = iColumn + 1; i < 8 && j < 8; i++, j++)
     {
-      //Piece* chPieceFound = getPiece_considerMove(i, j, pintended_move);
       int iPieceFound = getPiece_considerMove(i, j, pintended_move);
-      //char chPieceFound = getPiece_considerMove(i, j, pintended_move);
+
       if (Constants::EMPTY_SQUAREI == abs(iPieceFound))
       {
         // This square is empty, move on
         continue;
       }
 
-      //int chPieceColor = (chPieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
       if (iColor == static_cast<int>(Piece::getColor(iPieceFound)))
       {
         // This is a piece of the same color, so no problem
@@ -1267,16 +1269,14 @@ UnderAttack Logic::isUnderAttack(int iRow, int iColumn, int iColor, IntendedMove
     // Check the diagonal up-left
     for (int i = iRow + 1, j = iColumn - 1; i < 8 && j >= 0; i++, j--)
     {
-      //char chPieceFound = getPiece_considerMove(i, j, pintended_move);
       int iPieceFound = getPiece_considerMove(i, j, pintended_move);
-      //Piece* chPieceFound = getPiece_considerMove(i, j, pintended_move);
+      
       if (Constants::EMPTY_SQUAREI == iPieceFound)
       {
         // This square is empty, move on
         continue;
       }
 
-      //int chPieceColor = (chPieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
       if (static_cast<PieceColor>(iColor) == Piece::getColor(iPieceFound))
       {
         // This is a piece of the same color, so no problem
@@ -1318,16 +1318,14 @@ UnderAttack Logic::isUnderAttack(int iRow, int iColumn, int iColor, IntendedMove
     // Check the diagonal down-right
     for (int i = iRow - 1, j = iColumn + 1; i > 0 && j < 8; i--, j++)
     {
-      //char chPieceFound = getPiece_considerMove(i, j, pintended_move);
-      //Piece* chPieceFound = getPiece_considerMove(i, j, pintended_move);
       int iPieceFound = getPiece_considerMove(i, j, pintended_move);
+
       if (Constants::EMPTY_SQUAREI == iPieceFound)
       {
         // This square is empty, move on
         continue;
       }
 
-      //int chPieceColor = (chPieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
       if (iColor == static_cast<int>(Piece::getColor(iPieceFound)))
       {
         // This is a piece of the same color, so no problem
@@ -1369,16 +1367,14 @@ UnderAttack Logic::isUnderAttack(int iRow, int iColumn, int iColor, IntendedMove
     // Check the diagonal down-left
     for (int i = iRow - 1, j = iColumn - 1; i >= 0 && j >= 0; i--, j--)
     {
-      //char chPieceFound = getPiece_considerMove(i, j, pintended_move);
-      //Piece* chPieceFound = getPiece_considerMove(i, j, pintended_move);
       int iPieceFound = getPiece_considerMove(i, j, pintended_move);
+
       if (Constants::EMPTY_SQUAREI == iPieceFound)
       {
         // This square is empty, move on
         continue;
       }
 
-      //int chPieceColor = (Piece::isWhite(iPieceFound)) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
       if (iColor == static_cast<int>(Piece::getColor(iPieceFound)))
       {
         // This is a piece of the same color, so no problem
@@ -1435,9 +1431,6 @@ UnderAttack Logic::isUnderAttack(int iRow, int iColumn, int iColor, IntendedMove
         continue;
       }
 
-      //char chPieceFound = getPiece_considerMove(iRowToTest, iColumnToTest, pintended_move);
-      //int iPieceFound = getPiece_considerMove(iRowToTest, iColumnToTest, pintended_move);
-      //Piece* chPieceFound = getPiece_considerMove(iRowToTest, iColumnToTest, pintended_move);
       int iPieceFound = getPiece_considerMove(iRowToTest, iColumnToTest, pintended_move);
       if (Constants::EMPTY_SQUAREI == iPieceFound)
       {
@@ -1445,7 +1438,6 @@ UnderAttack Logic::isUnderAttack(int iRow, int iColumn, int iColor, IntendedMove
         continue;
       }
 
-      //int chPieceColor = (chPieceFound->isWhite()) ? static_cast<int>(PieceColor::WHITE_PIECE) : static_cast<int>(PieceColor::BLACK_PIECE);
       if (iColor == static_cast<int>(Piece::getColor(iPieceFound)))
       {
         // This is a piece of the same color, so no problem
@@ -1840,4 +1832,9 @@ void Logic::callBackUndoLastMove(const std::function<void(const cocos2d::Size& p
 {
   m_undoLastMove = undoLastMove;
 }
+
+/*void Logic::callBackPromotion(const std::function<int(const cocos2d::Size& futureCell)> promotion)
+{
+  m_promotion = promotion;
+}*/
 
