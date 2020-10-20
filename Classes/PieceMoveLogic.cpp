@@ -1,7 +1,7 @@
-#include "PieceMoveLogic.h"
 #include "GameLayer.h"
-#include "TouchAndDragLayer.h"
 #include "Piece.h"
+#include "PieceMoveLogic.h"
+#include "TouchAndDragLayer.h"
 #include "Constants.h"
 
 #include <stdlib.h>
@@ -33,15 +33,8 @@ bool PieceMoveLogic::init()
   return true;
 }
 
-bool PieceMoveLogic::isMoveValid(Position present, Position future, EnPassant* S_enPassant, Castling* S_castling, Promotion* S_promotion, bool checkPrompt)
-//bool PieceMoveLogic::isMoveValide(PieceMove& pieceMove)
+bool PieceMoveLogic::isMoveValid(Position present, Position future, EnPassant* S_enPassant, Castling* S_castling, Promotion* S_promotion)
 {
-  //----------------------------------------------------------------------------
-  // NEW NEW
-  /*Position present, future;
-  EnPassant* S_enPassant; Castling* S_castling; Promotion* S_promotion; bool checkPrompt;*/
-
-  //---------------------------------------------------------------------------
   bool bValid = false;
 
   int iPiece = getPieceAtPositionI(present.iRow, present.iColumn);
@@ -129,14 +122,21 @@ bool PieceMoveLogic::isMoveValid(Position present, Position future, EnPassant* S
       {
         bValid = true;
 
-        if (!checkPrompt)
+        /*if (!onlyCheckMove)
         {
           S_enPassant->bApplied = true;
           S_enPassant->PawnCaptured.iRow = LastMoveTo.iRow;
           S_enPassant->PawnCaptured.iColumn = LastMoveTo.iColumn;
 
           //std::cout << "En passant move!\n";
-        }
+        }*/
+
+        S_enPassant->bApplied = true;
+        S_enPassant->PawnCaptured.iRow = LastMoveTo.iRow;
+        S_enPassant->PawnCaptured.iColumn = LastMoveTo.iColumn;
+
+        //std::cout << "En passant move!\n";
+
       }
       // Wants to capture a piece
       else if (1 == (abs(future.iColumn - present.iColumn)))
