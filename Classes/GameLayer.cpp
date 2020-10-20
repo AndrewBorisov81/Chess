@@ -2,6 +2,7 @@
 #include "Board.h"
 #include "Grid.h"
 #include "Piece.h"
+#include "PieceMove.h"
 #include "PieceMoveLogic.h"
 #include "AILogic.h"
 #include "TouchAndDragLayer.h"
@@ -108,15 +109,6 @@ bool GameLayer::init()
 
   AILogic->callBackGetPiece(lfGetPieceTypeColor);
 
-  // Set callBacks to touchAndDragLayer;
-  /*auto lfUpdatePieceBoard = [this](Piece* piece, Size& prevPos, Size& newPos)->bool
-  {
-    bool isMoveValid = this->checkPieceMove(prevPos, newPos);
-  }*/
-
-  // Callbacks
-  //AILogic->callBackIsMoveValide();
-
   // Creat PromptPieceLayer
   PromptLayer* promptLayer = createPromptPieceLayer(Constants::CELL_SIZE, Constants::ROWS, Constants::COLUMNS);
   promptLayer->setPosition(board->getPosition());
@@ -146,7 +138,9 @@ bool GameLayer::init()
   // Set callBacks to touchAndDragLayer;
   auto lfUpdatePieceBoard = [this](Piece* piece, Size& prevPos, Size& newPos)->void
   {
-    bool isMoveValid = this->checkPieceMove(prevPos, newPos);
+    PieceMove pieceMove;
+
+    bool isMoveValid = this->checkPieceMove(prevPos, newPos, pieceMove);
 
     m_promptLayer->hideRectPrompts();
     m_promptLayer->hideCirclePrompts();
@@ -160,8 +154,17 @@ bool GameLayer::init()
       m_promptLayer->showRectPrompts();
       m_promptLayer->setPositionRects(prevPos, newPos);
 
-      // AI(computer)
+
+      // AI(myCode)
       if (Globals::onePlayer == true && Player::WHITE_PLAYER != static_cast<Player>(m_pieceMoveLogic->getCurrentTurn()))
+      {
+        Size bestMove;
+
+        m_AILogic->getBestMove(bestMove);
+      }
+
+      // AI(computer stockfish)
+      /*if (Globals::onePlayer == true && Player::WHITE_PLAYER != static_cast<Player>(m_pieceMoveLogic->getCurrentTurn()))
       {
         std::string toComputerMove;
 
@@ -193,7 +196,7 @@ bool GameLayer::init()
           movePiece(Size(from.iRow, from.iColumn), Size(to.iRow, to.iColumn));
           m_board->movePieceFromToN(Size(from.iRow, from.iColumn), Size(to.iRow, to.iColumn));
         }
-      }
+      }*/
     }
     else
     {
@@ -217,7 +220,9 @@ bool GameLayer::init()
       // Show circle prompts
       auto lfCallBackIsMoveValide = [this](const Size& prevPos, const Size& newPos)->bool
       {
-        bool isMoveValide = this->checkPieceMove(prevPos, newPos, true);
+        PieceMove pieceMove;
+
+        bool isMoveValide = this->checkPieceMove(prevPos, newPos, pieceMove);
 
         return isMoveValide;
       };
@@ -404,86 +409,6 @@ void GameLayer::applyPromotion()
   m_promotionLayer->hide();
 }
 
-void GameLayer::movePromotion(Size& present, Size& future, Promotion& promotion, int typePromotionPiece)
-{
-  std::string to_record;
-
-  Position ppresent;
-  ppresent.iRow = present.width;
-  ppresent.iColumn = present.height;
-
-  Position pfuture;
-  pfuture.iRow = future.width;
-  pfuture.iColumn = future.height;
-
-  std::string presentStr = m_pieceMoveLogic->parseMoveCellIntToString(ppresent);
-  std::string futureStr = m_pieceMoveLogic->parseMoveCellIntToString(pfuture);
-
-  to_record += presentStr;
-  to_record += futureStr;
-
-  int iPiece = m_pieceMoveLogic->getPieceAtPositionI(present.width, present.height);
-
-  int kColor{ 1 };
-  if (static_cast<int>(Player::WHITE_PLAYER) == m_pieceMoveLogic->getCurrentTurn())
-  {
-    kColor = 1;
-  }
-  else
-  {
-    kColor = -1;
-  }
-
-  promotion.typeAfter = kColor * typePromotionPiece;
-  promotion.typeBefore = iPiece;
-
-  // ---------------------------------------------------
-  // Log the move: do it prior to making the move
-  // because we need the getCurrentTurn()
-  // ---------------------------------------------------
-  m_pieceMoveLogic->logMove(to_record);
-
-  // ---------------------------------------------------
-  // Make the move
-  // ---------------------------------------------------
-  // Is that move allowed?
-  EnPassant  S_enPassant = { 0 };
-  Castling   S_castling = { 0 };
-  makeTheMove(present, future, &S_enPassant, &S_castling, &promotion);
-
-  // ---------------------------------------------------------------
-  // Check if this move we just did put the oponent's king in check
-  // Keep in mind that player turn has already changed
-  // ---------------------------------------------------------------
-  if (true == m_pieceMoveLogic->playerKingInCheck())
-  {
-    if (true == m_pieceMoveLogic->isCheckMate())
-    {
-      if (static_cast<int>(Player::WHITE_PLAYER) == m_pieceMoveLogic->getCurrentTurn())
-      {
-        //appendToNextMessage("Checkmate! Black wins the game!\n");
-      }
-      else
-      {
-        //appendToNextMessage("Checkmate! White wins the game!\n");
-      }
-    }
-    else
-    {
-      // Add to the string with '+=' because it's possible that
-      // there is already one message (e.g., piece captured)
-      if (static_cast<int>(Player::WHITE_PLAYER) == m_pieceMoveLogic->getCurrentTurn())
-      {
-        //appendToNextMessage("White king is in check!\n");
-      }
-      else
-      {
-        //appendToNextMessage("Black king is in check!\n");
-      }
-    }
-  }
-}
-
 void GameLayer::movePiece(const Size& move_from, const Size& move_to)
 {
   std::string to_record;
@@ -537,34 +462,6 @@ void GameLayer::movePiece(const Size& move_from, const Size& move_to)
   if (false == m_pieceMoveLogic->isMoveValid(present, future, &S_enPassant, &S_castling, &S_promotion))
   {
     //createNextMessage("[Invalid] Piece can not move to that square!\n");
-    //setBackPieceToPrevPos(Piece, move_from);
-    return;
-  }
-
-  // ---------------------------------------------------
-  // Promotion: user most choose a piece to
-  // replace the pawn
-  // ---------------------------------------------------
-  if (S_promotion.bApplied == true)
-  {
-    bool isWhite = (static_cast<int>(Player::WHITE_PLAYER) == m_pieceMoveLogic->getCurrentTurn());
-
-    // Set callBack
-    auto lfHidePromotion = [this, present, future, &S_promotion](int typePiece)
-    {
-      Size sPresent(present.iRow, present.iColumn);
-      Size sFuture(future.iRow, future.iColumn);
-
-      m_board->removePieceN(sPresent);
-      m_board->addPieceN(typePiece, m_pieceMoveLogic->getOppositCurrentTurn(), sFuture, static_cast<int>(ZOrderGame::PIECE));
-
-      this->movePromotion(sPresent, sFuture, S_promotion, typePiece);
-    };
-
-    m_promotionLayer->callBackHide(lfHidePromotion);
-
-    m_promotionLayer->show(isWhite);
-
     return;
   }
 
@@ -579,6 +476,34 @@ void GameLayer::movePiece(const Size& move_from, const Size& move_to)
   // ---------------------------------------------------
 
   makeTheMove(Size(present.iRow, present.iColumn), Size(future.iRow, future.iColumn), &S_enPassant, &S_castling, &S_promotion);
+
+  // ---------------------------------------------------
+// Promotion: user most choose a piece to
+// replace the pawn
+// ---------------------------------------------------
+  if (S_promotion.bApplied == true)
+  {
+    bool isWhite = (static_cast<int>(Player::WHITE_PLAYER) == m_pieceMoveLogic->getCurrentTurn());
+
+    // Set callBack
+    auto lfHidePromotion = [this, present, future, &S_promotion, isWhite](int typePiece)
+    {
+      Size sPresent(future.iRow, future.iColumn);
+      Size sFuture(future.iRow, future.iColumn);
+
+      m_board->removePieceN(sFuture);
+      m_board->addPieceN(typePiece, m_pieceMoveLogic->getCurrentTurn(), sFuture, static_cast<int>(ZOrderGame::PIECE));
+
+      int k = (isWhite) ? -1 : 1;
+      m_pieceMoveLogic->updateBoardA(k * typePiece, sFuture);
+    };
+
+    m_promotionLayer->callBackHide(lfHidePromotion);
+
+    m_promotionLayer->show(!isWhite);
+
+    return;
+  }
 
   // ---------------------------------------------------------------
   // Check if this move we just did put the oponent's king in check
@@ -613,6 +538,12 @@ void GameLayer::movePiece(const Size& move_from, const Size& move_to)
   }
 
   return;
+}
+
+void GameLayer::promotionPiece(int typePromotion, bool isWhite, const cocos2d::Size& to)
+{
+  m_board->removePieceN(to);
+  m_board->addPieceN(typePromotion, isWhite, to, static_cast<int>(ZOrderGame::PIECE));
 }
 
 void GameLayer::makeTheMove(const Size& present, const Size& future, EnPassant* S_enPassant, Castling* S_castling, Promotion* S_promotion)
@@ -747,7 +678,7 @@ std::vector<std::vector<Piece*>> GameLayer::createPieces(const int piece_board[8
   return pieces;
 }
 
-bool GameLayer::checkPieceMove(const cocos2d::Size& prevCellIJ, const cocos2d::Size& curCellIJ, bool checkPrompt)
+bool GameLayer::checkPieceMove(const cocos2d::Size& prevCellIJ, const cocos2d::Size& curCellIJ, PieceMove& pieceMove)
 {
   EnPassant  S_enPassant = { 0 };
   Castling   S_castling = { 0 };
@@ -761,7 +692,7 @@ bool GameLayer::checkPieceMove(const cocos2d::Size& prevCellIJ, const cocos2d::S
   future.iRow = (int)(curCellIJ.width);
   future.iColumn = (int)(curCellIJ.height);
 
-  bool isMoveValid = m_pieceMoveLogic->isMoveValid(present, future, &S_enPassant, &S_castling, &S_promotion, checkPrompt);
+  bool isMoveValid = m_pieceMoveLogic->isMoveValid(present, future, &S_enPassant, &S_castling, &S_promotion);
 
   return isMoveValid;
 }

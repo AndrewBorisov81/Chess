@@ -36,8 +36,9 @@ enum class ZOrderGame
 class Board;
 class Grid;
 class Piece;
-class TouchAndDragLayer;
+class PieceMove;
 class PieceMoveLogic;
+class TouchAndDragLayer;
 class PromotionLayer;
 class PromptLayer;
 class HudLayer;
@@ -63,7 +64,9 @@ public:
 
   void movePiece(const cocos2d::Size& move_from, const cocos2d::Size& move_to);
 
-  bool checkPieceMove(const cocos2d::Size& prevCellIJ, const cocos2d::Size& curCellIJ, bool checkPrompt = false);
+  void promotionPiece(int typePromotion, bool isWhite, const cocos2d::Size& to);
+
+  bool checkPieceMove(const cocos2d::Size& prevCellIJ, const cocos2d::Size& curCellIJ, PieceMove& pieceMove);
 
   void undoMove();
 
@@ -94,22 +97,19 @@ private:
   Connector* m_connector{ nullptr };
   AILogic* m_AILogic{ nullptr };
 
+  // Created
   Grid* createGrid(float cellSize, int rows, int columns);
   Board* createBoard(float cellSize, int rows, int columns);
-
   std::vector<std::vector<Piece*>> createPieces(const int piece_board[8][8], int rows, int columns);
-
   PieceMoveLogic* createPieceMoveLogic(GameLayer* gameField);
-
-  TouchAndDragLayer* createTouchAndDragLayer(float cellSize, int rows, int columns);
   PromptLayer* createPromptPieceLayer(float cellSize, int rows, int columns);
+  TouchAndDragLayer* createTouchAndDragLayer(float cellSize, int rows, int columns);
   PromotionLayer* createPromotionLayer();
   HudLayer* createHudLayer();
   AILogic* createAILogic(Player turn);
 
   // Promotion
   void applyPromotion();
-  void movePromotion(cocos2d::Size& present, cocos2d::Size& future, Promotion& promotion, int typePromotionPiece);
 
   //to delete
   bool m_isFirstMove{ true };
