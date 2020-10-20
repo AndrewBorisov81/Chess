@@ -5,6 +5,7 @@
 #include <functional>
 
 #include "Piece.h"
+#include "PieceMove.h"
 #include "LogicData.h"
 
 class PromptLogicHelper;
@@ -27,7 +28,6 @@ public:
   void calculateBestMove(cocos2d::Size& bestMove);
 
   void getBestMove(cocos2d::Size& bestMove);
-  //void getPossibleMoves(const std::vector<cocos2d::Size>& possibleMoves, Player turn = Player::BLACK_PLAYER);
 
   float getAbsoluteValue(TypePiece typePiece, bool isWhite, int x, int y);
   float getPieceValue(TypePiece typePiece, bool isWhite, int x, int y);
@@ -35,7 +35,7 @@ public:
   void minimaxRoot();
   void minimax();
 
-  float evaluateBoard();
+  float evaluateBoard(int typePiece, cocos2d::Size& moveFrom, std::vector<cocos2d::Size> currentPossibleMoves, cocos2d::Size& bestMoveTo);
 
   void generateMoves();
   void buildMoves();

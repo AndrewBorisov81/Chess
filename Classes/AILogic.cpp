@@ -1,5 +1,6 @@
 #include "AILogic.h"
 #include "AIData.h"
+#include "PieceMove.h"
 
 #include <vector>
 
@@ -58,21 +59,26 @@ void AILogic::SwitchPawnWithFigure()
 
 void AILogic::calculateBestMove(Size& bestMove)
 {
-  std::vector<Size> valideMoves;
-
-  //getValidMoves(allPossibleMoves);
-
-  //std::vector<Size*> newGameMoves;
-  //use any negative large number
   float bestValue = -9999.0f;
 
   for (int i = 0; i < 8; i++)
     for (int j = 0; i < 8; i++)
     {
-      std::vector<cocos2d::Size> resultPossibleMovesPiece;
 
       int piece = m_callBackGetPiece(i, j);
-      m_promptLogicHelper->getPossibleMoves(piece, Size(i, j), resultPossibleMovesPiece);
+
+      Player currentTurn = (Piece::isBlack(piece)) ? Player::BLACK_PLAYER : Player::WHITE_PLAYER;
+
+      if (m_turn == currentTurn)
+      {
+        std::vector<cocos2d::Size> possibleMovesTo;
+
+        m_promptLogicHelper->getPossibleMoves(piece, Size(i, j), possibleMovesTo);
+
+        Size bestMoveTo;
+        
+        float eB = evaluateBoard(piece, Size(i, j), possibleMovesTo, bestMoveTo);
+      }
     }
 
 
@@ -100,16 +106,6 @@ void AILogic::getBestMove(Size& bestMove)
   calculateBestMove(bestMove);
 }
 
-/*void AILogic::getPossibleMoves(const std::vector<cocos2d::Size>& allPossibleMoves, Player turn)
-{
-  for (int i = 0; i < 8; i++)
-    for (int j = 0; i < 8; i++)
-    {
-      int piece = m_callBackGetPiece(i, j);
-    }
-
-}*/
-
 float AILogic::getPieceValue(TypePiece typePiece, bool isWhite, int x, int y)
 {
   float absoluteValue = getAbsoluteValue(typePiece, isWhite, x, y);
@@ -126,13 +122,23 @@ void AILogic::minimax()
 {
 }
 
-float AILogic::evaluateBoard()
+float AILogic::evaluateBoard(int typePiece, Size& moveFrom, std::vector<cocos2d::Size> possibleMovesTo, Size& bestMoveTo)
 {
   float totalEvaluation{ 0.0f };
   bool isWhite{ true };
-  TypePiece typePiece{ TypePiece::PAWN };
+  //TypePiece typePiece{ TypePiece::PAWN };
 
-  for (int i = 0; i < 8; i++) {
+  // Create simple PieceMove;
+  PieceMove pieceMove;
+  SimpleT simpleMove;
+  pieceMove.details = simpleMove;
+
+  for (auto &moveTo : possibleMovesTo)
+  {
+
+  }
+
+  /*for (int i = 0; i < 8; i++) {
     for (int j = 0; j < 8; j++) {
 
       int typePieceI = m_callBackGetPiece(i, j);
@@ -143,7 +149,7 @@ float AILogic::evaluateBoard()
 
       totalEvaluation = totalEvaluation + getPieceValue(typePiece, isWhite, i, j);
     }
-  }
+  }*/
   return totalEvaluation;
 }
 
