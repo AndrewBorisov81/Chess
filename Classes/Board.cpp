@@ -117,7 +117,30 @@ void Board::removePieceN(const cocos2d::Size& cell)
 {
   Piece* piece = getPieceFromCell(cell.width, cell.height);
 
-  this->removeChild(piece);
+  for (auto it = m_whitePieces.begin(); it != m_whitePieces.end(); /* NOTHING */)
+  {
+    Piece* curPiece = *it;
+    Size curCell = curPiece->getCell();
+
+    if (curCell.width == cell.width && curCell.height == cell.height)
+      it = m_whitePieces.erase(it);
+    else
+      ++it;
+  }
+
+  for (auto it = m_blackPieces.begin(); it != m_blackPieces.end(); /* NOTHING */)
+  {
+    Piece* curPiece = *it;
+    Size curCell = curPiece->getCell();
+
+    if (curCell.width == cell.width && curCell.height == cell.height)
+      it = m_blackPieces.erase(it);
+    else
+      ++it;
+  }
+
+  if(piece)
+    this->removeChild(piece);
 }
 
 void Board::movePieceFromToN(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)
