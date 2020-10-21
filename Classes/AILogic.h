@@ -45,17 +45,19 @@ public:
   void callBackGetPiece(const std::function<int(int x, int y)>& callBack);
 
   // Call backs
-  void getValideMoves(int typePiece, const cocos2d::Size& presentCell, std::vector<cocos2d::Size>& possibleMoves);
-  void callBackIsMoveValide(const std::function<bool(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> isMoveValide);
+  void getValideMovesCallBack(const std::function<void(int typePiece, const cocos2d::Size& presentCell, std::vector<cocos2d::Size>& possibleMoves)>& getValideMoves);
+  //void callBackIsMoveValide(const std::function<bool(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> isMoveValide);
+
+  void createTypeMoves(std::vector<cocos2d::Size>& movesFrom, std::vector<cocos2d::Size>& movesTo, std::vector<PieceMove>& pieceMoves);
 
 private:
   Player m_turn{ Player::BLACK_PLAYER };
 
-  PromptLogicHelper* m_promptLogicHelper{ nullptr };
+  //PromptLogicHelper* m_promptLogicHelper{ nullptr };
 
   std::function<int(int, int)> m_callBackGetPiece{ nullptr };
 
   // Call backs
-  std::function<bool(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> m_isMoveValideCallBack;
-
+  //std::function<bool(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> m_isMoveValideCallBack;
+  std::function<void(int typePiece, const cocos2d::Size& presentCell, std::vector<cocos2d::Size>& possibleMoves)> m_getValideMoves;
 };

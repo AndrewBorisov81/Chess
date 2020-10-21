@@ -35,11 +35,6 @@ bool AILogic::init()
     return false;
   }
 
-  // Create promptLogicHelper(get possible moves)
-  PromptLogicHelper* promptLogicHelper = PromptLogicHelper::createPromptLogicHelper();
-  m_promptLogicHelper = promptLogicHelper;
-  this->addChild(promptLogicHelper, 1);
-
   return true;
 }
 
@@ -61,31 +56,46 @@ void AILogic::calculateBestMove(Size& bestMove)
 {
   float bestValue = -9999.0f;
 
-  for (int i = 0; i < 8; i++)
-    for (int j = 0; i < 8; i++)
-    {
+  std::vector<cocos2d::Size> valideMovesFrom;
+  std::vector<cocos2d::Size> valideMovesTo;
 
+  //std::vector<PieceMove> validePieceMoves;
+
+  // Get possible moves
+  for (int i = 0; i < 8; i++)
+    for (int j = 0; j < 8; j++)
+    {
       int piece = m_callBackGetPiece(i, j);
 
-      Player currentTurn = (Piece::isBlack(piece)) ? Player::BLACK_PLAYER : Player::WHITE_PLAYER;
-
-      if (m_turn == currentTurn)
+      if (abs(piece) > 0)
       {
-        std::vector<cocos2d::Size> possibleMovesTo;
+        Player currentTurn = (Piece::isBlack(piece)) ? Player::BLACK_PLAYER : Player::WHITE_PLAYER;
 
-        m_promptLogicHelper->getPossibleMoves(piece, Size(i, j), possibleMovesTo);
+        // Get valide moves
+        std::vector<cocos2d::Size> curValideMovesTo;
 
-        Size bestMoveTo;
-        
-        float eB = evaluateBoard(piece, Size(i, j), possibleMovesTo, bestMoveTo);
+        if (m_turn == currentTurn)
+        {
+          m_getValideMoves(abs(piece), Size(i, j), curValideMovesTo);
+
+          for (auto &valideMove : curValideMovesTo)
+          {
+            valideMovesFrom.push_back(Size(i,j));
+            valideMovesTo.push_back(valideMove);
+          }
+        }
       }
     }
 
-
-  /*for (auto pieceMove : allPossibleMoves)
+  // get best move
+  for (auto &valideMove : valideMovesTo)
   {
 
-  }*/
+  }
+
+  Size bestMoveTo;
+
+  //float eB = evaluateBoard(piece, Size(i, j), possibleMovesTo, bestMoveTo);
 
   /*for (var i = 0; i < newGameMoves.length; i++) {
     var newGameMove = newGameMoves[i];
@@ -172,10 +182,12 @@ void AILogic::callBackGetPiece(const std::function<int(int x, int y)>& callBack)
   m_callBackGetPiece = callBack;
 }
 
-void AILogic::getValideMoves(int typePiece, const cocos2d::Size & presentCell, std::vector<cocos2d::Size>& valideMoves)
+void AILogic::getValideMovesCallBack(const std::function<void(int typePiece, const cocos2d::Size& presentCell, std::vector<cocos2d::Size>& possibleMoves)>& getValideMoves)
 {
+  m_getValideMoves = getValideMoves;
+
   // No check is move valide
-  std::vector<cocos2d::Size> possibleMoves;
+  /*std::vector<cocos2d::Size> possibleMoves;
 
   m_promptLogicHelper->getPossibleMoves(typePiece, presentCell, possibleMoves);
 
@@ -188,7 +200,12 @@ void AILogic::getValideMoves(int typePiece, const cocos2d::Size & presentCell, s
 
     if (isMoveValide)
       valideMoves.push_back(el);
-  }
+  }*/
+}
+
+void AILogic::createTypeMoves(std::vector<Size>& movesFrom, std::vector<Size>& movesTo, std::vector<PieceMove>& pieceMoves)
+{
+
 }
 
 float AILogic::getAbsoluteValue(TypePiece typePiece, bool isWhite, int x, int y)
@@ -215,7 +232,7 @@ float AILogic::getAbsoluteValue(TypePiece typePiece, bool isWhite, int x, int y)
   throw "Unknown piece type";
 }
 
-void AILogic::callBackIsMoveValide(const std::function<bool(const cocos2d::Size&presentCell, const cocos2d::Size&futureCell)> isMoveValideCallBack)
+/*void AILogic::callBackIsMoveValide(const std::function<bool(const cocos2d::Size&presentCell, const cocos2d::Size&futureCell)> isMoveValideCallBack)
 {
   m_isMoveValideCallBack = isMoveValideCallBack;
-}
+}*/
