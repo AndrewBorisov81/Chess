@@ -95,25 +95,13 @@ bool GameLayer::init()
   m_connector = connector;
   m_connector->ConnectToEngine("D:\\BIBAGAMES\\C++PROJECTS\\COCOS\\PROJECTS\\Chess\\proj.win32\\stockfish.exe");*/
 
-  // Create AILogic
-  AILogic* AILogic = createAILogic(Player::BLACK_PLAYER);
-  this->addChild(AILogic, 1);
-  m_AILogic = AILogic;
-
-  auto lfGetPieceTypeColor = [this](int i, int j)->int
-  {
-    int piece = m_pieceMoveLogic->getPieceAtPositionI(i, j);
-
-    return piece;
-  };
-
-  AILogic->callBackGetPiece(lfGetPieceTypeColor);
 
   // Creat PromptPieceLayer
   PromptLayer* promptLayer = createPromptPieceLayer(Constants::CELL_SIZE, Constants::ROWS, Constants::COLUMNS);
   promptLayer->setPosition(board->getPosition());
   m_promptLayer = promptLayer;
   this->addChild(promptLayer, static_cast<int>(ZOrderGame::PROMT));
+
 
   // Create Promotion Layer
   PromotionLayer* pPromotionLayer = createPromotionLayer();
@@ -128,6 +116,44 @@ bool GameLayer::init()
   };
 
   pPromotionLayer->callBackClickPiece(lfClickPiece);
+
+
+  // Create AILogic
+  AILogic* AILogic = createAILogic(Player::BLACK_PLAYER);
+  this->addChild(AILogic, 1);
+  m_AILogic = AILogic;
+
+  auto lfGetPieceTypeColor = [this](int i, int j)->int
+  {
+    int piece = m_pieceMoveLogic->getPieceAtPositionI(i, j);
+
+    return piece;
+  };
+
+  AILogic->callBackGetPiece(lfGetPieceTypeColor);
+
+  auto lfGetValideMovesAI = [this](int typePiece, const cocos2d::Size& presentCell, std::vector<cocos2d::Size>& possibleMoves)
+  {
+    if (m_promptLayer)
+    {
+      // Show circle prompts
+      auto lfCallBackIsMoveValide = [this](const Size& prevPos, const Size& newPos)->bool
+      {
+        PieceMove pieceMove;
+
+        bool isMoveValide = this->checkPieceMove(prevPos, newPos, pieceMove);
+
+        return isMoveValide;
+      };
+
+      m_promptLayer->callBackIsMoveValide(lfCallBackIsMoveValide);
+
+      m_promptLayer->getValideMoves(typePiece, presentCell, possibleMoves);
+    }
+  };
+
+  AILogic->getValideMovesCallBack(lfGetValideMovesAI);
+
 
   // Create TouchAndDragLayer
   TouchAndDragLayer* touchAndDragLayer = createTouchAndDragLayer(Constants::CELL_SIZE, Constants::ROWS, Constants::COLUMNS);
