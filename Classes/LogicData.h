@@ -22,8 +22,16 @@ enum Side
 
 struct Position
 {
-  int iRow;
-  int iColumn;
+  int iRow{ 0 };
+  int iColumn{ 0 };
+
+  /*Position() {};
+
+  Position(int row, int column)
+  {
+    iRow = row;
+    iColumn = column;
+  }*/
 };
 
 struct EnPassant
@@ -37,6 +45,7 @@ struct Castling
   bool bApplied;
   Position rook_before;
   Position rook_after;
+  bool bKingSide;
 };
 
 struct Promotion
