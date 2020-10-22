@@ -122,15 +122,6 @@ bool PieceMoveLogic::isMoveValid(Position present, Position future, EnPassant* S
       {
         bValid = true;
 
-        /*if (!onlyCheckMove)
-        {
-          S_enPassant->bApplied = true;
-          S_enPassant->PawnCaptured.iRow = LastMoveTo.iRow;
-          S_enPassant->PawnCaptured.iColumn = LastMoveTo.iColumn;
-
-          //std::cout << "En passant move!\n";
-        }*/
-
         S_enPassant->bApplied = true;
         S_enPassant->PawnCaptured.iRow = LastMoveTo.iRow;
         S_enPassant->PawnCaptured.iColumn = LastMoveTo.iColumn;
@@ -330,6 +321,8 @@ bool PieceMoveLogic::isMoveValid(Position present, Position future, EnPassant* S
             S_castling->rook_after.iRow = future.iRow;
             S_castling->rook_after.iColumn = present.iColumn + 1; // future.iColumn -1
 
+            S_castling->bKingSide = true;
+
             bValid = true;
           }
         }
@@ -359,6 +352,8 @@ bool PieceMoveLogic::isMoveValid(Position present, Position future, EnPassant* S
             // Future position of the rook
             S_castling->rook_after.iRow = future.iRow;
             S_castling->rook_after.iColumn = present.iColumn - 1; // future.iColumn +1
+
+            S_castling->bKingSide = false;
 
             bValid = true;
           }
