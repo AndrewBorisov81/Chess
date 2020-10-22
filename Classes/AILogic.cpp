@@ -4,8 +4,6 @@
 
 #include <vector>
 
-#include "PromptLogicHelper.h"
-
 USING_NS_CC;
 
 AILogic::AILogic()
@@ -87,6 +85,10 @@ void AILogic::calculateBestMove(Size& bestMove)
       }
     }
 
+  // Get type piece move
+  std::vector<PieceMove> pieceMoves;
+  getTypePieceMoves(valideMovesFrom, valideMovesTo, pieceMoves);
+
   // get best move
   for (auto &valideMove : valideMovesTo)
   {
@@ -114,6 +116,21 @@ void AILogic::calculateBestMove(Size& bestMove)
 void AILogic::getBestMove(Size& bestMove)
 {
   calculateBestMove(bestMove);
+}
+
+void AILogic::getTypePieceMoves(std::vector<cocos2d::Size>& moveFrom, std::vector<cocos2d::Size>& moveTo, std::vector<PieceMove>& pieceMoves)
+{
+  for (unsigned int i = 0; i < moveFrom.size(); i++)
+  {
+    PieceMove pieceMove;
+
+    Size movePieceFrom = moveFrom[i];
+    Size movePieceTo = moveTo[i];
+
+    m_getTypePieceMove(movePieceFrom, movePieceTo, m_turn, pieceMove);
+
+    pieceMoves.push_back(pieceMove);
+  }
 }
 
 float AILogic::getPieceValue(TypePiece typePiece, bool isWhite, int x, int y)
@@ -177,11 +194,6 @@ void AILogic::addMove()
 
 }
 
-void AILogic::callBackGetPiece(const std::function<int(int x, int y)>& callBack)
-{
-  m_callBackGetPiece = callBack;
-}
-
 void AILogic::getValideMovesCallBack(const std::function<void(int typePiece, const cocos2d::Size& presentCell, std::vector<cocos2d::Size>& possibleMoves)>& getValideMoves)
 {
   m_getValideMoves = getValideMoves;
@@ -203,10 +215,10 @@ void AILogic::getValideMovesCallBack(const std::function<void(int typePiece, con
   }*/
 }
 
-void AILogic::createTypeMoves(std::vector<Size>& movesFrom, std::vector<Size>& movesTo, std::vector<PieceMove>& pieceMoves)
+/*void AILogic::createTypeMoves(std::vector<Size>& movesFrom, std::vector<Size>& movesTo, std::vector<PieceMove>& pieceMoves)
 {
 
-}
+}*/
 
 float AILogic::getAbsoluteValue(TypePiece typePiece, bool isWhite, int x, int y)
 {
@@ -230,6 +242,16 @@ float AILogic::getAbsoluteValue(TypePiece typePiece, bool isWhite, int x, int y)
   }
 
   throw "Unknown piece type";
+}
+
+void AILogic::getTypeMoveCallBack(const std::function<void(const cocos2d::Size&from, const cocos2d::Size&to, Player turn, PieceMove&pieceMove)>& getPieceMove)
+{
+  m_getTypePieceMove = getPieceMove;
+}
+
+void AILogic::callBackGetPiece(const std::function<int(int x, int y)>& callBack)
+{
+  m_callBackGetPiece = callBack;
 }
 
 /*void AILogic::callBackIsMoveValide(const std::function<bool(const cocos2d::Size&presentCell, const cocos2d::Size&futureCell)> isMoveValideCallBack)
