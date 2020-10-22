@@ -19,6 +19,7 @@ void PieceMove::getMoveData(MoveData& moveData)
     moveData.to = captureMove.to;
 
     moveData.piece = captureMove.piece;
+    moveData.captured = captureMove.captured;
 
     moveData.enpassant = captureMove.enpassant;
   }
@@ -43,6 +44,18 @@ void PieceMove::getMoveData(MoveData& moveData)
 
     moveData.typeBefore = promotionMove.typeBefore;
     moveData.typeBefore = promotionMove.typeAfter;
+  }
+  else if (isCapturingPromotion())
+  {
+    CapturePromotionT capturePromotion = std::get<CapturePromotionT>(details);
+
+    moveData.from = capturePromotion.from;
+    moveData.to = capturePromotion.to;
+
+    moveData.typeBefore = capturePromotion.typeBefore;
+    moveData.typeBefore = capturePromotion.typeAfter;
+
+    moveData.captured = capturePromotion.captured;
   }
   else if (isIntended())
   {
