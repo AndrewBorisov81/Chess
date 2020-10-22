@@ -68,6 +68,8 @@ public:
 
   bool checkPieceMove(const cocos2d::Size& prevCellIJ, const cocos2d::Size& curCellIJ, PieceMove& pieceMove);
 
+  void getTypePieceMove(const cocos2d::Size& prevCellIJ, const cocos2d::Size& curCellIJ, Player playerTurn, PieceMove& pieceMove);
+
   void undoMove();
 
   TouchAndDragLayer* getTouchAndDragLayer();

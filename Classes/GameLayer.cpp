@@ -154,6 +154,12 @@ bool GameLayer::init()
 
   AILogic->getValideMovesCallBack(lfGetValideMovesAI);
 
+  auto lfGetTypeMoveCallBack = [this](const cocos2d::Size& moveFrom, const cocos2d::Size& moveTo, Player playerTurn, PieceMove& pieceMove)
+  {
+    this->getTypePieceMove(moveFrom, moveTo, playerTurn, pieceMove);
+  };
+
+  AILogic->getTypeMoveCallBack(lfGetTypeMoveCallBack);
 
   // Create TouchAndDragLayer
   TouchAndDragLayer* touchAndDragLayer = createTouchAndDragLayer(Constants::CELL_SIZE, Constants::ROWS, Constants::COLUMNS);
@@ -704,23 +710,79 @@ std::vector<std::vector<Piece*>> GameLayer::createPieces(const int piece_board[8
   return pieces;
 }
 
-bool GameLayer::checkPieceMove(const cocos2d::Size& prevCellIJ, const cocos2d::Size& curCellIJ, PieceMove& pieceMove)
+bool GameLayer::checkPieceMove(const cocos2d::Size& moveFrom, const cocos2d::Size& moveTo, PieceMove& pieceMove)
 {
   EnPassant  S_enPassant = { 0 };
   Castling   S_castling = { 0 };
   Promotion  S_promotion = { 0 };
 
-  Position present;
-  present.iRow = (int)(prevCellIJ.width);
-  present.iColumn = (int)(prevCellIJ.height);
-
-  Position future;
-  future.iRow = (int)(curCellIJ.width);
-  future.iColumn = (int)(curCellIJ.height);
+  Position present { (int)(moveFrom.width), (int)(moveFrom.height) };
+  Position future { (int)(moveTo.width), (int)(moveTo.height) };
 
   bool isMoveValid = m_pieceMoveLogic->isMoveValid(present, future, &S_enPassant, &S_castling, &S_promotion);
 
   return isMoveValid;
+}
+
+void GameLayer::getTypePieceMove(const cocos2d::Size& moveFrom, const cocos2d::Size& moveTo, Player turn, PieceMove& pieceMove)
+{
+  EnPassant  S_enPassant = { 0 };
+  Castling   S_castling = { 0 };
+  Promotion  S_promotion = { 0 };
+
+  Position present { (int)(moveFrom.width), (int)(moveFrom.height) };
+  Position future { (int)(moveTo.width), (int)(moveTo.height) };
+
+  m_pieceMoveLogic->isMoveValid(present, future, &S_enPassant, &S_castling, &S_promotion);
+
+  int piece = m_pieceMoveLogic->getPieceAtPositionI(moveFrom.width, moveFrom.height);
+
+  int capturedPiece = m_pieceMoveLogic->getPieceAtPositionI(moveTo.width, moveTo.height);
+
+  bool isCapturedApplied{ false };
+
+  if (m_pieceMoveLogic->getCurrentTurn() != static_cast<int>(turn))
+  {
+    isCapturedApplied = (abs(capturedPiece > 0)) ? true : false;
+  }
+
+  if (isCapturedApplied && !S_enPassant.bApplied)
+  {
+    CaptureT captureMove { present, future, piece, capturedPiece, false };
+    pieceMove.details = captureMove;
+  }
+  else if (S_enPassant.bApplied == true)
+  {
+    Position enPassant = S_enPassant.PawnCaptured;
+    int enPassantCaptured = m_pieceMoveLogic->getPieceAtPositionI(enPassant.iColumn, enPassant.iRow);
+
+    CaptureT captureMove { present, future, piece, enPassantCaptured, true };
+    pieceMove.details = captureMove;
+  }
+  else if (S_castling.bApplied == true)
+  {
+    CastleT castleMove{ present, future, S_castling.rook_before, S_castling.rook_after, S_castling.bKingSide };
+
+    pieceMove.details = castleMove;
+  }
+  else if (S_promotion.bApplied == true && !isCapturedApplied) // promotion move
+  {
+    PromotionT promotionMove { present, future, S_promotion.typeBefore, S_promotion.typeAfter };
+
+    pieceMove.details = promotionMove;
+  }
+  else if (S_promotion.bApplied == true && isCapturedApplied) // capturedPromotion move
+  {
+    CapturePromotionT capturePromotionMove{ present, future, capturedPiece, S_promotion.typeBefore, S_promotion.typeAfter };
+
+    pieceMove.details = capturePromotionMove;
+  }
+  else // simple move
+  {
+    SimpleT simpleMove {};
+
+    pieceMove.details = simpleMove;
+  }
 }
 
 void GameLayer::undoMove(void)
