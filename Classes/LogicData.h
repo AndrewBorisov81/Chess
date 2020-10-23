@@ -24,14 +24,6 @@ struct Position
 {
   int iRow{ 0 };
   int iColumn{ 0 };
-
-  /*Position() {};
-
-  Position(int row, int column)
-  {
-    iRow = row;
-    iColumn = column;
-  }*/
 };
 
 struct EnPassant
