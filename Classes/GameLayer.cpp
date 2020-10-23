@@ -779,7 +779,7 @@ void GameLayer::getTypePieceMove(const cocos2d::Size& moveFrom, const cocos2d::S
   }
   else // simple move
   {
-    SimpleT simpleMove {};
+    SimpleT simpleMove { present, future, piece };
 
     pieceMove.details = simpleMove;
   }
