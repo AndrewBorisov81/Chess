@@ -3,6 +3,7 @@
 #include "PieceMove.h"
 
 #include <vector>
+#include <limits>
 
 USING_NS_CC;
 
@@ -52,12 +53,8 @@ void AILogic::SwitchPawnWithFigure()
 
 void AILogic::calculateBestMove(Size& bestMove)
 {
-  float bestValue = -9999.0f;
-
   std::vector<cocos2d::Size> valideMovesFrom;
   std::vector<cocos2d::Size> valideMovesTo;
-
-  //std::vector<PieceMove> validePieceMoves;
 
   // Get possible moves
   for (int i = 0; i < 8; i++)
@@ -85,32 +82,76 @@ void AILogic::calculateBestMove(Size& bestMove)
       }
     }
 
+
   // Get type piece move
   std::vector<PieceMove> pieceMoves;
   getTypePieceMoves(valideMovesFrom, valideMovesTo, pieceMoves);
 
-  // get best move
-  for (auto &valideMove : valideMovesTo)
+
+  // Calculate best Move
+  float bestValue = std::numeric_limits<float>::min();
+  // to do ??????????????????????????? equalValueBestMoves get random value
+  std::vector<PieceMove> equalValueBestMoves;
+  PieceMove bestPieceMove;
+
+  for (unsigned int i = 0; i < pieceMoves.size(); i++)
   {
-
-  }
-
-  Size bestMoveTo;
-
-  //float eB = evaluateBoard(piece, Size(i, j), possibleMovesTo, bestMoveTo);
-
-  /*for (var i = 0; i < newGameMoves.length; i++) {
-    var newGameMove = newGameMoves[i];
-    game.ugly_move(newGameMove);
+    PieceMove newGameMove = pieceMoves[i];
 
     //take the negative as AI plays as black
-    var boardValue = -evaluateBoard(game.board())
-      game.undo();
+    float boardValue = -evaluateBoard(newGameMove);
+
     if (boardValue > bestValue) {
       bestValue = boardValue;
-      bestMove = newGameMove
+      bestPieceMove = newGameMove;
     }
-  }*/
+  }
+}
+
+float AILogic::evaluateBoard(const PieceMove& pieceMove)
+{
+  float totalEvaluation{ 0.0f };
+  bool isWhite{ false };
+  TypePiece typePiece{ TypePiece::PAWN };
+
+  for (int i = 0; i < 8; i++) {
+    for (int j = 0; j < 8; j++) {
+
+      int typePieceI = m_callBackGetPiece(i, j);
+
+      isWhite = Piece::isWhite(typePieceI);
+
+      typePiece = Piece::getTypeP(typePieceI);
+
+      if (pieceMove.isSimple())
+      {
+        totalEvaluation = totalEvaluation + getPieceValue(typePiece, isWhite, i, j);
+      }
+      else if (pieceMove.isCapturing())
+      {
+        //???????????????????????????
+        continue;
+      }
+      else if (pieceMove.isPromotion)
+      {
+        std::vector<TypePiece> promotionType { TypePiece::ROOK, TypePiece::BISHOP, TypePiece::KNIGHT, TypePiece::QUEEN };
+      }
+      else if (pieceMove.isCapturingPromotion)
+      {
+
+      }
+
+      //totalEvaluation = totalEvaluation + getPieceValue(typePiece, isWhite, i, j);
+    }
+  }
+  return totalEvaluation;
+}
+
+float AILogic::getPieceValue(TypePiece typePiece, bool isWhite, int x, int y)
+{
+  float absoluteValue = getAbsoluteValue(typePiece, isWhite, x, y);
+
+  return (isWhite) ? absoluteValue : -absoluteValue;
 }
 
 void AILogic::getBestMove(Size& bestMove)
@@ -133,13 +174,6 @@ void AILogic::getTypePieceMoves(std::vector<cocos2d::Size>& moveFrom, std::vecto
   }
 }
 
-float AILogic::getPieceValue(TypePiece typePiece, bool isWhite, int x, int y)
-{
-  float absoluteValue = getAbsoluteValue(typePiece, isWhite, x, y);
-
-  return (isWhite) ? absoluteValue : -absoluteValue;
-}
-
 void AILogic::minimaxRoot()
 {
 
@@ -149,36 +183,6 @@ void AILogic::minimax()
 {
 }
 
-float AILogic::evaluateBoard(int typePiece, Size& moveFrom, std::vector<cocos2d::Size> possibleMovesTo, Size& bestMoveTo)
-{
-  float totalEvaluation{ 0.0f };
-  bool isWhite{ true };
-  //TypePiece typePiece{ TypePiece::PAWN };
-
-  // Create simple PieceMove;
-  PieceMove pieceMove;
-  SimpleT simpleMove;
-  pieceMove.details = simpleMove;
-
-  for (auto &moveTo : possibleMovesTo)
-  {
-
-  }
-
-  /*for (int i = 0; i < 8; i++) {
-    for (int j = 0; j < 8; j++) {
-
-      int typePieceI = m_callBackGetPiece(i, j);
-
-      isWhite = Piece::isWhite(typePieceI);
-
-      typePiece = Piece::getTypeP(typePieceI);
-
-      totalEvaluation = totalEvaluation + getPieceValue(typePiece, isWhite, i, j);
-    }
-  }*/
-  return totalEvaluation;
-}
 
 void AILogic::generateMoves()
 {

@@ -36,7 +36,7 @@ public:
   void minimaxRoot();
   void minimax();
 
-  float evaluateBoard(int typePiece, cocos2d::Size& moveFrom, std::vector<cocos2d::Size> currentPossibleMoves, cocos2d::Size& bestMoveTo);
+  float evaluateBoard(const PieceMove& pieceMove);
 
   void generateMoves();
   void buildMoves();
