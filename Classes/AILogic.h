@@ -25,9 +25,10 @@ public:
   void PlaceFigure();
   void SwitchPawnWithFigure();
 
-  void calculateBestMove(cocos2d::Size& bestMove);
+  void calculateBestMove(std::vector<PieceMove>& buildMoves, PieceMove& resultBestPieceMove);
 
-  void getBestMove(cocos2d::Size& bestMove);
+  void getBestMove(PieceMove& bestPieceMove);
+  void getPossibleMoves(std::vector<cocos2d::Size>& valideMovesFrom, std::vector<cocos2d::Size>& valideMovesTo);
   void getTypePieceMoves(std::vector<cocos2d::Size>& moveFrom, std::vector<cocos2d::Size>& moveTo, std::vector<PieceMove>& pieceMoves);
 
   float getAbsoluteValue(TypePiece typePiece, bool isWhite, int x, int y);
@@ -36,21 +37,16 @@ public:
   void minimaxRoot();
   void minimax();
 
-  float evaluateBoard(const PieceMove& pieceMove);
+  float evaluateBoard(PieceMove& pieceMove);
 
-  void generateMoves();
-  void buildMoves();
+  void generateMoves(std::vector<cocos2d::Size>& moveFrom, std::vector<cocos2d::Size>& moveTo, std::vector<PieceMove>& pieceMoves);
+  void buildMoves(std::vector<cocos2d::Size>& moveFrom, std::vector<cocos2d::Size>& moveTo, std::vector<PieceMove>& pieceMoves);
   void addMove();
 
   // Callbacks
   void callBackGetPiece(const std::function<int(int x, int y)>& callBack);
-
-  // Call backs
   void getValideMovesCallBack(const std::function<void(int typePiece, const cocos2d::Size& presentCell, std::vector<cocos2d::Size>& possibleMoves)>& getValideMoves);
-  //void callBackIsMoveValide(const std::function<bool(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> isMoveValide);
   void getTypeMoveCallBack(const std::function<void(const cocos2d::Size& from, const cocos2d::Size& to, Player turn, PieceMove& pieceMove)>& getPieceMove);
-
-  //void createTypeMoves(std::vector<cocos2d::Size>& movesFrom, std::vector<cocos2d::Size>& movesTo, std::vector<PieceMove>& pieceMoves);
 
 private:
   Player m_turn{ Player::BLACK_PLAYER };
@@ -58,7 +54,6 @@ private:
   std::function<int(int, int)> m_callBackGetPiece{ nullptr };
 
   // Call backs
-  //std::function<bool(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> m_isMoveValideCallBack;
   std::function<void(int typePiece, const cocos2d::Size& presentCell, std::vector<cocos2d::Size>& possibleMoves)> m_getValideMoves{ nullptr };
   std::function<void(const cocos2d::Size& from, const cocos2d::Size& to, Player turn, PieceMove& pieceMove)> m_getTypePieceMove{ nullptr };
 };

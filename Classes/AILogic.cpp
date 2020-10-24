@@ -4,6 +4,8 @@
 
 #include <vector>
 #include <limits>
+#include <stdlib.h>     
+#include <time.h> 
 
 USING_NS_CC;
 
@@ -34,6 +36,8 @@ bool AILogic::init()
     return false;
   }
 
+  srand(time(NULL));
+
   return true;
 }
 
@@ -51,11 +55,30 @@ void AILogic::SwitchPawnWithFigure()
 
 }
 
-void AILogic::calculateBestMove(Size& bestMove)
+void AILogic::calculateBestMove(std::vector<PieceMove>& buildMoves, PieceMove& resBestMove)
 {
-  std::vector<cocos2d::Size> valideMovesFrom;
-  std::vector<cocos2d::Size> valideMovesTo;
+  // Calculate best Move
+  float bestValue = -9999.0f;
+  PieceMove bestMove;
 
+  for (unsigned int i = 0; i < buildMoves.size(); i++)
+  {
+    PieceMove newGameMove = buildMoves[i];
+
+    //take the negative as AI plays as black
+    float boardValue = -evaluateBoard(newGameMove);
+
+    if (boardValue > bestValue) {
+      bestValue = boardValue;
+      bestMove = newGameMove;
+    }
+  }
+
+  resBestMove = bestMove;
+}
+
+void AILogic::getPossibleMoves(std::vector<cocos2d::Size>& valideMovesFrom, std::vector<cocos2d::Size>& valideMovesTo)
+{
   // Get possible moves
   for (int i = 0; i < 8; i++)
     for (int j = 0; j < 8; j++)
@@ -75,42 +98,47 @@ void AILogic::calculateBestMove(Size& bestMove)
 
           for (auto &valideMove : curValideMovesTo)
           {
-            valideMovesFrom.push_back(Size(i,j));
+            valideMovesFrom.push_back(Size(i, j));
             valideMovesTo.push_back(valideMove);
           }
         }
       }
     }
-
-
-  // Get type piece move
-  std::vector<PieceMove> pieceMoves;
-  getTypePieceMoves(valideMovesFrom, valideMovesTo, pieceMoves);
-
-
-  // Calculate best Move
-  float bestValue = std::numeric_limits<float>::min();
-  // to do ??????????????????????????? equalValueBestMoves get random value
-  std::vector<PieceMove> equalValueBestMoves;
-  PieceMove bestPieceMove;
-
-  for (unsigned int i = 0; i < pieceMoves.size(); i++)
-  {
-    PieceMove newGameMove = pieceMoves[i];
-
-    //take the negative as AI plays as black
-    float boardValue = -evaluateBoard(newGameMove);
-
-    if (boardValue > bestValue) {
-      bestValue = boardValue;
-      bestPieceMove = newGameMove;
-    }
-  }
 }
 
-float AILogic::evaluateBoard(const PieceMove& pieceMove)
+float AILogic::evaluateBoard(PieceMove& pieceMove)
 {
   float totalEvaluation{ 0.0f };
+
+  float promotionPieceValue{ 0.0f };
+  float capturedPieceValue{ 0.0f };
+
+  MoveData moveData;
+  pieceMove.getMoveData(moveData);
+
+  Position moveTo = moveData.to;
+
+  if (pieceMove.isCapturing())
+  {
+    capturedPieceValue = getPieceValue(Piece::getTypeP(abs(moveData.captured)), Piece::isWhite(moveData.captured), moveTo.iRow, moveTo.iColumn );
+  }
+  else if (pieceMove.isPromotion())
+  {
+    std::vector<TypePiece> promotionType{ TypePiece::ROOK, TypePiece::BISHOP, TypePiece::KNIGHT, TypePiece::QUEEN };
+    int r = rand() % 4;
+    TypePiece randomPromptionPiece = promotionType[r];
+    promotionPieceValue = getPieceValue(Piece::getTypeP(abs(moveData.typeAfter)), Piece::isWhite(moveData.typeAfter), moveTo.iRow, moveTo.iColumn);
+  }
+  else if (pieceMove.isCapturingPromotion())
+  {
+    capturedPieceValue = getPieceValue(Piece::getTypeP(abs(moveData.captured)), Piece::isWhite(moveData.captured), moveTo.iRow, moveTo.iColumn);
+
+    std::vector<TypePiece> promotionType{ TypePiece::ROOK, TypePiece::BISHOP, TypePiece::KNIGHT, TypePiece::QUEEN };
+    int r = rand() % 4;
+    TypePiece randomPromptionPiece = promotionType[r];
+    promotionPieceValue = getPieceValue(Piece::getTypeP(abs(moveData.typeAfter)), Piece::isWhite(moveData.typeAfter), moveTo.iRow, moveTo.iColumn);
+  }
+
   bool isWhite{ false };
   TypePiece typePiece{ TypePiece::PAWN };
 
@@ -123,27 +151,13 @@ float AILogic::evaluateBoard(const PieceMove& pieceMove)
 
       typePiece = Piece::getTypeP(typePieceI);
 
-      if (pieceMove.isSimple())
-      {
+      if (i == moveTo.iRow && j == moveTo.iColumn)
+        totalEvaluation = totalEvaluation + getPieceValue(typePiece, isWhite, i, j) - capturedPieceValue + promotionPieceValue;
+      else
         totalEvaluation = totalEvaluation + getPieceValue(typePiece, isWhite, i, j);
-      }
-      else if (pieceMove.isCapturing())
-      {
-        //???????????????????????????
-        continue;
-      }
-      else if (pieceMove.isPromotion)
-      {
-        std::vector<TypePiece> promotionType { TypePiece::ROOK, TypePiece::BISHOP, TypePiece::KNIGHT, TypePiece::QUEEN };
-      }
-      else if (pieceMove.isCapturingPromotion)
-      {
-
-      }
-
-      //totalEvaluation = totalEvaluation + getPieceValue(typePiece, isWhite, i, j);
     }
   }
+
   return totalEvaluation;
 }
 
@@ -154,9 +168,19 @@ float AILogic::getPieceValue(TypePiece typePiece, bool isWhite, int x, int y)
   return (isWhite) ? absoluteValue : -absoluteValue;
 }
 
-void AILogic::getBestMove(Size& bestMove)
+void AILogic::getBestMove(PieceMove& bestMove)
 {
-  calculateBestMove(bestMove);
+  std::vector<cocos2d::Size> valideMovesFrom;
+  std::vector<cocos2d::Size> valideMovesTo;
+
+  getPossibleMoves(valideMovesFrom, valideMovesTo);
+
+  // Get type piece move
+  std::vector<PieceMove> pieceMoves;
+  buildMoves(valideMovesFrom, valideMovesTo, pieceMoves);
+
+  // Calculate best Move
+  calculateBestMove(pieceMoves, bestMove);
 }
 
 void AILogic::getTypePieceMoves(std::vector<cocos2d::Size>& moveFrom, std::vector<cocos2d::Size>& moveTo, std::vector<PieceMove>& pieceMoves)
@@ -181,16 +205,52 @@ void AILogic::minimaxRoot()
 
 void AILogic::minimax()
 {
+  /*positionCount++;
+  if (depth == = 0) {
+    return -evaluateBoard(game.board());
+  }
+
+  var newGameMoves = game.ugly_moves();
+
+  if (isMaximisingPlayer) {
+    var bestMove = -9999;
+    for (var i = 0; i < newGameMoves.length; i++) {
+      game.ugly_move(newGameMoves[i]);
+      bestMove = Math.max(bestMove, minimax(depth - 1, game, !isMaximisingPlayer));
+      game.undo();
+    }
+    return bestMove;
+  }
+  else {
+    var bestMove = 9999;
+    for (var i = 0; i < newGameMoves.length; i++) {
+      game.ugly_move(newGameMoves[i]);
+      bestMove = Math.min(bestMove, minimax(depth - 1, game, !isMaximisingPlayer));
+      game.undo();
+    }
+    return bestMove;
+  }*/
 }
 
 
-void AILogic::generateMoves()
+void AILogic::generateMoves(std::vector<cocos2d::Size>& moveFrom, std::vector<cocos2d::Size>& moveTo, std::vector<PieceMove>& pieceMoves)
 {
+  
 }
 
-void AILogic::buildMoves()
+void AILogic::buildMoves(std::vector<cocos2d::Size>& moveFrom, std::vector<cocos2d::Size>& moveTo, std::vector<PieceMove>& pieceMoves)
 {
+  for (unsigned int i = 0; i < moveFrom.size(); i++)
+  {
+    PieceMove pieceMove;
 
+    Size movePieceFrom = moveFrom[i];
+    Size movePieceTo = moveTo[i];
+
+    m_getTypePieceMove(movePieceFrom, movePieceTo, m_turn, pieceMove);
+
+    pieceMoves.push_back(pieceMove);
+  }
 }
 
 void AILogic::addMove()
@@ -201,28 +261,7 @@ void AILogic::addMove()
 void AILogic::getValideMovesCallBack(const std::function<void(int typePiece, const cocos2d::Size& presentCell, std::vector<cocos2d::Size>& possibleMoves)>& getValideMoves)
 {
   m_getValideMoves = getValideMoves;
-
-  // No check is move valide
-  /*std::vector<cocos2d::Size> possibleMoves;
-
-  m_promptLogicHelper->getPossibleMoves(typePiece, presentCell, possibleMoves);
-
-  for (auto el : possibleMoves)
-  {
-    bool isMoveValide{ false };
-
-    if (m_isMoveValideCallBack)
-      isMoveValide = m_isMoveValideCallBack(presentCell, el);
-
-    if (isMoveValide)
-      valideMoves.push_back(el);
-  }*/
 }
-
-/*void AILogic::createTypeMoves(std::vector<Size>& movesFrom, std::vector<Size>& movesTo, std::vector<PieceMove>& pieceMoves)
-{
-
-}*/
 
 float AILogic::getAbsoluteValue(TypePiece typePiece, bool isWhite, int x, int y)
 {
@@ -257,8 +296,3 @@ void AILogic::callBackGetPiece(const std::function<int(int x, int y)>& callBack)
 {
   m_callBackGetPiece = callBack;
 }
-
-/*void AILogic::callBackIsMoveValide(const std::function<bool(const cocos2d::Size&presentCell, const cocos2d::Size&futureCell)> isMoveValideCallBack)
-{
-  m_isMoveValideCallBack = isMoveValideCallBack;
-}*/
