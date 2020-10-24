@@ -190,9 +190,18 @@ bool GameLayer::init()
       // AI(myCode)
       if (Globals::onePlayer == true && Player::WHITE_PLAYER != static_cast<Player>(m_pieceMoveLogic->getCurrentTurn()))
       {
-        Size bestMove;
+        PieceMove bestPieceMove;
 
-        m_AILogic->getBestMove(bestMove);
+        m_AILogic->getBestMove(bestPieceMove);
+
+        MoveData bestMoveData;
+        bestPieceMove.getMoveData(bestMoveData);
+
+        Position moveFrom = bestMoveData.from;
+        Position moveTo = bestMoveData.to;
+
+        movePiece(Size(moveFrom.iRow, moveFrom.iColumn), Size(moveTo.iRow, moveTo.iColumn));
+        m_board->movePieceFromToN(Size(moveFrom.iRow, moveFrom.iColumn), Size(moveTo.iRow, moveTo.iColumn));
       }
 
       // AI(computer stockfish)
