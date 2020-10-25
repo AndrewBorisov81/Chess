@@ -143,6 +143,7 @@ float AILogic::evaluateBoard(PieceMove& pieceMove)
   pieceMove.getMoveData(moveData);
 
   Position moveTo = moveData.to;
+  Position moveFrom = moveData.from;
 
   if (pieceMove.isCapturing())
   {
@@ -175,8 +176,10 @@ float AILogic::evaluateBoard(PieceMove& pieceMove)
 
       typePiece = Piece::getTypeP(typePieceI);
 
-      if (i == moveTo.iRow && j == moveTo.iColumn)
-        totalEvaluation = totalEvaluation + getPieceValue(typePiece, isWhite, i, j) - capturedPieceValue + promotionPieceValue;
+      float testPieceValue = getPieceValue(typePiece, isWhite, i, j);
+
+      if (i == moveFrom.iRow && j == moveFrom.iColumn)
+        totalEvaluation = totalEvaluation + getPieceValue(typePiece, isWhite, moveTo.iRow, moveTo.iColumn) - capturedPieceValue + promotionPieceValue;
       else
         totalEvaluation = totalEvaluation + getPieceValue(typePiece, isWhite, i, j);
     }
