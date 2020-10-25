@@ -33,6 +33,7 @@ public:
 
   float getAbsoluteValue(TypePiece typePiece, bool isWhite, int x, int y);
   float getPieceValue(TypePiece typePiece, bool isWhite, int x, int y);
+  TypePiece generatePromotionPiece();
 
   void minimaxRoot();
   void minimax();

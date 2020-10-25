@@ -55,6 +55,32 @@ void AILogic::SwitchPawnWithFigure()
 
 }
 
+void AILogic::addMove()
+{
+
+}
+
+/*var positionCount;
+var getBestMove = function(game) {
+  if (game.game_over()) {
+    alert('Game over');
+  }
+
+  positionCount = 0;
+  var depth = parseInt($('#search-depth').find(':selected').text());
+
+  var d = new Date().getTime();
+  var bestMove = minimaxRoot(depth, game, true);
+  var d2 = new Date().getTime();
+  var moveTime = (d2 - d);
+  var positionsPerS = (positionCount * 1000 / moveTime);
+
+  $('#position-count').text(positionCount);
+  $('#time').text(moveTime / 1000 + 's');
+  $('#positions-per-s').text(positionsPerS);
+  return bestMove;
+};*/
+
 void AILogic::calculateBestMove(std::vector<PieceMove>& buildMoves, PieceMove& resBestMove)
 {
   // Calculate best Move
@@ -124,18 +150,16 @@ float AILogic::evaluateBoard(PieceMove& pieceMove)
   }
   else if (pieceMove.isPromotion())
   {
-    std::vector<TypePiece> promotionType{ TypePiece::ROOK, TypePiece::BISHOP, TypePiece::KNIGHT, TypePiece::QUEEN };
-    int r = rand() % 4;
-    TypePiece randomPromptionPiece = promotionType[r];
+    TypePiece randomPromptionPiece = generatePromotionPiece();
+
     promotionPieceValue = getPieceValue(Piece::getTypeP(abs(moveData.typeAfter)), Piece::isWhite(moveData.typeAfter), moveTo.iRow, moveTo.iColumn);
   }
   else if (pieceMove.isCapturingPromotion())
   {
     capturedPieceValue = getPieceValue(Piece::getTypeP(abs(moveData.captured)), Piece::isWhite(moveData.captured), moveTo.iRow, moveTo.iColumn);
 
-    std::vector<TypePiece> promotionType{ TypePiece::ROOK, TypePiece::BISHOP, TypePiece::KNIGHT, TypePiece::QUEEN };
-    int r = rand() % 4;
-    TypePiece randomPromptionPiece = promotionType[r];
+    TypePiece randomPromptionPiece = generatePromotionPiece();
+
     promotionPieceValue = getPieceValue(Piece::getTypeP(abs(moveData.typeAfter)), Piece::isWhite(moveData.typeAfter), moveTo.iRow, moveTo.iColumn);
   }
 
@@ -151,10 +175,13 @@ float AILogic::evaluateBoard(PieceMove& pieceMove)
 
       typePiece = Piece::getTypeP(typePieceI);
 
-      if (i == moveTo.iRow && j == moveTo.iColumn)
-        totalEvaluation = totalEvaluation + getPieceValue(typePiece, isWhite, i, j) - capturedPieceValue + promotionPieceValue;
-      else
-        totalEvaluation = totalEvaluation + getPieceValue(typePiece, isWhite, i, j);
+      if (i > 6)
+      {
+        if (i == moveTo.iRow && j == moveTo.iColumn)
+          totalEvaluation = totalEvaluation + getPieceValue(typePiece, isWhite, i, j) - capturedPieceValue + promotionPieceValue;
+        else
+          totalEvaluation = totalEvaluation + getPieceValue(typePiece, isWhite, i, j);
+      }
     }
   }
 
@@ -166,6 +193,14 @@ float AILogic::getPieceValue(TypePiece typePiece, bool isWhite, int x, int y)
   float absoluteValue = getAbsoluteValue(typePiece, isWhite, x, y);
 
   return (isWhite) ? absoluteValue : -absoluteValue;
+}
+
+TypePiece AILogic::generatePromotionPiece()
+{
+  std::vector<TypePiece> promotionType{ TypePiece::ROOK, TypePiece::BISHOP, TypePiece::KNIGHT, TypePiece::QUEEN };
+  int r = rand() % 4;
+  
+  return promotionType[r];
 }
 
 void AILogic::getBestMove(PieceMove& bestMove)
@@ -200,7 +235,21 @@ void AILogic::getTypePieceMoves(std::vector<cocos2d::Size>& moveFrom, std::vecto
 
 void AILogic::minimaxRoot()
 {
+  /*var newGameMoves = game.ugly_moves();
+  var bestMove = -9999;
+  var bestMoveFound;
 
+  for (var i = 0; i < newGameMoves.length; i++) {
+    var newGameMove = newGameMoves[i];
+    game.ugly_move(newGameMove);
+    var value = minimax(depth - 1, game, !isMaximisingPlayer);
+    game.undo();
+    if (value >= bestMove) {
+      bestMove = value;
+      bestMoveFound = newGameMove;
+    }
+  }
+  return bestMoveFound;*/
 }
 
 void AILogic::minimax()
@@ -253,11 +302,6 @@ void AILogic::buildMoves(std::vector<cocos2d::Size>& moveFrom, std::vector<cocos
   }
 }
 
-void AILogic::addMove()
-{
-
-}
-
 void AILogic::getValideMovesCallBack(const std::function<void(int typePiece, const cocos2d::Size& presentCell, std::vector<cocos2d::Size>& possibleMoves)>& getValideMoves)
 {
   m_getValideMoves = getValideMoves;
@@ -296,3 +340,4 @@ void AILogic::callBackGetPiece(const std::function<int(int x, int y)>& callBack)
 {
   m_callBackGetPiece = callBack;
 }
+
