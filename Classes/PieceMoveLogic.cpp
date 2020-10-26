@@ -114,7 +114,7 @@ bool PieceMoveLogic::isMoveValid(Position present, Position future, EnPassant* S
 
       if (abs(iLstMvPiece) != static_cast<int>(TypePiece::PAWN))
       {
-        return false;
+        bValid = false;
       }
 
       // Did the pawn have a double move forward and was it an adjacent column?
