@@ -80,6 +80,9 @@ public:
 
   Piece* createPieceFileName(int type, bool isWhite);
 
+  void forwardOneMoveLogic(PieceMove& pieceMove);
+  void undoOneMoveLogic(PieceMove& pieceMove);
+
 private:
   cocos2d::Size m_screenSize{ 0.0f, 0.0f };
   cocos2d::Size m_cellSize{ 0.0f, 0.0f };

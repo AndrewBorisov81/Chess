@@ -161,6 +161,20 @@ bool GameLayer::init()
 
   AILogic->getTypeMoveCallBack(lfGetTypeMoveCallBack);
 
+  auto lfForwardOneMoveLogic = [this](PieceMove& pieceMove)
+  {
+    this->forwardOneMoveLogic(pieceMove);
+  };
+
+  AILogic->forwardOneMoveLogicCallBack(lfForwardOneMoveLogic);
+
+  auto lfUndoOneMoveLogic = [this](PieceMove& pieceMove)
+  {
+    this->undoOneMoveLogic(pieceMove);
+  };
+
+  AILogic->forwardOneMoveLogicCallBack(lfUndoOneMoveLogic);
+
   // Create TouchAndDragLayer
   TouchAndDragLayer* touchAndDragLayer = createTouchAndDragLayer(Constants::CELL_SIZE, Constants::ROWS, Constants::COLUMNS);
   this->addChild(touchAndDragLayer, static_cast<int>(ZOrderGame::TOUCH_AND_DRAG));
@@ -687,6 +701,28 @@ Piece* GameLayer::createPieceFileName(int type, bool isWhite)
   pPiece->setType(typePiece);
 
   return pPiece;
+}
+
+void GameLayer::forwardOneMoveLogic(PieceMove& pieceMove)
+{
+  MoveData moveData;
+  pieceMove.getMoveData(moveData);
+
+  Position moveTo = moveData.to;
+
+  if(pieceMove.isSimple())
+    m_pieceMoveLogic->updateBoardA(moveData.piece, Size(moveTo.iRow, moveTo.iColumn));
+}
+
+void GameLayer::undoOneMoveLogic(PieceMove& pieceMove)
+{
+  MoveData moveData;
+  pieceMove.getMoveData(moveData);
+
+  Position moveFrom = moveData.from;
+
+  if (pieceMove.isSimple())
+    m_pieceMoveLogic->updateBoardA(moveData.piece, Size(moveFrom.iRow, moveFrom.iColumn));
 }
 
 std::vector<std::vector<Piece*>> GameLayer::createPieces(const int piece_board[8][8], int rows, int columns)
