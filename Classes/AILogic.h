@@ -35,8 +35,8 @@ public:
   float getPieceValue(TypePiece typePiece, bool isWhite, int x, int y);
   TypePiece generatePromotionPiece();
 
-  void minimaxRoot();
-  void minimax();
+  void minimaxRoot(int depth, bool isMaximisingPlayer, std::vector<PieceMove>& pieceMoves, PieceMove& resBestMove);
+  float minimax(int depth, float alpha, float beta, bool isMaximisingPlayer, float pieceMoveValue, std::vector<PieceMove>& pieceMoves);
 
   float evaluateBoard(PieceMove& pieceMove);
 

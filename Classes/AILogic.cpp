@@ -6,6 +6,7 @@
 #include <limits>
 #include <stdlib.h>     
 #include <time.h> 
+#include <algorithm>
 
 USING_NS_CC;
 
@@ -215,7 +216,9 @@ void AILogic::getBestMove(PieceMove& bestMove)
   buildMoves(valideMovesFrom, valideMovesTo, pieceMoves);
 
   // Calculate best Move
-  calculateBestMove(pieceMoves, bestMove);
+  //calculateBestMove(pieceMoves, bestMove);
+  int depth = 4;
+  minimaxRoot(depth, true, pieceMoves, bestMove);
 }
 
 void AILogic::getTypePieceMoves(std::vector<cocos2d::Size>& moveFrom, std::vector<cocos2d::Size>& moveTo, std::vector<PieceMove>& pieceMoves)
@@ -233,52 +236,85 @@ void AILogic::getTypePieceMoves(std::vector<cocos2d::Size>& moveFrom, std::vecto
   }
 }
 
-void AILogic::minimaxRoot()
+void AILogic::minimaxRoot(int depth, bool isMaximisingPlayer, std::vector<PieceMove>& pieceMoves, PieceMove& resBestMove)
 {
-  /*var newGameMoves = game.ugly_moves();
-  var bestMove = -9999;
-  var bestMoveFound;
+  float bestMoveValue = -9999.0f;
+  PieceMove bestMoveFound;
 
-  for (var i = 0; i < newGameMoves.length; i++) {
-    var newGameMove = newGameMoves[i];
-    game.ugly_move(newGameMove);
-    var value = minimax(depth - 1, game, !isMaximisingPlayer);
-    game.undo();
-    if (value >= bestMove) {
-      bestMove = value;
+  for (unsigned int i = 0; i < pieceMoves.size(); i++) {
+    PieceMove newGameMove = pieceMoves[i];
+
+    //take the negative as AI plays as black
+    float boardValue = -evaluateBoard(newGameMove);
+
+    //float value = minimax(depth - 1, -1000, 1000, !isMaximisingPlayer, boardValue, pieceMoves);
+    float value = minimax(depth - 1, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), !isMaximisingPlayer, boardValue, pieceMoves);
+
+    if (value >= bestMoveValue) {
+      bestMoveValue = value;
       bestMoveFound = newGameMove;
     }
   }
-  return bestMoveFound;*/
+
+  resBestMove = bestMoveFound;
 }
 
-void AILogic::minimax()
-{
-  /*positionCount++;
-  if (depth == = 0) {
-    return -evaluateBoard(game.board());
-  }
+int positionCount{ 0 };
 
-  var newGameMoves = game.ugly_moves();
+float AILogic::minimax(int depth, float alpha, float beta, bool isMaximisingPlayer, float pieceMoveValue, std::vector<PieceMove>& pieceMoves)
+{
+  positionCount++;
+
+  if (depth == 0) {
+    // No move, calculate only value dashboard
+    Position from{ -1, -1 }, to{ -1, -1 };
+
+    PieceMove pieceMove;
+    SimpleT simpleMove { from, to, 0 };
+
+    pieceMove.details = simpleMove;
+    
+    return -evaluateBoard(pieceMove);
+  }
 
   if (isMaximisingPlayer) {
-    var bestMove = -9999;
-    for (var i = 0; i < newGameMoves.length; i++) {
-      game.ugly_move(newGameMoves[i]);
-      bestMove = Math.max(bestMove, minimax(depth - 1, game, !isMaximisingPlayer));
-      game.undo();
+    //float bestMoveValue = -9999.0f;
+    float bestMoveValue = std::numeric_limits<float>::min();
+    for (unsigned int i = 0; i < pieceMoves.size(); i++) {
+   
+      PieceMove newGameMove = pieceMoves[i];
+
+      //take the negative as AI plays as black
+      float boardValue = -evaluateBoard(newGameMove);
+
+      bestMoveValue = std::max(bestMoveValue, minimax(depth - 1, alpha, beta, !isMaximisingPlayer, boardValue, pieceMoves));
+      
+      alpha = std::max(alpha, bestMoveValue);
+      if (beta <= alpha) {
+        return bestMoveValue;
+      }
     }
-    return bestMove;
+    return bestMoveValue;
   }
   else {
-    var bestMove = 9999;
-    for (var i = 0; i < newGameMoves.length; i++) {
-      game.ugly_move(newGameMoves[i]);
-      bestMove = Math.min(bestMove, minimax(depth - 1, game, !isMaximisingPlayer));
-      game.undo();
+    //float bestMoveValue = 9999.0f;
+    float bestMoveValue = std::numeric_limits<float>::max();
+    for (unsigned int i = 0; i < pieceMoves.size(); i++) {
+
+      PieceMove newGameMove = pieceMoves[i];
+
+      //take the negative as AI plays as black
+      float boardValue = evaluateBoard(newGameMove);
+      
+      bestMoveValue = std::min(bestMoveValue, minimax(depth - 1, alpha, beta, !isMaximisingPlayer, boardValue, pieceMoves));
+      
+      beta = std::min(beta, bestMoveValue);
+      if (beta <= alpha) {
+        return bestMoveValue;
+      }
     }
-    return bestMove;
-  }*/
+    return bestMoveValue;
+  }
 }
 
 
