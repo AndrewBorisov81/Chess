@@ -28,7 +28,8 @@ public:
   void calculateBestMove(std::vector<PieceMove>& buildMoves, PieceMove& resultBestPieceMove);
 
   void getBestMove(PieceMove& bestPieceMove);
-  void getPossibleMoves(std::vector<cocos2d::Size>& valideMovesFrom, std::vector<cocos2d::Size>& valideMovesTo);
+  void getPossibleMoves(std::vector<cocos2d::Size>& valideMovesFrom, std::vector<cocos2d::Size>& valideMovesTo, Player turn);
+  void getUglyMoves(std::vector<PieceMove>& uglyMoves);
   void getTypePieceMoves(std::vector<cocos2d::Size>& moveFrom, std::vector<cocos2d::Size>& moveTo, std::vector<PieceMove>& pieceMoves);
 
   float getAbsoluteValue(TypePiece typePiece, bool isWhite, int x, int y);
@@ -48,13 +49,16 @@ public:
   void callBackGetPiece(const std::function<int(int x, int y)>& callBack);
   void getValideMovesCallBack(const std::function<void(int typePiece, const cocos2d::Size& presentCell, std::vector<cocos2d::Size>& possibleMoves)>& getValideMoves);
   void getTypeMoveCallBack(const std::function<void(const cocos2d::Size& from, const cocos2d::Size& to, Player turn, PieceMove& pieceMove)>& getPieceMove);
+  void forwardOneMoveLogicCallBack(const std::function<void(PieceMove& pieceMove)>& forwardOneMoveLogic);
+  void undoOneMoveLogicCallBack(const std::function<void(PieceMove& pieceMove)>& undoOneMoveLogic);
 
 private:
   Player m_turn{ Player::BLACK_PLAYER };
 
-  std::function<int(int, int)> m_callBackGetPiece{ nullptr };
-
   // Call backs
+  std::function<int(int, int)> m_callBackGetPiece{ nullptr };
   std::function<void(int typePiece, const cocos2d::Size& presentCell, std::vector<cocos2d::Size>& possibleMoves)> m_getValideMoves{ nullptr };
   std::function<void(const cocos2d::Size& from, const cocos2d::Size& to, Player turn, PieceMove& pieceMove)> m_getTypePieceMove{ nullptr };
+  std::function<void(PieceMove& pieceMove)> m_forwardOneMoveLogicCallBack{ nullptr };
+  std::function<void(PieceMove& pieceMove)> m_undoOneMoveLogicCallBack{ nullptr };
 };

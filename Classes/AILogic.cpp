@@ -104,7 +104,7 @@ void AILogic::calculateBestMove(std::vector<PieceMove>& buildMoves, PieceMove& r
   resBestMove = bestMove;
 }
 
-void AILogic::getPossibleMoves(std::vector<cocos2d::Size>& valideMovesFrom, std::vector<cocos2d::Size>& valideMovesTo)
+void AILogic::getPossibleMoves(std::vector<cocos2d::Size>& valideMovesFrom, std::vector<cocos2d::Size>& valideMovesTo, Player turn)
 {
   // Get possible moves
   for (int i = 0; i < 8; i++)
@@ -119,7 +119,7 @@ void AILogic::getPossibleMoves(std::vector<cocos2d::Size>& valideMovesFrom, std:
         // Get valide moves
         std::vector<cocos2d::Size> curValideMovesTo;
 
-        if (m_turn == currentTurn)
+        if (turn == currentTurn)
         {
           m_getValideMoves(abs(piece), Size(i, j), curValideMovesTo);
 
@@ -131,6 +131,17 @@ void AILogic::getPossibleMoves(std::vector<cocos2d::Size>& valideMovesFrom, std:
         }
       }
     }
+}
+
+void AILogic::getUglyMoves(std::vector<PieceMove>& uglyMoves)
+{
+  std::vector<cocos2d::Size> uglyMovesFrom;
+  std::vector<cocos2d::Size> uglyMovesTo;
+
+  Player turn = (m_turn == Player::BLACK_PLAYER) ? Player::WHITE_PLAYER : Player::BLACK_PLAYER;
+  getPossibleMoves(uglyMovesFrom, uglyMovesTo, turn);
+
+  buildMoves(uglyMovesFrom, uglyMovesTo, uglyMoves);
 }
 
 float AILogic::evaluateBoard(PieceMove& pieceMove)
@@ -209,9 +220,9 @@ void AILogic::getBestMove(PieceMove& bestMove)
   std::vector<cocos2d::Size> valideMovesFrom;
   std::vector<cocos2d::Size> valideMovesTo;
 
-  getPossibleMoves(valideMovesFrom, valideMovesTo);
+  getPossibleMoves(valideMovesFrom, valideMovesTo, m_turn);
 
-  // Get type piece move
+  // build piece move
   std::vector<PieceMove> pieceMoves;
   buildMoves(valideMovesFrom, valideMovesTo, pieceMoves);
 
@@ -370,6 +381,16 @@ float AILogic::getAbsoluteValue(TypePiece typePiece, bool isWhite, int x, int y)
 void AILogic::getTypeMoveCallBack(const std::function<void(const cocos2d::Size&from, const cocos2d::Size&to, Player turn, PieceMove&pieceMove)>& getPieceMove)
 {
   m_getTypePieceMove = getPieceMove;
+}
+
+void AILogic::forwardOneMoveLogicCallBack(const std::function<void(PieceMove&pieceMove)>& forwardOneMoveLogic)
+{
+  m_forwardOneMoveLogicCallBack = forwardOneMoveLogic;
+}
+
+void AILogic::undoOneMoveLogicCallBack(const std::function<void(PieceMove&pieceMove)>& undoOneMoveLogic)
+{
+  m_undoOneMoveLogicCallBack = undoOneMoveLogic;
 }
 
 void AILogic::callBackGetPiece(const std::function<int(int x, int y)>& callBack)
