@@ -144,12 +144,16 @@ void Logic::movePiece(Position present, Position future, EnPassant* S_enPassant,
 
     S_promotion->typeBefore = iPiece;
 
+	m_movePiece(Size(present.iRow, present.iColumn), Size(future.iRow, future.iColumn));
+
     // Set Undo structure as a promotion occured
     memcpy(&curUndo.promotion, S_promotion, sizeof(Promotion));
   }
   else
   {
     m_boardA[future.iRow][future.iColumn] = iPiece;
+
+	m_movePiece(Size(present.iRow, present.iColumn), Size(future.iRow, future.iColumn));
 
     // Reset m_undo.promotion
     memset(&curUndo.promotion, 0, sizeof(Promotion));
