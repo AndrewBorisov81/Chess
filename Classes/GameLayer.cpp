@@ -173,7 +173,7 @@ bool GameLayer::init()
     this->undoOneMoveLogic(pieceMove);
   };
 
-  AILogic->forwardOneMoveLogicCallBack(lfUndoOneMoveLogic);
+  AILogic->undoOneMoveLogicCallBack(lfUndoOneMoveLogic);
 
   // Create TouchAndDragLayer
   TouchAndDragLayer* touchAndDragLayer = createTouchAndDragLayer(Constants::CELL_SIZE, Constants::ROWS, Constants::COLUMNS);
@@ -709,9 +709,10 @@ void GameLayer::forwardOneMoveLogic(PieceMove& pieceMove)
   pieceMove.getMoveData(moveData);
 
   Position moveTo = moveData.to;
+  Position moveFrom = moveData.from;
 
-  if(pieceMove.isSimple())
-    m_pieceMoveLogic->updateBoardA(moveData.piece, Size(moveTo.iRow, moveTo.iColumn));
+  m_pieceMoveLogic->updateBoardA(moveData.piece, Size(moveTo.iRow, moveTo.iColumn));
+  m_pieceMoveLogic->updateBoardA(0, Size(moveFrom.iRow, moveFrom.iColumn));
 }
 
 void GameLayer::undoOneMoveLogic(PieceMove& pieceMove)
@@ -719,10 +720,27 @@ void GameLayer::undoOneMoveLogic(PieceMove& pieceMove)
   MoveData moveData;
   pieceMove.getMoveData(moveData);
 
+  Position moveTo = moveData.to;
   Position moveFrom = moveData.from;
 
-  if (pieceMove.isSimple())
-    m_pieceMoveLogic->updateBoardA(moveData.piece, Size(moveFrom.iRow, moveFrom.iColumn));
+  bool isCaptured { false };
+  isCaptured = (moveData.captured && abs(moveData.captured) > 0) ? true : false;
+
+  if (isCaptured || pieceMove.isCapturingPromotion())
+  {
+	  // ?????????????????????????? CheckThis
+	  m_pieceMoveLogic->updateBoardA(moveData.captured, Size(moveTo.iRow, moveTo.iColumn));
+  }
+  else if (pieceMove.isPromotion())
+  {
+	  m_pieceMoveLogic->updateBoardA(moveData.typeBefore, Size(moveTo.iRow, moveTo.iColumn));
+  }
+  else if(pieceMove.isSimple())
+  {
+	  m_pieceMoveLogic->updateBoardA(0, Size(moveTo.iRow, moveTo.iColumn));
+  }
+
+  m_pieceMoveLogic->updateBoardA(moveData.piece, Size(moveFrom.iRow, moveFrom.iColumn));
 }
 
 std::vector<std::vector<Piece*>> GameLayer::createPieces(const int piece_board[8][8], int rows, int columns)
@@ -786,7 +804,7 @@ void GameLayer::getTypePieceMove(const cocos2d::Size& moveFrom, const cocos2d::S
 
   bool isCapturedApplied{ false };
 
-  if (m_pieceMoveLogic->getCurrentTurn() != static_cast<int>(turn))
+  if (m_pieceMoveLogic->getCurrentTurn() == static_cast<int>(turn))
   {
     isCapturedApplied = (abs(capturedPiece > 0)) ? true : false;
   }
