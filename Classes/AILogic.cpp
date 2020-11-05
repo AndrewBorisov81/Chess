@@ -238,9 +238,9 @@ void AILogic::getBestMove(PieceMove& bestMove)
   buildMoves(valideMovesFrom, valideMovesTo, pieceMoves);
 
   // Calculate best Move
-  calculateBestMove(pieceMoves, bestMove);
-  //int depth = 3;
-  //minimaxRoot(depth, true, pieceMoves, bestMove);
+  //calculateBestMove(pieceMoves, bestMove);
+  int depth = 3;
+  minimaxRoot(depth, true, pieceMoves, bestMove);
 }
 
 void AILogic::getTypePieceMoves(std::vector<cocos2d::Size>& moveFrom, std::vector<cocos2d::Size>& moveTo, std::vector<PieceMove>& pieceMoves)
