@@ -117,6 +117,9 @@ void Board::removePieceN(const cocos2d::Size& cell)
 {
   Piece* piece = getPieceFromCell(cell.width, cell.height);
 
+  if (piece == nullptr)
+	  return;
+
   for (auto it = m_whitePieces.begin(); it != m_whitePieces.end(); /* NOTHING */)
   {
     Piece* curPiece = *it;
