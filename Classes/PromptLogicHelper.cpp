@@ -192,7 +192,7 @@ void PromptLogicHelper::getPossibleMovesPawnKing(int iRow, int iColumn, std::vec
   }
 }
 
-void PromptLogicHelper::callBackIsMoveValide(const std::function<void(const cocos2d::Size&presentCell, const cocos2d::Size&futureCell)> isMoveValide)
+/*void PromptLogicHelper::callBackIsMoveValide(const std::function<void(const cocos2d::Size&presentCell, const cocos2d::Size&futureCell)> isMoveValide)
 {
   m_isMoveValideCallback = isMoveValide;
-}
+}*/

@@ -23,8 +23,8 @@ public:
   void getPossibleMovesPawnKing(int iRow, int iColumn, std::vector<cocos2d::Size>& resultPossibleMovesPiece, cocos2d::Size* piece_moves, int size);
 
   // CallBack
-  void callBackIsMoveValide(const std::function<void(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> isMoveValide);
+  //void callBackIsMoveValide(const std::function<void(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> isMoveValide);
 
 private:
-  std::function<void(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> m_isMoveValideCallback{ nullptr };
+  //std::function<void(const cocos2d::Size& presentCell, const cocos2d::Size& futureCell)> m_isMoveValideCallback{ nullptr };
 };
