@@ -121,7 +121,8 @@ void PromptLayer::getValideMoves(int typePiece, const cocos2d::Size& presentCell
   // No check is move valide
   std::vector<cocos2d::Size> possibleMoves;
 
-  m_promptLogicHelper->getPossibleMoves(typePiece, presentCell, possibleMoves);
+  if (m_promptLogicHelper)
+    m_promptLogicHelper->getPossibleMoves(typePiece, presentCell, possibleMoves);
 
   for (auto el : possibleMoves)
   {
