@@ -23,6 +23,7 @@
 #include <string>
 #include <stdlib.h>
 #include <vector>
+#include <ctime>
 
 USING_NS_CC;
 using namespace cocos2d::ui;
@@ -215,7 +216,7 @@ bool GameLayer::init()
         Position moveTo = bestMoveData.to;
 
         movePiece(Size(moveFrom.iRow, moveFrom.iColumn), Size(moveTo.iRow, moveTo.iColumn));
-        m_board->movePieceFromToN(Size(moveFrom.iRow, moveFrom.iColumn), Size(moveTo.iRow, moveTo.iColumn));
+        //m_board->movePieceFromToN(Size(moveFrom.iRow, moveFrom.iColumn), Size(moveTo.iRow, moveTo.iColumn));
       }
 
       // AI(computer stockfish)
@@ -540,22 +541,43 @@ void GameLayer::movePiece(const Size& move_from, const Size& move_to)
   {
     bool isWhite = (static_cast<int>(Player::WHITE_PLAYER) == m_pieceMoveLogic->getCurrentTurn());
 
-    // Set callBack
-    auto lfHidePromotion = [this, present, future, &S_promotion, isWhite](int typePiece)
-    {
-      Size sPresent(future.iRow, future.iColumn);
-      Size sFuture(future.iRow, future.iColumn);
+	if (!Globals::onePlayer)
+	{
+		// Set callBack
+		auto lfHidePromotion = [this, present, future, &S_promotion, isWhite](int typePiece)
+		{
+			Size sPresent(future.iRow, future.iColumn);
+			Size sFuture(future.iRow, future.iColumn);
 
-      m_board->removePieceN(sFuture);
-      m_board->addPieceN(typePiece, m_pieceMoveLogic->getCurrentTurn(), sFuture, static_cast<int>(ZOrderGame::PIECE));
+			m_board->removePieceN(sFuture);
+			m_board->addPieceN(typePiece, m_pieceMoveLogic->getCurrentTurn(), sFuture, static_cast<int>(ZOrderGame::PIECE));
 
-      int k = (isWhite) ? -1 : 1;
-      m_pieceMoveLogic->updateBoardA(k * typePiece, sFuture);
-    };
+			int k = (isWhite) ? -1 : 1;
+			m_pieceMoveLogic->updateBoardA(k * typePiece, sFuture);
+		};
 
-    m_promotionLayer->callBackHide(lfHidePromotion);
+		m_promotionLayer->callBackHide(lfHidePromotion);
 
-    m_promotionLayer->show(!isWhite);
+		m_promotionLayer->show(!isWhite);
+	}
+	else 
+	{
+		//Get random figure KNIGHT, ROOK, QUEEN, BISHOP
+		TypePiece randomPiece { TypePiece::KNIGHT };
+		std::array<TypePiece, 4> pieceTypes{ TypePiece::ROOK, TypePiece::KNIGHT, TypePiece::BISHOP, TypePiece::QUEEN };
+		int r = rand() % 4;
+		int randomTypePiece = static_cast<int>(pieceTypes[r]);
+
+		Size sPresent(future.iRow, future.iColumn);
+		Size sFuture(future.iRow, future.iColumn);
+
+		m_board->removePieceN(sFuture);
+		m_board->addPieceN(randomTypePiece, m_pieceMoveLogic->getCurrentTurn(), sFuture, static_cast<int>(ZOrderGame::PIECE));
+
+		int k = (isWhite) ? -1 : 1;
+		m_pieceMoveLogic->updateBoardA(k * randomTypePiece, sFuture);
+	}
+    
 
     return;
   }
