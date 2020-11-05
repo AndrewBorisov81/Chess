@@ -92,6 +92,10 @@ void AILogic::calculateBestMove(std::vector<PieceMove>& buildMoves, PieceMove& r
   {
     PieceMove newGameMove = buildMoves[i];
 
+	// Forward one move
+	if (m_forwardOneMoveLogicCallBack)
+		m_forwardOneMoveLogicCallBack(newGameMove);
+
     //take the negative as AI plays as black
     float boardValue = -evaluateBoard(newGameMove);
 
@@ -99,6 +103,10 @@ void AILogic::calculateBestMove(std::vector<PieceMove>& buildMoves, PieceMove& r
       bestValue = boardValue;
       bestMove = newGameMove;
     }
+
+	// Undo one move
+	if (m_undoOneMoveLogicCallBack)
+		m_undoOneMoveLogicCallBack(newGameMove);
   }
 
   resBestMove = bestMove;
@@ -133,8 +141,11 @@ void AILogic::getPossibleMoves(std::vector<cocos2d::Size>& valideMovesFrom, std:
     }
 }
 
-void AILogic::getUglyMoves(std::vector<PieceMove>& uglyMoves)
+void AILogic::getUglyMoves(PieceMove& forwardMove, std::vector<PieceMove>& uglyMoves)
 {
+  // Make one forward move and calculate ugly moves
+  //m_forwardOneMoveLogicCallBack(forwardMove);
+
   std::vector<cocos2d::Size> uglyMovesFrom;
   std::vector<cocos2d::Size> uglyMovesTo;
 
@@ -227,9 +238,9 @@ void AILogic::getBestMove(PieceMove& bestMove)
   buildMoves(valideMovesFrom, valideMovesTo, pieceMoves);
 
   // Calculate best Move
-  //calculateBestMove(pieceMoves, bestMove);
-  int depth = 4;
-  minimaxRoot(depth, true, pieceMoves, bestMove);
+  calculateBestMove(pieceMoves, bestMove);
+  //int depth = 3;
+  //minimaxRoot(depth, true, pieceMoves, bestMove);
 }
 
 void AILogic::getTypePieceMoves(std::vector<cocos2d::Size>& moveFrom, std::vector<cocos2d::Size>& moveTo, std::vector<PieceMove>& pieceMoves)
@@ -255,16 +266,33 @@ void AILogic::minimaxRoot(int depth, bool isMaximisingPlayer, std::vector<PieceM
   for (unsigned int i = 0; i < pieceMoves.size(); i++) {
     PieceMove newGameMove = pieceMoves[i];
 
-    //take the negative as AI plays as black
-    float boardValue = -evaluateBoard(newGameMove);
+    // Forward one move
+    if(m_forwardOneMoveLogicCallBack)
+      m_forwardOneMoveLogicCallBack(newGameMove);
 
-    //float value = minimax(depth - 1, -1000, 1000, !isMaximisingPlayer, boardValue, pieceMoves);
-    float value = minimax(depth - 1, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), !isMaximisingPlayer, boardValue, pieceMoves);
+    std::vector<PieceMove> uglyMoves;
+    getUglyMoves(newGameMove, uglyMoves);
 
-    if (value >= bestMoveValue) {
-      bestMoveValue = value;
-      bestMoveFound = newGameMove;
+    for (unsigned int j = 0; j < uglyMoves.size(); j++)
+    {
+      PieceMove newUglyMove = uglyMoves[j];
+      //take the negative as AI plays as black
+      float boardValue = -evaluateBoard(newUglyMove);
+
+      //float value = minimax(depth - 1, -1000, 1000, !isMaximisingPlayer, boardValue, pieceMoves);
+      //float value = minimax(depth - 1, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), !isMaximisingPlayer, boardValue, pieceMoves);
+      float value = minimax(depth - 1, std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), !isMaximisingPlayer, boardValue, uglyMoves);
+      //float value = 0.0f;
+
+      if (value >= bestMoveValue) {
+        bestMoveValue = value;
+        bestMoveFound = newGameMove;
+      }
     }
+
+    // Undo one move
+    if(m_undoOneMoveLogicCallBack)
+      m_undoOneMoveLogicCallBack(newGameMove);
   }
 
   resBestMove = bestMoveFound;
@@ -295,15 +323,31 @@ float AILogic::minimax(int depth, float alpha, float beta, bool isMaximisingPlay
    
       PieceMove newGameMove = pieceMoves[i];
 
-      //take the negative as AI plays as black
-      float boardValue = -evaluateBoard(newGameMove);
+      // Forward one move
+      if(m_forwardOneMoveLogicCallBack)
+        m_forwardOneMoveLogicCallBack(newGameMove);
 
-      bestMoveValue = std::max(bestMoveValue, minimax(depth - 1, alpha, beta, !isMaximisingPlayer, boardValue, pieceMoves));
-      
-      alpha = std::max(alpha, bestMoveValue);
-      if (beta <= alpha) {
-        return bestMoveValue;
+      std::vector<PieceMove> uglyMoves;
+      getUglyMoves(newGameMove, uglyMoves);
+
+      for (unsigned int j = 0; j < uglyMoves.size(); j++)
+      {
+        PieceMove newUglyMove = uglyMoves[j];
+
+        //take the negative as AI plays as black
+        float boardValue = -evaluateBoard(newUglyMove);
+
+        bestMoveValue = std::max(bestMoveValue, minimax(depth - 1, alpha, beta, !isMaximisingPlayer, boardValue, uglyMoves));
+
+        alpha = std::max(alpha, bestMoveValue);
+        if (beta <= alpha) {
+          return bestMoveValue;
+        }
       }
+
+      // Undo one move
+      if(m_undoOneMoveLogicCallBack)
+        m_undoOneMoveLogicCallBack(newGameMove);
     }
     return bestMoveValue;
   }
@@ -314,15 +358,31 @@ float AILogic::minimax(int depth, float alpha, float beta, bool isMaximisingPlay
 
       PieceMove newGameMove = pieceMoves[i];
 
-      //take the negative as AI plays as black
-      float boardValue = evaluateBoard(newGameMove);
-      
-      bestMoveValue = std::min(bestMoveValue, minimax(depth - 1, alpha, beta, !isMaximisingPlayer, boardValue, pieceMoves));
-      
-      beta = std::min(beta, bestMoveValue);
-      if (beta <= alpha) {
-        return bestMoveValue;
+      // Forward one move
+      if(m_forwardOneMoveLogicCallBack)
+        m_forwardOneMoveLogicCallBack(newGameMove);
+
+      std::vector<PieceMove> uglyMoves;
+      getUglyMoves(newGameMove, uglyMoves);
+
+      for (unsigned int j = 0; j < uglyMoves.size(); j++)
+      {
+        PieceMove newUglyMove = uglyMoves[j];
+
+        //take the negative as AI plays as black
+        float boardValue = evaluateBoard(newUglyMove);
+
+        bestMoveValue = std::min(bestMoveValue, minimax(depth - 1, alpha, beta, !isMaximisingPlayer, boardValue, uglyMoves));
+
+        beta = std::min(beta, bestMoveValue);
+        if (beta <= alpha) {
+          return bestMoveValue;
+        }
       }
+
+      // Undo one move
+      if(m_undoOneMoveLogicCallBack)
+        m_undoOneMoveLogicCallBack(newGameMove);
     }
     return bestMoveValue;
   }
@@ -343,7 +403,8 @@ void AILogic::buildMoves(std::vector<cocos2d::Size>& moveFrom, std::vector<cocos
     Size movePieceFrom = moveFrom[i];
     Size movePieceTo = moveTo[i];
 
-    m_getTypePieceMove(movePieceFrom, movePieceTo, m_turn, pieceMove);
+    if(m_getTypePieceMove)
+      m_getTypePieceMove(movePieceFrom, movePieceTo, m_turn, pieceMove);
 
     pieceMoves.push_back(pieceMove);
   }

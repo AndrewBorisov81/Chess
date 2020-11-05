@@ -29,7 +29,7 @@ public:
 
   void getBestMove(PieceMove& bestPieceMove);
   void getPossibleMoves(std::vector<cocos2d::Size>& valideMovesFrom, std::vector<cocos2d::Size>& valideMovesTo, Player turn);
-  void getUglyMoves(std::vector<PieceMove>& uglyMoves);
+  void getUglyMoves(PieceMove& forwardMove, std::vector<PieceMove>& uglyMoves);
   void getTypePieceMoves(std::vector<cocos2d::Size>& moveFrom, std::vector<cocos2d::Size>& moveTo, std::vector<PieceMove>& pieceMoves);
 
   float getAbsoluteValue(TypePiece typePiece, bool isWhite, int x, int y);
