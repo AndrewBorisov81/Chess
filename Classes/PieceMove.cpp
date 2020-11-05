@@ -2,6 +2,10 @@
 
 void PieceMove::getMoveData(MoveData& moveData)
 {
+
+  // init moveData
+  initMoveData(moveData);
+
   if (isSimple())
   {
     SimpleT simpleMove = std::get<SimpleT>(details);
@@ -66,4 +70,15 @@ void PieceMove::getMoveData(MoveData& moveData)
 
     moveData.piece = intendedMove.piece;
   }
+}
+
+void PieceMove::initMoveData(MoveData& moveData)
+{
+	moveData.piece = 0;
+	moveData.typeBefore = 0;
+	moveData.typeAfter = 0;
+	moveData.captured = 0;
+
+	moveData.enpassant = false;
+	moveData.kingSide = false;
 }

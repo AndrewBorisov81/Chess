@@ -38,4 +38,5 @@ public:
   bool isIntended() const { return details.index() == 5; };
 
   void getMoveData(MoveData& moveData);
+  void initMoveData(MoveData& moveData);
 };
